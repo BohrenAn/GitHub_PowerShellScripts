@@ -46,7 +46,7 @@ Foreach ($MBX in $Mailboxes)
 {
 	$Int = $Int +1
 	$PrimarySMTPAddress = $MBX.PrimarySMTPAddress
-	Write-Host "Working on: $PrimarySMTPAddress [int]" -ForeGroundColor Green
+	Write-Host "Working on: $PrimarySMTPAddress [$int]" -ForeGroundColor Green
 	
 	#Get Emailadresses
 	$ArrayEmailAddresses = $MBX.EmailAddresses
