@@ -2,6 +2,7 @@
 # CheckPlusEmailAddresses.ps1
 # Checks the Mailboxes for "+" Character in SMTP EmailAddresses
 # 22.08.2021 Initial Version - Andres Bohren
+# 13.09.2021 Using now the Get-EXOMailbox - Andres Bohren
 ###############################################################################
 #Requires -Modules ExchangeOnlineManagement
 
@@ -25,7 +26,8 @@ If ($Null -eq $session)
 }
 
 #Getting Mailboxes
-$Mailboxes = Get-Mailbox -ResultSize Unlimited
+Write-Host "Getting Mailboxes..."
+$Mailboxes = Get-EXOMailbox -ResultSize Unlimited
 
 #Output File in ScriptDirectory
 $OutputFile = $PSScriptRoot + "\CheckPlusEmailAddresses.csv"
