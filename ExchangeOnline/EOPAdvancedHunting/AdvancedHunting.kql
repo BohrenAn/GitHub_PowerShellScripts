@@ -1,0 +1,141 @@
+// ############################################################################
+// Defender for O365 - Advanced Hunting with KQL Querys
+// 16.02.2022 V1.0 - Initial Version - Andres Bohren
+// ############################################################################
+
+//Alerts
+AlertInfo | where Timestamp > ago(30d) 
+
+// Alert Summary by Severity
+AlertInfo | summarize Total = count() by Severity
+
+//IdentityInfo
+IdentityInfo | where AccountUpn == 'a.bohren@icewolf.ch' 
+| distinct AccountName, AccountUpn, GivenName, EmailAddress , Surname, AccountDomain,OnPremSid, CloudSid, IsAccountEnabled
+
+//EmailEvents
+let UserToAnalyze="a.bohren@icewolf.ch";
+EmailEvents
+| where RecipientEmailAddress==UserToAnalyze
+| project RecipientEmailAddress, ThreatTypes
+| evaluate pivot(ThreatTypes)
+| render columnchart    
+
+//Inbound Mailcount by Date
+EmailEvents | where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+//and RecipientEmailAddress  == 'a.bohren@icewolf.ch'
+| summarize count () by bin(Timestamp, 1d)
+| render linechart 
+
+//Top 10 Phishing Domains
+EmailEvents
+| where ThreatTypes has "Phish" 
+| summarize Count = count() by SenderFromDomain 
+| top 10 by Count
+| render piechart
+
+//Inbound Mails by Delivery Action
+EmailEvents
+| where EmailDirection == "Inbound"
+| summarize count () by bin(Timestamp, 1d), DeliveryAction
+| render linechart 
+
+// JNLP File Attachment
+EmailAttachmentInfo
+| where FileName endswith ".jnlp"
+
+//Attachment = *.docx
+EmailAttachmentInfo 
+| where Timestamp > ago(30d) 
+| where FileName like '.docx' | summarize count()
+
+//Attachment FileType
+EmailAttachmentInfo
+| where Timestamp > ago(30d)
+| summarize count() by FileType
+| sort by count_ desc
+
+//Attachment FileType by Timestamp linechart
+EmailAttachmentInfo
+| where Timestamp > ago(30d)
+| summarize count() by FileType, bin(Timestamp, 1d)
+| render linechart 
+
+//Attachment FileType piechart
+EmailAttachmentInfo
+| where Timestamp > ago(30d)
+| summarize count() by FileType
+| order by count_
+| render piechart
+//MacroDocuments
+let OfficeMacroFiles = dynamic([".docm",".dotm",".ppsm",".pptm",".potm",".xlam",".xlsm",".xltm",".xlw"]);
+EmailAttachmentInfo | where Timestamp > ago(30d) | where FileName has_any (OfficeMacroFiles) | summarize count() by FileType | order by count_
+
+//Attachment by FileType
+EmailAttachmentInfo
+| summarize count () by bin(Timestamp, 1d), FileType
+| render linechart 
+
+//SPF,DKIM,DMARC,CompAuth
+EmailEvents
+| where Timestamp > ago(30d) 
+| extend AuthDetails = parse_json(AuthenticationDetails)
+| extend SPF = tostring(AuthDetails.SPF), tostring(DKIM = AuthDetails.DKIM), tostring(DMARC = AuthDetails.DMARC), tostring(CompAuth = AuthDetails.CompAuth)
+| summarize TotalCount = count() by SPF,DKIM,DMARC,CompAuth
+| project SPF,DKIM,DMARC,CompAuth,TotalCount
+| sort by TotalCount desc
+
+//SPF != Pass or Empty
+EmailEvents
+| where Timestamp > ago(30d) 
+| extend AuthDetails = parse_json(AuthenticationDetails)
+| extend SPF = tostring(AuthDetails.SPF), tostring(DKIM = AuthDetails.DKIM), tostring(DMARC = AuthDetails.DMARC), tostring(CompAuth = AuthDetails.CompAuth)
+| where not( SPF == 'pass' or isempty( SPF) )
+| summarize TotalCount = count() by SPF,CompAuth
+| project SPF,TotalCount
+| sort by TotalCount desc
+
+//SPF != Pass or Empty by Date
+EmailEvents
+| where Timestamp > ago(30d) 
+| extend AuthDetails = parse_json(AuthenticationDetails)
+| extend SPF = tostring(AuthDetails.SPF), tostring(DKIM = AuthDetails.DKIM), tostring(DMARC = AuthDetails.DMARC), tostring(CompAuth = AuthDetails.CompAuth)
+| where not( SPF == 'pass' or isempty( SPF) )
+| summarize TotalCount = count() by SPF,CompAuth,Timestamp
+| summarize count () by bin(Timestamp, 1d)
+| render linechart
+
+//TOP 10 URL Domains
+EmailUrlInfo
+| summarize count() by UrlDomain
+| top 20 by count_
+| render columnchart
+
+// ZAP Actions
+EmailPostDeliveryEvents  |  summarize count () by bin(Timestamp, 1d), Action, ActionType  | order by count_ | render columnchart
+
+//Attachment by SHA256 Hash
+//Get-FileHash C:\GIT_WorkingDir\GitHub_PowerShellScripts\ExchangeOnline\EOP_Unsigned.zip -Algorithm SHA256
+EmailAttachmentInfo 
+| where FileName == 'EOP_Unsigned.zip'
+| where toupper(SHA256) == '9BC35DD449BAF8059FD0BACB3836EDD1B1B4BB5AEDE0C438A8409AC80C8262DE'
+//9BC35DD449BAF8059FD0BACB3836EDD1B1B4BB5AEDE0C438A8409AC80C8262DE
+//9bc35dd449baf8059fd0bacb3836edd1b1b4bb5aede0c438a8409ac80c8262de
+
+
+//Join two Tables EmailEvents and EmailAttachmentInfo
+EmailEvents
+| where EmailDirection == "Inbound"
+| project
+    Timestamp,
+    SenderMailFromAddress,
+    RecipientEmailAddress,
+    NetworkMessageId
+| join kind=inner (EmailAttachmentInfo) on NetworkMessageId
+| project
+    Timestamp,
+    SenderMailFromAddress,
+    RecipientEmailAddress,
+    FileName
+| where FileName endswith ".zip"
+| summarize Recipient=make_set(RecipientEmailAddress) by Timestamp, FileName, SenderMailFromAddress
