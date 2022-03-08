@@ -11,17 +11,43 @@ Get-InstalledModule Microsoft.Graph*
 # -Microsoft.Graph.Calendar
 # -Microsoft.Graph.PersonalContacts
 
-
+###############################################################################
+#Connect-MgGraph
+#https://github.com/microsoftgraph/msgraph-sdk-powershell
+###############################################################################
 $TenantId = "icewolfch.onmicrosoft.com"
 $Scope = "https://graph.microsoft.com/.default" 
 
 #Interactive
-Connect-MgGraph -Scopes $scope
+Connect-MgGraph
+Connect-MgGraph -Scopes "Tasks.ReadWrite"
+Disconnect-MgGraph
 
 #Connect with Certificate
 $AppID = "c1a5903b-cd73-48fe-ac1f-e71bde968412" #DelegatedMail
 $CertificateThumbprint = "4F1C474F862679EC35650824F73903041E1E5742" #O365Powershell2.cer
 Connect-MgGraph -AppId $AppID -CertificateThumbprint $CertificateThumbprint -TenantId $TenantId
+Disconnect-MgGraph
+
+#Delegated
+Import-Module MSAL.PS
+Clear-MsalTokenCache
+#$Token = Get-MsalToken -DeviceCode -ClientId $AppID -TenantId $TenantID -RedirectUri $RedirectUri
+$Token = Get-MsalToken -ClientId $AppID -TenantId $TenantID -RedirectUri $RedirectUri
+$AccessToken = $Token.AccessToken
+$AccessToken
+
+# Using your own access token.
+Connect-MgGraph -AccessToken $AccessToken
+
+
+#Simple Commands 
+Select-MgProfile -Name "beta"
+Get-MgUser
+Get-MgGroup
+Get-MgGroup -Filter "displayName eq 'PostmasterGraphRestriction'"
+Get-MgGroupMember -GroupId 05c4f6cf-e3e7-40a1-b3b0-f1eb680f78c9
+Get-MgUser -UserId d69c8b27-a976-42b4-a740-2ac623f27d20
 
 ###############################################################################
 #Get mailFolder
@@ -343,3 +369,129 @@ Import-Module Microsoft.Graph.Calendar
 # A UPN can also be used as -UserId.
 $Mailbox = "postmaster@icewolf.ch"
 Remove-MgUserEvent -UserId $Mailbox -EventId $MessageId
+
+
+###############################################################################
+# List contactFolders
+# https://docs.microsoft.com/en-us/graph/api/user-list-contactfolders?view=graph-rest-1.0&tabs=http
+###############################################################################
+#Delegated (work or school account)	Contacts.Read, Contacts.ReadWrite
+#Delegated (personal Microsoft account)	Contacts.Read, Contacts.ReadWrite
+#Application	Contacts.Read, Contacts.ReadWrite
+
+Import-Module Microsoft.Graph.PersonalContacts
+
+# A UPN can also be used as -UserId.
+$Mailbox = "postmaster@icewolf.ch"
+Get-MgUserContactFolder -UserId $Mailbox
+
+
+###############################################################################
+# List contacts
+# https://docs.microsoft.com/en-us/graph/api/user-list-contacts?view=graph-rest-1.0&tabs=http
+###############################################################################
+#Delegated (work or school account)	Contacts.Read, Contacts.ReadWrite
+#Delegated (personal Microsoft account)	Contacts.Read, Contacts.ReadWrite
+#Application	Contacts.Read, Contacts.ReadWrite
+
+Import-Module Microsoft.Graph.PersonalContacts
+
+# A UPN can also be used as -UserId.
+$Mailbox = "postmaster@icewolf.ch"
+$Result = Get-MgUserContact -UserId $Mailbox
+$Result | Format-List
+
+###############################################################################
+# Create contact
+# https://docs.microsoft.com/en-us/graph/api/user-post-contacts?view=graph-rest-1.0&tabs=http
+###############################################################################
+#Delegated (work or school account)	Contacts.Read, Contacts.ReadWrite
+#Delegated (personal Microsoft account)	Contacts.Read, Contacts.ReadWrite
+#Application	Contacts.Read, Contacts.ReadWrite
+
+Import-Module Microsoft.Graph.PersonalContacts
+
+$params = @{
+	GivenName = "Pavel"
+	Surname = "Bansky"
+	EmailAddresses = @(
+		@{
+			Address = "pavelb@fabrikam.onmicrosoft.com"
+			Name = "Pavel Bansky"
+		}
+	)
+	BusinessPhones = @(
+		"+1 732 555 0102"
+	)
+}
+
+# A UPN can also be used as -UserId.
+$Mailbox = "postmaster@icewolf.ch"
+$Result = New-MgUserContact -UserId $Mailbox -BodyParameter $params
+$ContactID = $Result.Id
+$ContactID
+
+###############################################################################
+# Get contact
+# https://docs.microsoft.com/en-us/graph/api/contact-get?view=graph-rest-1.0&tabs=http
+###############################################################################
+#Delegated (work or school account)	Contacts.Read, Contacts.ReadWrite
+#Delegated (personal Microsoft account)	Contacts.Read, Contacts.ReadWrite
+#Application	Contacts.Read, Contacts.ReadWrite
+
+Import-Module Microsoft.Graph.PersonalContacts
+
+# A UPN can also be used as -UserId.
+$Mailbox = "postmaster@icewolf.ch"
+Get-MgUserContact -UserId $Mailbox -ContactId $contactId
+
+###############################################################################
+# Update contact
+# https://docs.microsoft.com/en-us/graph/api/contact-update?view=graph-rest-1.0&tabs=http
+###############################################################################
+#Delegated (work or school account)	Contacts.Read, Contacts.ReadWrite
+#Delegated (personal Microsoft account)	Contacts.Read, Contacts.ReadWrite
+#Application	Contacts.Read, Contacts.ReadWrite
+
+Import-Module Microsoft.Graph.PersonalContacts
+
+$params = @{
+	HomeAddress = @{
+		Street = "123 Some street"
+		City = "Seattle"
+		State = "WA"
+		PostalCode = "98121"
+	}
+	Birthday = [System.DateTime]::Parse("1974-07-22")
+}
+
+# A UPN can also be used as -UserId.
+$Mailbox = "postmaster@icewolf.ch"
+Update-MgUserContact -UserId $Mailbox -ContactId $contactId -BodyParameter $params
+
+###############################################################################
+# Delete contact
+# https://docs.microsoft.com/en-us/graph/api/contact-delete?view=graph-rest-1.0&tabs=http
+###############################################################################
+#Delegated (work or school account)	Contacts.Read, Contacts.ReadWrite
+#Delegated (personal Microsoft account)	Contacts.Read, Contacts.ReadWrite
+#Application	Contacts.Read, Contacts.ReadWrite
+
+Import-Module Microsoft.Graph.PersonalContacts
+
+# A UPN can also be used as -UserId.
+$Mailbox = "postmaster@icewolf.ch"
+Remove-MgUserContact -UserId $Mailbox -ContactId $contactId
+
+###############################################################################
+# List ToDo lists
+# https://docs.microsoft.com/en-us/graph/api/todo-list-lists?view=graph-rest-1.0&tabs=http
+###############################################################################
+#Delegated (work or school account)	Tasks.ReadWrite
+#Delegated (personal Microsoft account)	Tasks.ReadWrite
+#Application	Not supported
+Import-Module Microsoft.Graph.Users
+
+# A UPN can also be used as -UserId.
+$Mailbox = "a.bohren@icewolf.ch"
+Get-MgUserTodoList -UserId $Mailbox

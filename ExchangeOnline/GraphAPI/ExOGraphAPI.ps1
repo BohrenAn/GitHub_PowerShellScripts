@@ -46,6 +46,14 @@ $Token = Get-MsalToken -ClientId $AppID -ClientCertificate $Certificate -TenantI
 $AccessToken = $Token.AccessToken
 $AccessToken
 
+#Delegated
+Import-Module MSAL.PS
+Clear-MsalTokenCache
+#$Token = Get-MsalToken -DeviceCode -ClientId $AppID -TenantId $TenantID -RedirectUri $RedirectUri
+$Token = Get-MsalToken -ClientId $AppID -TenantId $TenantID -RedirectUri $RedirectUri
+$AccessToken = $Token.AccessToken
+$AccessToken
+
 #Interactive
 $Token = Get-MsalToken -ClientId $AppID -TenantId $TenantId -Scope $Scope -Interactive #-ErrorAction SilentlyContinue
 $AccessToken = $Token.AccessToken
