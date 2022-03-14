@@ -210,9 +210,15 @@ $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 $result = Invoke-RestMethod -Method "DELETE" -Uri $uri -Headers $Headers -ContentType $ContentType
 
 ###############################################################################
-# Send As 
+# SendMail
+# https://docs.microsoft.com/en-us/graph/api/user-sendmail?view=graph-rest-1.0&tabs=http
 ###############################################################################
-$URI = "https://graph.microsoft.com/v1.0/users/postmaster@icewolf.ch/sendMail"
+#Delegated (work or school account)	Mail.Send
+#Delegated (personal Microsoft account)	Mail.Send
+#Application	Mail.Send
+
+$Mailbox = "postmaster@icewolf.ch"
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/sendMail"
 $ContentType = "application/json"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 $Body = @"
