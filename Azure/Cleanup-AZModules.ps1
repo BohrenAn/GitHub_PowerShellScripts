@@ -1,33 +1,30 @@
 ###############################################################################
-# CleanupGraphModules.ps1
-# If you have multiple Versions of MicrosoftGraph PowerShell Module installed
+# Cleanup-AzModules.ps1
+# If you have multiple Versions of AZ.* PowerShell Module installed
 # This Scripts uninstalls the Old versions and installs only the Current Version
-# 20.03.2022 V0.1 - Initial Draft - Andres Bohren
-# 05.04.2022 V0.2 - Added Remove-Module / some Write-Host - Andres Bohren
+# 25.04.2022 V0.1 - Initial Draft - Andres Bohren
 ###############################################################################
 #Script needs to Run as Administrator to uninstall/install PowerShell Modules
 #Requires -RunAsAdministrator
 
-#Remove loaded Microsoft.Graph* Modules
-Remove-Module Microsoft.Graph*
+#Remove loaded az.* Modules
+Remove-Module az.*
 
-#Get Microsoft.Graph Modules except Microsoft.Graph.Authentication because the other Modules have dependencys
-$Modules = Get-Module Microsoft.Graph* -ListAvailable | Where-Object {$_.Name -ne "Microsoft.Graph.Authentication"} | Select-Object Name -Unique
+#Iterate through Modules and uninstall
+$Modules = Get-Module AZ.* -ListAvailable | Where {$_.Name -ne "Az.Accounts"} | Select-Object Name -Unique
 Foreach ($Module in $Modules)
 {
     $ModuleName = $Module.Name
-    #Get Installed Versions of that specific Module
     $Versions = Get-Module $ModuleName -ListAvailable
     Foreach ($Version in $Versions)
     {
-        #Uninstall Module
         $ModuleVersion = $Version.Version
         Write-Host "Uninstall-Module $ModuleName $ModuleVersion"
         Uninstall-Module $ModuleName -RequiredVersion $ModuleVersion
     }
 }
-#Uninstall Microsoft.Graph.Authentication
-$ModuleName = "Microsoft.Graph.Authentication"
+#Uninstall Az.Accounts
+$ModuleName = "Az.Accounts"
 $Versions = Get-Module $ModuleName -ListAvailable
 Foreach ($Version in $Versions)
 {
@@ -36,7 +33,7 @@ Foreach ($Version in $Versions)
     Uninstall-Module $ModuleName -RequiredVersion $ModuleVersion
 }
 
-#Finally install the newest Version
-Write-Host "Install newest Microsoft.Graph Module"
-Install-Module Microsoft.Graph
+#Install newest Module
+Write-Host "Install newest AZ Module"
+Install-Module AZ
 Write-Host "Cleanup finished"
