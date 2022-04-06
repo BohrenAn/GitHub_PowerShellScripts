@@ -1,5 +1,5 @@
 ###############################################################################
-# Demo01-SQLDB-Az.ps1
+# Demo02-SQLDB-Az.ps1
 # Create SQL Server / Firewall Rule / SQL Database with AZ CLI
 # 05.04.2022 - Initial Version - Andres Bohren 
 ###############################################################################
