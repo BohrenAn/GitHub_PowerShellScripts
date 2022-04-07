@@ -495,3 +495,9 @@ Import-Module Microsoft.Graph.Users
 # A UPN can also be used as -UserId.
 $Mailbox = "a.bohren@icewolf.ch"
 Get-MgUserTodoList -UserId $Mailbox
+
+###############################################################################
+# Get-MgUser
+# https://docs.microsoft.com/en-us/powershell/module/microsoft.graph.users/get-mguser?view=graph-powershell-1.0
+###############################################################################
+Get-MgUser -Search '"UserPrincipalName:m.muster@icewolf.ch"' -ConsistencyLevel eventual
