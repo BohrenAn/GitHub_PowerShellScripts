@@ -89,6 +89,9 @@ Function Remove-TeamsPhoneNumber
 ###############################################################################
 # Main Script 
 ###############################################################################
+#Needs the following Roles
+# - User Administrator
+# - Teams Administrator
 Connect-MicrosoftTeams
 Connect-MgGraph -Scopes User.ReadWrite.All
 Set-TeamsPhoneNumber -UPN m.muster@icewolf.ch -PhoneNumber "+41215553975" -PhoneNumberType "DirectRouting"
