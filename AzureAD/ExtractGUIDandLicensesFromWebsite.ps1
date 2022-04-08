@@ -1,7 +1,7 @@
 ###############################################################################
 # Extract GUID, String, ProductName from
 # https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-service-plan-reference
-# 08.04.2022 V0.1 - Initial Version - Andres Bohren
+# 08.04.2022 V0.1 - Initial Version - Andres Bohren 
 ###############################################################################
 
 ###############################################################################
