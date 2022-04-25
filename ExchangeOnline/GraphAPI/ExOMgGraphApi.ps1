@@ -41,14 +41,23 @@ $AccessToken
 # Using your own access token.
 Connect-MgGraph -AccessToken $AccessToken
 
-
 #Simple Commands 
 Select-MgProfile -Name "beta"
+Get-MgContext
 Get-MgUser
 Get-MgGroup
 Get-MgGroup -Filter "displayName eq 'PostmasterGraphRestriction'"
 Get-MgGroupMember -GroupId 05c4f6cf-e3e7-40a1-b3b0-f1eb680f78c9
 Get-MgUser -UserId d69c8b27-a976-42b4-a740-2ac623f27d20
+
+###############################################################################
+# Check Access JWT Token
+###############################################################################
+# In Browser https://jwt.ms/
+Install-Module JWTDetails
+Get-InstalledModule JWTDetails
+Get-JWTDetails $AccessToken
+Get-JWTDetails $AccessToken | Select-Object -ExpandProperty Roles
 
 ###############################################################################
 #Get mailFolder
