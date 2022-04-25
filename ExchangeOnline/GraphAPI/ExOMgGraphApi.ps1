@@ -32,6 +32,7 @@ Disconnect-MgGraph
 #Delegated
 Import-Module MSAL.PS
 Clear-MsalTokenCache
+$RedirectUri = "https://login.microsoftonline.com/common/oauth2/nativeclient"
 #$Token = Get-MsalToken -DeviceCode -ClientId $AppID -TenantId $TenantID -RedirectUri $RedirectUri
 $Token = Get-MsalToken -ClientId $AppID -TenantId $TenantID -RedirectUri $RedirectUri
 $AccessToken = $Token.AccessToken
