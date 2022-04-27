@@ -3,6 +3,7 @@
 # Andres Bohren / www.icewolf.ch / blog.icewolf.ch / a.bohren@icewolf.ch
 # Version 1.0 / 03.06.2020 - Initial Version - Andres Bohren
 # Version 1.1 / 27.04.2022 - Updated Script - Andres Bohren
+# https://blog.icewolf.ch/archive/2020/07/03/check-for-pending-reboot-with-powershell.aspx
 ###############################################################################
 <#
 .SYNOPSIS
