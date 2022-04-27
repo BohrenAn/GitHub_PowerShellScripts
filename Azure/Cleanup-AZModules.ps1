@@ -11,7 +11,7 @@
 Remove-Module az.*
 
 #Iterate through Modules and uninstall
-$Modules = Get-Module AZ.* -ListAvailable | Where {$_.Name -ne "Az.Accounts"} | Select-Object Name -Unique
+$Modules = Get-Module AZ.* -ListAvailable | Where-Object {$_.Name -ne "Az.Accounts"} | Select-Object Name -Unique
 Foreach ($Module in $Modules)
 {
     $ModuleName = $Module.Name
