@@ -3,6 +3,7 @@
 # If you have multiple Versions of AZ.* PowerShell Module installed
 # This Scripts uninstalls the Old versions and installs only the Current Version
 # 25.04.2022 V0.1 - Initial Draft - Andres Bohren
+# 07.06.2022 V0.2 - Also uninstall AZ Module - Andres Bohren
 ###############################################################################
 #Script needs to Run as Administrator to uninstall/install PowerShell Modules
 #Requires -RunAsAdministrator
@@ -25,6 +26,15 @@ Foreach ($Module in $Modules)
 }
 #Uninstall Az.Accounts
 $ModuleName = "Az.Accounts"
+$Versions = Get-Module $ModuleName -ListAvailable
+Foreach ($Version in $Versions)
+{
+    $ModuleVersion = $Version.Version
+    Write-Host "Uninstall-Module $ModuleName $ModuleVersion"
+    Uninstall-Module $ModuleName -RequiredVersion $ModuleVersion
+}
+#Uninstall Az
+$ModuleName = "Az"
 $Versions = Get-Module $ModuleName -ListAvailable
 Foreach ($Version in $Versions)
 {
