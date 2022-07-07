@@ -32,7 +32,7 @@ If ($PSScriptRoot -eq "")
 {
 	$Path = [System.Environment]::CurrentDirectory + "\TeamsChannelEmail.csv"
 } else {
-	$Path =$PSScriptRoot 
+	$Path = $PSScriptRoot + "\TeamsChannelEmail.csv"
 }
 
 #Check if File Exist and delete if exists
