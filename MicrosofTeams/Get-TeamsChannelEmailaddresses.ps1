@@ -18,11 +18,15 @@ Connect-MgGraph -TenantId $TenantID -AppId $APPID -CertificateThumbprint $Certif
 #>
 
 #Interactive Login
+Write-Host "Connect-MgGraph"
 Connect-MgGraph -Scopes Channel.ReadBasic.All, ChannelSettings.Read.All, ChannelSettings.ReadWrite.All
 
 
 #Get-Team
+Write-Host "Connect-MicrosoftTeams"
 Connect-MicrosoftTeams
+
+Write-Host "Getting Teams..."
 $TeamsArray = Get-Team
 $TeamsCount = $TeamsArray.count
 Write-Host "Teams found: $TeamsCount"
