@@ -1,5 +1,5 @@
 ###############################################################################
-# Get Emailadresses from TeamsChannel
+# Get Emailadresses from Microsoft TeamsChannels
 # 25.04.2022 V0.1 Initial Version - Andres Bohren
 ###############################################################################
 #Azure AD Role
@@ -18,15 +18,11 @@ Connect-MgGraph -TenantId $TenantID -AppId $APPID -CertificateThumbprint $Certif
 #>
 
 #Interactive Login
-Write-Host "Connect-MgGraph"
 Connect-MgGraph -Scopes Channel.ReadBasic.All, ChannelSettings.Read.All, ChannelSettings.ReadWrite.All
 
 
 #Get-Team
-Write-Host "Connect-MicrosoftTeams"
-$TeamsConnection = Connect-MicrosoftTeams 
-
-Write-Host "Getting Teams..."
+Connect-MicrosoftTeams
 $TeamsArray = Get-Team
 $TeamsCount = $TeamsArray.count
 Write-Host "Teams found: $TeamsCount"
@@ -36,7 +32,7 @@ If ($PSScriptRoot -eq "")
 {
 	$Path = [System.Environment]::CurrentDirectory + "\TeamsChannelEmail.csv"
 } else {
-	$Path =$PSScriptRoot + "\TeamsChannelEmail.csv"
+	$Path =$PSScriptRoot 
 }
 
 #Check if File Exist and delete if exists
