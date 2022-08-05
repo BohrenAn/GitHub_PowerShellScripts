@@ -1,9 +1,10 @@
 ###############################################################################
-# CleanupGraphModules.ps1
+# Cleanup-GraphModules.ps1
 # If you have multiple Versions of MicrosoftGraph PowerShell Module installed
 # This Scripts uninstalls the Old versions and installs only the Current Version
 # 20.03.2022 V0.1 - Initial Draft - Andres Bohren
 # 05.04.2022 V0.2 - Added Remove-Module / some Write-Host - Andres Bohren
+# 05.08.2022 V0.3 - Changed some commands to Get-InstalledModule
 ###############################################################################
 #Script needs to Run as Administrator to uninstall/install PowerShell Modules
 #Requires -RunAsAdministrator
@@ -28,7 +29,17 @@ Foreach ($Module in $Modules)
 }
 #Uninstall Microsoft.Graph.Authentication
 $ModuleName = "Microsoft.Graph.Authentication"
-$Versions = Get-Module $ModuleName -ListAvailable
+$Versions = Get-InstalledModule $ModuleName -AllVersions
+Foreach ($Version in $Versions)
+{
+    $ModuleVersion = $Version.Version
+    Write-Host "Uninstall-Module $ModuleName $ModuleVersion"
+    Uninstall-Module $ModuleName -RequiredVersion $ModuleVersion
+}
+
+#Uninstall Microsoft.Graph
+$ModuleName = "Microsoft.Graph"
+$Versions = Get-InstalledModule $ModuleName -AllVersions
 Foreach ($Version in $Versions)
 {
     $ModuleVersion = $Version.Version

@@ -4,7 +4,7 @@
 # This Scripts uninstalls the Old versions and installs only the Current Version
 # 25.04.2022 V0.1 - Initial Draft - Andres Bohren
 # 07.06.2022 V0.2 - Also uninstall AZ Module - Andres Bohren
-# 08.03.2022 V0.3 - Changed some commands to Get-InstalledModule
+# 03.08.2022 V0.3 - Changed some commands to Get-InstalledModule
 ###############################################################################
 #Script needs to Run as Administrator to uninstall/install PowerShell Modules
 #Requires -RunAsAdministrator
