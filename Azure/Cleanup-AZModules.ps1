@@ -41,7 +41,7 @@ Foreach ($Version in $Versions)
 {
     $ModuleVersion = $Version.Version
     Write-Host "Uninstall-Module $ModuleName $ModuleVersion"
-    Uninstall-Module $ModuleName -RequiredVersion $ModuleVersion
+    Uninstall-Module $ModuleName -RequiredVersion $ModuleVersion -Force
 }
 
 #Install newest Module
