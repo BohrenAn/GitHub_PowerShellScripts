@@ -37,16 +37,6 @@ Foreach ($Version in $Versions)
     Uninstall-Module $ModuleName -RequiredVersion $ModuleVersion -Force
 }
 
-#Uninstall Microsoft.Graph
-$ModuleName = "Microsoft.Graph"
-$Versions = Get-InstalledModule $ModuleName -AllVersions
-Foreach ($Version in $Versions)
-{
-    $ModuleVersion = $Version.Version
-    Write-Host "Uninstall-Module $ModuleName $ModuleVersion"
-    Uninstall-Module $ModuleName -RequiredVersion $ModuleVersion -Force
-}
-
 #Finally install the newest Version
 Write-Host "Install newest Microsoft.Graph Module"
 Install-Module Microsoft.Graph
