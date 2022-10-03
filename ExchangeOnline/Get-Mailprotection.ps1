@@ -45,7 +45,7 @@
     Note that DKIM is hard to query, because the Selector can be literally anything.
 .LINK 
     Script is published here:
-    https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/ExchangeOnline
+    https://github.com/BohrenAn/GitHub_PowerShellScripts/blob/main/ExchangeOnline/Get-Mailprotection.ps1
 .EXAMPLE 
     .\Get-Mailprotection.ps1 -Domain icewolf.ch
     $Result = .\Get-Mailprotection.ps1 -Domain icewolf.ch
