@@ -26,12 +26,13 @@ It checks for the following Information
 
 ## How to Install
 > Find-Script Get-Mailprotection
+
 > Install-Script Get-Mailprotection
 
 ## How to use
 >$Result = Get-Mailprotection -Domain <domain.tld>
 
-![Kiku](Get-Mailprotection.jpg)
+![Image](Get-Mailprotection.jpg)
 
 Regards
 Andres Bohren
