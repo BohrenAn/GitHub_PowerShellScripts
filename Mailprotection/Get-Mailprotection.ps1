@@ -19,7 +19,7 @@
 .COPYRIGHT Free to copy, inspire, etc...
 .TAGS MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLS-RPT, CAA, M365 TenantID
 .LICENSEURI
-.PROJECTURI
+.PROJECTURI https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 .ICONURI
 .EXTERNALMODULEDEPENDENCIES 
 .REQUIREDSCRIPTS
