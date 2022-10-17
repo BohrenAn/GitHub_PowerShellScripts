@@ -5,7 +5,7 @@
 # Version 1.2 / 13.04.2015 STARTTLS Support
 # Version 1.3 / 26.08.2022 Addet BIMI / DANE / MTA-STS / M365 Checks
 # Version 1.4 / 03.10.2022 Addet Reverse Lookup of MX Records / CAA Lookup / TLS-RPT Lookup
-# Version 1.5 / 13.10.2022 Fixed Lyncdiscover 
+# Version 1.5 / 13.10.2022 Fixed Lyncdiscover / Added NS Records / Minor fixes
 # Andres Bohren / www.icewolf.ch / blog.icewolf.ch / info@icewolf.ch
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
