@@ -75,7 +75,8 @@
 
 
 PARAM (
-	[Parameter(Mandatory=$true)][String]$Domain
+	[Parameter(Mandatory=$true)][String]$Domain,
+	[bool]$SMTPConnect = $True
 	)
 
 	###############################################################################
@@ -191,6 +192,7 @@ PARAM (
 	)
 
 	[bool]$ZoneDNSSigned = $false
+	[string]$Nameserver = ""
 	[string]$CAA = ""
 	[bool]$MXAvailable = $False
 	[int]$MXCount = 0
@@ -214,7 +216,7 @@ PARAM (
 	[bool]$MTASTSAvailable = $false
 	#[Array]$Result = @()
 
-	##Check if DNS Zone is signed
+	## Check if DNS Zone is signed
 	Write-Host "Check: DNS Zone Signed" -foregroundcolor Green
 	$URI = "https://dns.google/resolve?name=$Domain&type=NS"	
 	$json = Invoke-RestMethod -URI $URI
@@ -224,7 +226,14 @@ PARAM (
 		$ZoneDNSSigned = $true
 	}
 
-	#CAA
+	## Nameserver (NS)
+	$NS = Resolve-DnsName -Type NS $Domain
+	If ($null -ne $NS)
+	{
+		$Nameserver = ($NS.NameHost | Out-String).Trim()
+	} 
+
+	# CAA
 	#https://de.wikipedia.org/wiki/DNS_Certification_Authority_Authorization
 	#$Domain = "iis.se"
 	
@@ -274,9 +283,13 @@ PARAM (
 
 			#StartTLS
 			[bool]$StartTLS = $false
-			
-			$StartTLS = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
-			#Write-Host "StartTLS: " $StartTLS
+
+			#Only Connect if Parameter $SMTPConnect is True (default)
+			If ($SMTPConnect -eq $True)
+			{
+				$StartTLS = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
+				#Write-Host "StartTLS: " $StartTLS	
+			}
 			If ($StartTLS -eq $true)
 			{
 				$StartTLSCount = $StartTLSCount + 1
@@ -357,6 +370,14 @@ PARAM (
 	If ($SPFRecord -eq $false -or $NULL -eq $SPFRecord) 
 	{
 		$SPFRecord = $NULL
+	} else {
+		#SPF Record Presend
+		If ($SPFRecord.Count -eq 1)
+		{
+			[string]$SPFRecord = ($SPFRecord | Out-String).Replace("'","").Trim()			
+		} else {
+			$SPFRecord = "MULTIPLE SPF RECORDS"
+		}
 	}
 
 	Foreach ($TXTEntry in $TXT)
@@ -422,10 +443,11 @@ PARAM (
 	$DMARC = Resolve-DnsName -Name $dnshost -Type TXT -ErrorAction SilentlyContinue
 	Foreach ($DMARCEntry in $DMARC)
 	{
-		If ($DMARCEntry.Strings -match "v=DMARC1")
+		#If ($DMARCEntry.Strings -match "v=DMARC1")
+		If ($DMARC.Strings -like "v=DMARC1*" -or $DMARC.Strings -like "'v=DMARC1*")
 		{
 			#DMARC Found
-			$DMARCRecord = $DMARCEntry.Strings
+			$DMARCRecord = ($DMARCEntry.Strings).Replace("'","")
 			$DMARCAvailable = $true
 			#Write-Host "DMARC Found" -foregroundcolor Green
 		}
@@ -493,12 +515,12 @@ PARAM (
 	$LyncdiscoverCNAME = $Lyncdiscover | Where-Object {$_.Type -eq "CNAME"}
 	If ($NULL -ne $LyncdiscoverCNAME)
 	{
-		$Lyncdiscover = $Lyncdiscover.NameHost
+		$Lyncdiscover = ($LyncdiscoverCNAME | Select-Object Name -Unique).name
 	} else {
 		$LyncdiscoverA = $Lyncdiscover | Where-Object {$_.Type -eq "A"}
 		If ($NULL -ne $LyncDiscoverA)
 		{
-			$Lyncdiscover = $Lyncdiscover.Name
+			$Lyncdiscover = ($LyncdiscoverA | Select-Object Name -Unique).name
 		}
 	}
 	If ($Lyncdiscover -eq "" -or $Null -eq $Lyncdiscover)
@@ -535,6 +557,7 @@ PARAM (
 	}
 
 	Write-Host "SUMMARY: $Domain" -foregroundcolor cyan
+	Write-Host "Nameserver: $Nameserver" -foregroundcolor cyan
 	Write-Host "Zone DNS Signed: $ZoneDNSSigned" -foregroundcolor cyan
 	Write-Host "Certification Authority Authorization (CAA): $CAA" -foregroundcolor cyan
 	Write-Host "MXCount: $MXCount" -foregroundcolor cyan
@@ -568,6 +591,7 @@ PARAM (
 	#$Result = $Domain, $ZoneDNSSigned, $CAA, $MXCount, $MXRecord, $MXReverseLookup, $StartTLSCount, $StartTLSSupport, $SPFAvailable, $SPFRecord, $DomainKeyAvailable, $DomainKeySupport, $DomainKeyRecord, $DMARCAvailable, $DMARCRecord, $DANECount, $DANESupport, $DANERecord, $BIMIAvailable, $BIMIRecord, $MTASTSAvailable, $MTASTSTXT, $TLSRPTRecord, $Lyncdiscover, $SkypeFederation, $M365, $TenantId
 	$Result = @{}
 	$Result.Add("Domain", $Domain)
+	$Result.Add("NameServer", $Nameserver)
 	$Result.Add("ZoneDNSSigned", $ZoneDNSSigned)
 	$Result.Add("CAA", $CAA)
 	$Result.Add("MXCount", $MXCount)
