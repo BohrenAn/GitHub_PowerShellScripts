@@ -13,7 +13,7 @@
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.4
+.VERSION 1.5
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -37,6 +37,7 @@
 	This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
 	It checks for the following Information
 	- DNS Zone Signed (DNSSEC)
+	- NS (Nameserver)
 	- CAA (Certification Authority Authorization)
 	- MX (MailExchanger)
 	- MX IP
@@ -55,9 +56,11 @@
 	- M365 (Check via Open ID Connect)
 	- M365 TenantID
 .DESCRIPTION 
-	Most of the Querys are simple DNS Querys.
+	This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
+	Most of the Querys are simple DNS Querys (NS, MX, SPF, DKIM, DMARC, BIMI, MTA-STS, TLS-RPT).
 	The Script uses also DNS over HTTP for several checks (ZoneSigned, TLSA Record for DANE).
 	Also some WebQuerys are required for MTA-STS / TenantID (OIDC).
+	And connects via SMTP to check if the Server supports STARTTLS.
 .NOTES 
 	Please note, the Script is at an early stage and may still contain several errors.
 
@@ -68,10 +71,16 @@
 .EXAMPLE 
 	.\Get-Mailprotection.ps1 -Domain icewolf.ch
 	$Result = .\Get-Mailprotection.ps1 -Domain icewolf.ch
+	$Result = .\Get-Mailprotection.ps1 -Domain icewolf.ch -SMTPConnect $False
 
 .PARAMETER Domain 
    You need to specify a Domain as a string Value
    domain.tld or subdomain.domain.tld
+
+.PARAMETER SMTPConnect
+	You can specify not to connect with SMTP to the Server. Per Default this Setting is on.
+	You need then to add the Parameter
+	-SMTPConnect $False
 #>
 
 
