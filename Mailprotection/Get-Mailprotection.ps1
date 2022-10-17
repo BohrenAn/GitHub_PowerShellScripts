@@ -363,7 +363,7 @@ PARAM (
 	}
 	#Write-Host "DANE Support: " $DANESupport
 
-	##SPF
+	## SPF
 	Write-Host "Check: SPF" -foregroundcolor Green
 	$SPFRecord = "NULL"
 	$TXT = Resolve-DnsName -Name $Domain -Type TXT -ErrorAction SilentlyContinue
@@ -391,7 +391,7 @@ PARAM (
 		}
 	}
 
-	##Check for DomainKey / DKIM
+	## Check for DomainKey / DKIM
 	Write-Host "Check: DKIM" -foregroundcolor Green
 	$DomainKeySupport = "no"
 	$DomainKeyRecord = ""
@@ -436,7 +436,7 @@ PARAM (
 		}
 }
 
-	##Check for DMARC
+	## Check for DMARC
 	Write-Host "Check: DMARC" -foregroundcolor Green
 	$DMARCRecord = "NULL" 
 	$dnshost = "_dmarc." + $Domain
@@ -454,7 +454,7 @@ PARAM (
 		}
 	}
 
-	##BIMI
+	## BIMI
 	Write-Host "Check: BIMI" -foregroundcolor Green
 	$BIMIRecord = ""
 	#default._bimi.example.com in txt
@@ -472,7 +472,7 @@ PARAM (
 		}
 	}
 
-	#MTA STS
+	## MTA STS
 	Write-Host "Check: MTA-STS" -foregroundcolor Green
 	#sts.domain.de/.well-known/mta-sts.txt	
 	#https://mta-sts.dmarcian.com/.well-known/mta-sts.txt
@@ -502,8 +502,9 @@ PARAM (
 		}
 	}
 
-	##TLS-RPT
+	## TLS-RPT
 	#_smtp._tls.google.com IN TXT "{v=TLSRPTv1;rua=mailto:sts-reports@google.com}"
+	Write-Host "Check: TLS-RPT" -foregroundcolor Green
 	$TLSRPTQuery = "_smtp._tls.$Domain"
 	$TLSRPT = Resolve-DnsName -Name $TLSRPTQuery -Type TXT -ErrorAction SilentlyContinue
 	If ($Null -ne $TLSRPT)
@@ -512,6 +513,7 @@ PARAM (
 	}
 
 	##LyncDiscover
+	Write-Host "Check: Lyncdiscover" -foregroundcolor Green
 	$Lyncdiscover = Resolve-DnsName lyncdiscover.$Domain -Type A -ErrorAction SilentlyContinue
 	$LyncdiscoverCNAME = $Lyncdiscover | Where-Object {$_.Type -eq "CNAME"}
 	If ($NULL -ne $LyncdiscoverCNAME)
@@ -529,7 +531,8 @@ PARAM (
 		$Lyncdiscover = "NULL"
 	}
 
-	##Skype4B / Teams Federation	
+	## Skype4B / Teams Federation
+	Write-Host "Check: Skype4B / Teams Federation" -foregroundcolor Green
 	$SRV = Resolve-DnsName _sipfederationtls._tcp.$Domain -Type SRV -ErrorAction SilentlyContinue
 	$SkypeFederation = ($SRV.NameTarget | Out-String).Trim()
 	If ($SkypeFederation -eq "" -or $Null -eq $SkypeFederation)
@@ -538,6 +541,7 @@ PARAM (
 	}
 
 	##M365
+	Write-Host "Check: M365 Tenant (OpenIDConnect)" -foregroundcolor Green
 	try {
 		#$TenantID = (Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration|ConvertFrom-Json).token_endpoint.Split('/')[3] 
 		$Response = Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration
