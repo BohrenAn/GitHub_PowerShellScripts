@@ -5,7 +5,7 @@
 # Version 1.2 / 13.04.2015 STARTTLS Support
 # Version 1.3 / 26.08.2022 Addet BIMI / DANE / MTA-STS / M365 Checks
 # Version 1.4 / 03.10.2022 Addet Reverse Lookup of MX Records / CAA Lookup / TLS-RPT Lookup
-# Version 1.5 / 13.10.2022 Fixed Lyncdiscover 
+# Version 1.5 / 13.10.2022 Fixed Lyncdiscover / Added NS Records / Minor fixes
 # Andres Bohren / www.icewolf.ch / blog.icewolf.ch / info@icewolf.ch
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
@@ -13,7 +13,7 @@
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.4
+.VERSION 1.5
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -37,6 +37,7 @@
 	This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
 	It checks for the following Information
 	- DNS Zone Signed (DNSSEC)
+	- NS (Nameserver)
 	- CAA (Certification Authority Authorization)
 	- MX (MailExchanger)
 	- MX IP
@@ -55,9 +56,11 @@
 	- M365 (Check via Open ID Connect)
 	- M365 TenantID
 .DESCRIPTION 
-	Most of the Querys are simple DNS Querys.
+	This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
+	Most of the Querys are simple DNS Querys (NS, MX, SPF, DKIM, DMARC, BIMI, MTA-STS, TLS-RPT).
 	The Script uses also DNS over HTTP for several checks (ZoneSigned, TLSA Record for DANE).
 	Also some WebQuerys are required for MTA-STS / TenantID (OIDC).
+	And connects via SMTP to check if the Server supports STARTTLS.
 .NOTES 
 	Please note, the Script is at an early stage and may still contain several errors.
 
@@ -68,15 +71,22 @@
 .EXAMPLE 
 	.\Get-Mailprotection.ps1 -Domain icewolf.ch
 	$Result = .\Get-Mailprotection.ps1 -Domain icewolf.ch
+	$Result = .\Get-Mailprotection.ps1 -Domain icewolf.ch -SMTPConnect $False
 
 .PARAMETER Domain 
    You need to specify a Domain as a string Value
    domain.tld or subdomain.domain.tld
+
+.PARAMETER SMTPConnect
+	You can specify not to connect with SMTP to the Server. Per Default this Setting is on.
+	You need then to add the Parameter
+	-SMTPConnect $False
 #>
 
 
 PARAM (
-	[Parameter(Mandatory=$true)][String]$Domain
+	[Parameter(Mandatory=$true)][String]$Domain,
+	[bool]$SMTPConnect = $True
 	)
 
 	###############################################################################
@@ -192,6 +202,7 @@ PARAM (
 	)
 
 	[bool]$ZoneDNSSigned = $false
+	[string]$Nameserver = ""
 	[string]$CAA = ""
 	[bool]$MXAvailable = $False
 	[int]$MXCount = 0
@@ -215,7 +226,7 @@ PARAM (
 	[bool]$MTASTSAvailable = $false
 	#[Array]$Result = @()
 
-	##Check if DNS Zone is signed
+	## Check if DNS Zone is signed
 	Write-Host "Check: DNS Zone Signed" -foregroundcolor Green
 	$URI = "https://dns.google/resolve?name=$Domain&type=NS"	
 	$json = Invoke-RestMethod -URI $URI
@@ -225,7 +236,14 @@ PARAM (
 		$ZoneDNSSigned = $true
 	}
 
-	#CAA
+	## Nameserver (NS)
+	$NS = Resolve-DnsName -Type NS $Domain
+	If ($null -ne $NS)
+	{
+		$Nameserver = ($NS.NameHost | Out-String).Trim()
+	} 
+
+	# CAA
 	#https://de.wikipedia.org/wiki/DNS_Certification_Authority_Authorization
 	#$Domain = "iis.se"
 	
@@ -275,9 +293,13 @@ PARAM (
 
 			#StartTLS
 			[bool]$StartTLS = $false
-			
-			$StartTLS = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
-			#Write-Host "StartTLS: " $StartTLS
+
+			#Only Connect if Parameter $SMTPConnect is True (default)
+			If ($SMTPConnect -eq $True)
+			{
+				$StartTLS = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
+				#Write-Host "StartTLS: " $StartTLS	
+			}
 			If ($StartTLS -eq $true)
 			{
 				$StartTLSCount = $StartTLSCount + 1
@@ -350,7 +372,7 @@ PARAM (
 	}
 	#Write-Host "DANE Support: " $DANESupport
 
-	##SPF
+	## SPF
 	Write-Host "Check: SPF" -foregroundcolor Green
 	$SPFRecord = "NULL"
 	$TXT = Resolve-DnsName -Name $Domain -Type TXT -ErrorAction SilentlyContinue
@@ -358,6 +380,14 @@ PARAM (
 	If ($SPFRecord -eq $false -or $NULL -eq $SPFRecord) 
 	{
 		$SPFRecord = $NULL
+	} else {
+		#SPF Record Presend
+		If ($SPFRecord.Count -eq 1)
+		{
+			[string]$SPFRecord = ($SPFRecord | Out-String).Replace("'","").Trim()			
+		} else {
+			$SPFRecord = "MULTIPLE SPF RECORDS"
+		}
 	}
 
 	Foreach ($TXTEntry in $TXT)
@@ -370,7 +400,7 @@ PARAM (
 		}
 	}
 
-	##Check for DomainKey / DKIM
+	## Check for DomainKey / DKIM
 	Write-Host "Check: DKIM" -foregroundcolor Green
 	$DomainKeySupport = "no"
 	$DomainKeyRecord = ""
@@ -415,7 +445,7 @@ PARAM (
 		}
 }
 
-	##Check for DMARC
+	## Check for DMARC
 	Write-Host "Check: DMARC" -foregroundcolor Green
 	$DMARCRecord = "NULL" 
 	$dnshost = "_dmarc." + $Domain
@@ -423,16 +453,17 @@ PARAM (
 	$DMARC = Resolve-DnsName -Name $dnshost -Type TXT -ErrorAction SilentlyContinue
 	Foreach ($DMARCEntry in $DMARC)
 	{
-		If ($DMARCEntry.Strings -match "v=DMARC1")
+		#If ($DMARCEntry.Strings -match "v=DMARC1")
+		If ($DMARC.Strings -like "v=DMARC1*" -or $DMARC.Strings -like "'v=DMARC1*")
 		{
 			#DMARC Found
-			$DMARCRecord = $DMARCEntry.Strings
+			$DMARCRecord = ($DMARCEntry.Strings).Replace("'","")
 			$DMARCAvailable = $true
 			#Write-Host "DMARC Found" -foregroundcolor Green
 		}
 	}
 
-	##BIMI
+	## BIMI
 	Write-Host "Check: BIMI" -foregroundcolor Green
 	$BIMIRecord = ""
 	#default._bimi.example.com in txt
@@ -450,7 +481,7 @@ PARAM (
 		}
 	}
 
-	#MTA STS
+	## MTA STS
 	Write-Host "Check: MTA-STS" -foregroundcolor Green
 	#sts.domain.de/.well-known/mta-sts.txt	
 	#https://mta-sts.dmarcian.com/.well-known/mta-sts.txt
@@ -480,8 +511,9 @@ PARAM (
 		}
 	}
 
-	##TLS-RPT
+	## TLS-RPT
 	#_smtp._tls.google.com IN TXT "{v=TLSRPTv1;rua=mailto:sts-reports@google.com}"
+	Write-Host "Check: TLS-RPT" -foregroundcolor Green
 	$TLSRPTQuery = "_smtp._tls.$Domain"
 	$TLSRPT = Resolve-DnsName -Name $TLSRPTQuery -Type TXT -ErrorAction SilentlyContinue
 	If ($Null -ne $TLSRPT)
@@ -490,16 +522,17 @@ PARAM (
 	}
 
 	##LyncDiscover
+	Write-Host "Check: Lyncdiscover" -foregroundcolor Green
 	$Lyncdiscover = Resolve-DnsName lyncdiscover.$Domain -Type A -ErrorAction SilentlyContinue
 	$LyncdiscoverCNAME = $Lyncdiscover | Where-Object {$_.Type -eq "CNAME"}
 	If ($NULL -ne $LyncdiscoverCNAME)
 	{
-		$Lyncdiscover = $Lyncdiscover.NameHost
+		$Lyncdiscover = ($LyncdiscoverCNAME | Select-Object Name -Unique).name
 	} else {
 		$LyncdiscoverA = $Lyncdiscover | Where-Object {$_.Type -eq "A"}
 		If ($NULL -ne $LyncDiscoverA)
 		{
-			$Lyncdiscover = $Lyncdiscover.Name
+			$Lyncdiscover = ($LyncdiscoverA | Select-Object Name -Unique).name
 		}
 	}
 	If ($Lyncdiscover -eq "" -or $Null -eq $Lyncdiscover)
@@ -507,7 +540,8 @@ PARAM (
 		$Lyncdiscover = "NULL"
 	}
 
-	##Skype4B / Teams Federation	
+	## Skype4B / Teams Federation
+	Write-Host "Check: Skype4B / Teams Federation" -foregroundcolor Green
 	$SRV = Resolve-DnsName _sipfederationtls._tcp.$Domain -Type SRV -ErrorAction SilentlyContinue
 	$SkypeFederation = ($SRV.NameTarget | Out-String).Trim()
 	If ($SkypeFederation -eq "" -or $Null -eq $SkypeFederation)
@@ -516,6 +550,7 @@ PARAM (
 	}
 
 	##M365
+	Write-Host "Check: M365 Tenant (OpenIDConnect)" -foregroundcolor Green
 	try {
 		#$TenantID = (Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration|ConvertFrom-Json).token_endpoint.Split('/')[3] 
 		$Response = Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration
@@ -535,6 +570,7 @@ PARAM (
 	}
 
 	Write-Host "SUMMARY: $Domain" -foregroundcolor cyan
+	Write-Host "Nameserver: $Nameserver" -foregroundcolor cyan
 	Write-Host "Zone DNS Signed: $ZoneDNSSigned" -foregroundcolor cyan
 	Write-Host "Certification Authority Authorization (CAA): $CAA" -foregroundcolor cyan
 	Write-Host "MXCount: $MXCount" -foregroundcolor cyan
@@ -568,6 +604,7 @@ PARAM (
 	#$Result = $Domain, $ZoneDNSSigned, $CAA, $MXCount, $MXRecord, $MXReverseLookup, $StartTLSCount, $StartTLSSupport, $SPFAvailable, $SPFRecord, $DomainKeyAvailable, $DomainKeySupport, $DomainKeyRecord, $DMARCAvailable, $DMARCRecord, $DANECount, $DANESupport, $DANERecord, $BIMIAvailable, $BIMIRecord, $MTASTSAvailable, $MTASTSTXT, $TLSRPTRecord, $Lyncdiscover, $SkypeFederation, $M365, $TenantId
 	$Result = @{}
 	$Result.Add("Domain", $Domain)
+	$Result.Add("NameServer", $Nameserver)
 	$Result.Add("ZoneDNSSigned", $ZoneDNSSigned)
 	$Result.Add("CAA", $CAA)
 	$Result.Add("MXCount", $MXCount)
