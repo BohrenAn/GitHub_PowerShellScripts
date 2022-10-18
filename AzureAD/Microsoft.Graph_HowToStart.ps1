@@ -169,6 +169,16 @@ Get-MgGroup -Filter "displayName eq 'PostmasterGraphRestriction'"
 Get-MgGroupMember -GroupId "05c4f6cf-e3e7-40a1-b3b0-f1eb680f78c9"
 
 ###############################################################################
+# Find Azure AD and MSOnline cmdlets in Microsoft Graph PowerShell
+# https://learn.microsoft.com/en-us/powershell/microsoftgraph/azuread-msoline-cmdlet-map?view=graph-powershell-1.0
+###############################################################################
+
+###############################################################################
+# Microsoft Graph permissions reference
+# https://learn.microsoft.com/en-us/graph/permissions-reference
+###############################################################################
+
+###############################################################################
 # Use query parameters to customize responses
 # https://docs.microsoft.com/en-us/graph/query-parameters
 ###############################################################################
