@@ -483,7 +483,7 @@ PARAM (
 
 	## MTA STS
 	Write-Host "Check: MTA-STS" -foregroundcolor Green
-	#sts.domain.de/.well-known/mta-sts.txt	
+	#mta-sts.domain.de/.well-known/mta-sts.txt	
 	#https://mta-sts.dmarcian.com/.well-known/mta-sts.txt
 	#$Domain = "dmarcian.com"
 	#$Domain = "google.com"
@@ -495,7 +495,7 @@ PARAM (
 	{
 		If ($MTASTSEntry.Strings -match "v=STSv1")
 		{
-			#DMARC Found
+			#MTA-STS Found
 			$MTASTSAvailable = $true
 			Write-Host "MTA STS Found" -foregroundcolor Green
 
@@ -523,7 +523,7 @@ PARAM (
 
 	##LyncDiscover
 	Write-Host "Check: Lyncdiscover" -foregroundcolor Green
-	$Lyncdiscover = Resolve-DnsName lyncdiscover.$Domain -Type A -ErrorAction SilentlyContinue
+	$Lyncdiscover = Resolve-DnsName lyncdiscover.$Domain -ErrorAction SilentlyContinue
 	$LyncdiscoverCNAME = $Lyncdiscover | Where-Object {$_.Type -eq "CNAME"}
 	If ($NULL -ne $LyncdiscoverCNAME)
 	{
