@@ -5,7 +5,7 @@
 # Version 1.2 / 13.04.2015 STARTTLS Support
 # Version 1.3 / 26.08.2022 Addet BIMI / DANE / MTA-STS / M365 Checks
 # Version 1.4 / 03.10.2022 Addet Reverse Lookup of MX Records / CAA Lookup / TLS-RPT Lookup
-# Version 1.5 / 13.10.2022 Fixed Lyncdiscover / Added NS Records / Minor fixes
+# Version 1.5 / 13.10.2022 Fixed Lyncdiscover / Added NS Records & Autodiscover / Minor fixes
 # Andres Bohren / www.icewolf.ch / blog.icewolf.ch / info@icewolf.ch
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
@@ -51,6 +51,7 @@
 	- MTA-STS (SMTP MTA Strict Transport Security)
 	- MTA-STS Web (https://mta-sts.domain.tld/.well-known/mta-sts.txt)
 	- TLS-RPT (TLS Reporting)
+	- Autodiscover (Outlook)
 	- Lyncdiscover
 	- Lync/Skype/Teamsfederation
 	- M365 (Check via Open ID Connect)
@@ -521,6 +522,29 @@ PARAM (
 		$TLSRPTRecord = $TLSRPT.Strings
 	}
 
+	##Autodiscover
+	#AutodiscoverV2
+	#$URI = "https://autodiscover.icewolf.ch/autodiscover/autodiscover.json/v1.0/info@$domain?Protocol=AutodiscoverV1"
+	Write-Host "Check: autodiscover" -foregroundcolor Green
+	$Autodiscover = Resolve-DnsName -Name autodiscover.$Domain -ErrorAction SilentlyContinue
+	$AutodiscoverCNAME = $Autodiscover | Where-Object {$_.Type -eq "CNAME"}
+	If ($NULL -ne $AutodiscoverCNAME)
+	{
+		$Autodiscover = ($AutodiscoverCNAME | Select-Object Name -Unique).name
+	} else {
+		$AutodiscoverA = $Autodiscover | Where-Object {$_.Type -eq "A"}
+		If ($NULL -ne $LyncDiscoverA)
+		{
+			$Autodiscover = ($AutodiscoverA | Select-Object Name -Unique).name
+		}
+	}
+	If ($Null -eq $Autodiscover)
+	{
+		$SRV = Resolve-DnsName _autodiscover._tcp.$Domain -Type SRV -ErrorAction SilentlyContinue
+		$Autodiscover = ($SRV.NameTarget | Out-String).Trim()
+	}
+
+
 	##LyncDiscover
 	Write-Host "Check: Lyncdiscover" -foregroundcolor Green
 	$Lyncdiscover = Resolve-DnsName lyncdiscover.$Domain -ErrorAction SilentlyContinue
@@ -594,6 +618,7 @@ PARAM (
 	Write-Host "MTA-STS: $MTASTSAvailable" -foregroundcolor cyan
 	Write-Host "MTA-STS-Web: $MTASTSTXT" -foregroundcolor cyan
 	Write-Host "TLS-RPT: $TLSRPTRecord" -foregroundcolor cyan
+	Write-Host "Autodiscover: $Autodiscover" -foregroundcolor cyan
 	Write-Host "Lyncdiscover: $Lyncdiscover" -foregroundcolor cyan
 	Write-Host "SkypeFederation: $SkypeFederation" -foregroundcolor cyan
 	Write-Host "M365: $M365" -foregroundcolor cyan
@@ -627,6 +652,7 @@ PARAM (
 	$Result.Add("MTA-STS", $MTASTSAvailable)
 	$Result.Add("MTS-STS-Web", $MTASTSTXT)
 	$Result.Add("TLS-RPT", $TLSRPTRecord)
+	$Result.Add("Autodiscover", $Autodiscover)
 	$Result.Add("Lyncdiscover", $Lyncdiscover)
 	$Result.Add("SkypeFederation", $SkypeFederation)
 	$Result.Add("M365", $M365)
