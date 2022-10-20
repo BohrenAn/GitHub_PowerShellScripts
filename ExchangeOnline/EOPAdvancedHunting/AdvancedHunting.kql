@@ -67,6 +67,7 @@ EmailAttachmentInfo
 | summarize count() by FileType
 | order by count_
 | render piechart
+
 //MacroDocuments
 let OfficeMacroFiles = dynamic([".docm",".dotm",".ppsm",".pptm",".potm",".xlam",".xlsm",".xltm",".xlw"]);
 EmailAttachmentInfo | where Timestamp > ago(30d) | where FileName has_any (OfficeMacroFiles) | summarize count() by FileType | order by count_
@@ -75,6 +76,54 @@ EmailAttachmentInfo | where Timestamp > ago(30d) | where FileName has_any (Offic
 EmailAttachmentInfo
 | summarize count () by bin(Timestamp, 1d), FileType
 | render linechart 
+
+//Inbound Junked
+EmailEvents 
+| where Timestamp > ago(1d) and EmailDirection == 'Inbound' 
+//| where DeliveryAction != "Delivered"
+| where DeliveryAction == "Junked"
+| project SenderMailFromDomain, SenderFromDomain, SenderIPv4, RecipientEmailAddress, AuthenticationDetails
+
+//Inbound Junked SenderIPv4
+EmailEvents 
+| where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+| where DeliveryAction == "Junked"
+| summarize count() by SenderIPv4
+| order by count_
+
+//Inbound Junked SenderIPv4 --Specific IP
+let IP = dynamic(["1.1.1.1","2.2.2.2"]);
+EmailEvents 
+| where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+| where DeliveryAction == "Junked"
+| where SenderIPv4 has_any (IP)
+| summarize count() by SenderIPv4
+| order by count_
+
+//Inbound Junked SenderMailFromDomain
+EmailEvents 
+| where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+| where DeliveryAction == "Junked"
+| summarize count() by SenderMailFromDomain
+| order by count_
+
+//Inbound Junked SenderMailFromDomain - Specific SenderMailFromDomains
+let SenderDomain = dynamic(["sharepointonline.com","noreply.com","vifn.app","successfactors.com","eumail.docusign.net"]);
+EmailEvents 
+| where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+| where DeliveryAction == "Junked"
+| where SenderMailFromDomain has_any (SenderDomain)
+| summarize count() by SenderMailFromDomain
+| order by count_
+
+//Inbound Junked Specific Domain Junked. Show SenderMailFrom and SenderIPv4
+EmailEvents 
+| where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+| where DeliveryAction == "Junked"
+| where SenderMailFromDomain has_any ("icewolf.ch")
+| summarize count() by SenderMailFromAddress, SenderIPv4
+| order by count_
+
 
 //SPF,DKIM,DMARC,CompAuth
 EmailEvents
