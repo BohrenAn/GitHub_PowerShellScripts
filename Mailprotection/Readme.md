@@ -30,7 +30,7 @@ It checks for the following Information
 > Install-Script Get-Mailprotection
 
 ## How to use
->$Result = Get-Mailprotection -Domain domain.tld
+>$Result = Get-Mailprotection -Domain domain.tld -SMTPConnect [$True/$False]
 
 ![Image](Get-Mailprotection.jpg)
 
@@ -41,7 +41,7 @@ $URI = "https://dns.google/resolve?name=$Domain&type=NS"
 $json = Invoke-RestMethod -URI $URI
 $json
 
-I had to do a DNS over HTTPS (DoH) Query to check this and use the Goolle Resolver.
+I had to do a DNS over HTTPS (DoH) Query to check this and use the Google Resolver.
 If the JSON Returns an AD = True, it means that the DNS Zone is Signed (DNSSEC).
 
 
@@ -92,33 +92,47 @@ Envelope: Mail from
 
 ## DKIM (DomainKeys Identified Mail)
 DKIM Records are hard because the Selector can be literally anything.
-One way is to try if the Subdomain "_domainkey.domain.tld" 
+One way is to try if the Subdomain "_domainkey.domain.tld" gives a Response
 
->$dnshost = "_domainkey." + $Domain
+>$dnshost = "_domainkey.domain.tld"
 >Resolve-DnsName -Name $dnshost -Type TXT -ErrorAction SilentlyContinue
 
 
-The Records for Exchange Online are
-
+The Selector for Exchange Online are selector1 and selector2
 >Resolve-DnsName -Name selector1._domainkey.domain.tld -Type CNAME -ErrorAction SilentlyContinue
+
 >Resolve-DnsName -Name selector2._domainkey.domain.tld -Type CNAME -ErrorAction SilentlyContinue
 
-$dnshost1 = "selector1._domainkey." + $Domain
-		$dnshost2 = "selector2._domainkey." + $Domain
-		$DomainkeyS1 = Resolve-DnsName -Name $dnshost1 -Type CNAME -ErrorAction SilentlyContinue
-		$DomainkeyS2 = Resolve-DnsName -Name $dnshost2 -Type CNAME -ErrorAction SilentlyContinue
-
 ## DMARC (Domain-based Message Authentication, Reporting and Conformance)
+>Resolve-DnsName -Name _dmarc.domain.tld -Type TXT
+
 
 ## DANE (DNS-based Authentication of Named Entities)
+>$TLSAQuery = "_25._tcp.mailserver.domain.tld"
+>$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$TLSAQuery&type=TLSA"
 ## BIMI (Brand Indicators for Message Identification)
+>Resolve-DnsName -Name default._bimi.domain.tld -Type TXT 
 ## MTA-STS (SMTP MTA Strict Transport Security)
+>Resolve-DnsName -Name _mta-sts.domain.tld -Type TXT
+
+
 ## MTA-STS Web (https://mta-sts.domain.tld/.well-known/mta-sts.txt)
+>Invoke-WebRequest -URI https://mta-sts.domain.tld/.well-known/mta-sts.txt
+
 ## TLS-RPT (TLS Reporting)
+>$TLSRPTQuery = "_smtp._tls.domain.tld"
+>Resolve-DnsName -Name $TLSRPTQuery -Type TXT 
 ## Lyncdiscover
+>Resolve-DnsName -Name lyncdiscover.domain.tld -Type A 
+>Resolve-DnsName -Name lyncdiscover.domain.tld -Type CNAME
+
 ## Lync/Skype/Teamsfederation
-## M365 (Check via Open ID Connect)
-## M365 TenantID
+>Resolve-DnsName -Name _sipfederationtls._tcp.domain.tld -Type SRV
+
+## M365 (Check via Open ID Connect) / TenantID
+>$Response = Invoke-WebRequest -UseBasicParsing https://login.windows.net/domain.tld/.well-known/openid-configuration
+>$TenantID = ($Response | ConvertFrom-Json).token_endpoint.Split('/')[3]
+
 
 Regards
 Andres Bohren
