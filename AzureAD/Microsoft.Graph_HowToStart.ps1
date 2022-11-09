@@ -140,7 +140,20 @@ $Token = Get-MsalToken -ClientId $AppID -TenantId $TenantID -RedirectUri $Redire
 $AccessToken = $Token.AccessToken
 $AccessToken
 
+#Use AccessToken
 Connect-MgGraph -AccessToken $AccessToken
+Get-MgContext
+
+#Use Interactive Login
+Connect-MgGraph -Scopes User.Read.All
+
+#Use Certificate
+Connect-MgGraph -TenantId $TenantId -ClientId $AppID -CertificateThumbprint $Thumbprint
+Get-MgContext
+
+#Delegated
+Connect-MgGraph -AppId $AppID -TenantId $TenantId
+Get-MgContext
 
 ###############################################################################
 #JWTDeatils
