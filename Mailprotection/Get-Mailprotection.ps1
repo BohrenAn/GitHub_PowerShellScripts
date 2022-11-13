@@ -8,6 +8,7 @@
 # Version 1.5 / 13.10.2022 Fixed Lyncdiscover / Added NS Records & Autodiscover / Minor fixes
 # Andres Bohren / www.icewolf.ch / blog.icewolf.ch / info@icewolf.ch
 # Backlog / Whishlist
+# - Response Object as PSCustomObject
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
 ###############################################################################
@@ -525,7 +526,7 @@ PARAM (
 	##Autodiscover
 	#AutodiscoverV2
 	#$URI = "https://autodiscover.icewolf.ch/autodiscover/autodiscover.json/v1.0/info@$domain?Protocol=AutodiscoverV1"
-	Write-Host "Check: autodiscover" -foregroundcolor Green
+	Write-Host "Check: Autodiscover" -foregroundcolor Green
 	$Autodiscover = Resolve-DnsName -Name autodiscover.$Domain -ErrorAction SilentlyContinue
 	$AutodiscoverCNAME = $Autodiscover | Where-Object {$_.Type -eq "CNAME"}
 	If ($NULL -ne $AutodiscoverCNAME)
@@ -623,6 +624,10 @@ PARAM (
 	Write-Host "SkypeFederation: $SkypeFederation" -foregroundcolor cyan
 	Write-Host "M365: $M365" -foregroundcolor cyan
 	Write-Host "TenantID: $TenantID" -foregroundcolor cyan
+
+	#Better ResponseObject
+	#$ResultObject = [PSCustomObject]@{}
+	#$ResultObject | Add-Member -MemberType NoteProperty -Name 'TestArray' -Value $Array
 
 	#$Result = $MXAvailable, $SPFAvailable, $DomainKeyAvailable,$DMARCAvailable	
 	#$Result = $Domain, $ZoneDNSSigned, $CAA, $MXCount, $MXRecord, $MXReverseLookup, $StartTLSCount, $StartTLSSupport, $DANECount, $SPFAvailable, $SPFRecord, $DomainKeyAvailable, $DomainKeySupport, $DomainKeyRecord, $DMARCAvailable, $DMARCRecord, $DANECount, $DANESupport, $DANERecord, $BIMIAvailable, $BIMIRecord, $MTASTSAvailable, $MTASTSTXT, $TLSRPTRecord, $Lyncdiscover, $SkypeFederation, $M365, $TenantId
