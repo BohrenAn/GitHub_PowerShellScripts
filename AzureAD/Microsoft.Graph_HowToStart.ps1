@@ -124,7 +124,7 @@ Install-Module MSAL.PS
 Import-Module MSAL.PS
 Clear-MsalTokenCache
 $AppID = "c1a5903b-cd73-48fe-ac1f-e71bde968412" #DelegatedMail
-$Thumbprint = '4F1C474F862679EC35650824F73903041E1E5742'
+$Thumbprint = '07EFF3918F47995EB53B91848F69B5C0E78622FD'
 $Certificate = Get-Item "Cert:\CurrentUser\My\$Thumbprint"
 $TenantId = "icewolfch.onmicrosoft.com"
 $RedirectUri = "https://login.microsoftonline.com/common/oauth2/nativeclient"
@@ -140,7 +140,20 @@ $Token = Get-MsalToken -ClientId $AppID -TenantId $TenantID -RedirectUri $Redire
 $AccessToken = $Token.AccessToken
 $AccessToken
 
+#Use AccessToken
 Connect-MgGraph -AccessToken $AccessToken
+Get-MgContext
+
+#Use Interactive Login
+Connect-MgGraph -Scopes User.Read.All
+
+#Use Certificate
+Connect-MgGraph -TenantId $TenantId -ClientId $AppID -CertificateThumbprint $Thumbprint
+Get-MgContext
+
+#Delegated
+Connect-MgGraph -AppId $AppID -TenantId $TenantId
+Get-MgContext
 
 ###############################################################################
 #JWTDeatils
@@ -303,3 +316,8 @@ $ArraySKUS | Format-Table
 # Graph PowerShell Conversion Analyzer
 # https://graphpowershell.merill.net/
 ###############################################################################
+
+###############################################################################
+#Find Azure AD and MSOnline cmdlets in Microsoft Graph PowerShell
+###############################################################################
+https://learn.microsoft.com/en-us/powershell/microsoftgraph/azuread-msoline-cmdlet-map?view=graph-powershell-1.0
