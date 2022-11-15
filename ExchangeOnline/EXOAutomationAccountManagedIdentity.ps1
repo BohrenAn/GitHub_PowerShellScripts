@@ -17,12 +17,22 @@ $rgName = 'RG_DEV'
 $AA = Get-AzAutomationAccount -Name $accountName -ResourceGroupName $rgName
 $AA.Identity
 
+#Create Automation Account
+$location = 'West Europe'
+New-AzAutomationAccount -Name $accountName -ResourceGroupName $rgName -Location $location
+
 #Get Service Principal
+Set-AzAutomationAccount -Name $accountName -ResourceGroupName $rgName -AssignSystemIdentity
 $ServicePrincipal = Get-AzADServicePrincipal -DisplayName $accountName
 $SPID = $ServicePrincipal.ID
 
 #Check AzAutomation Module
-Get-AzAutomationModule -AutomationAccountName $accountName -ResourceGroupName $rgName | where {$_.Name -eq "ExchangeOnlineManagement"}
+Get-AzAutomationModule -AutomationAccountName $accountName -ResourceGroupName $rgName | Where-Object {$_.Name -eq "ExchangeOnlineManagement"}
+
+#Add Exchange Online Management
+$moduleName = 'ExchangeOnlineManagement'
+$moduleVersion = '3.0.0'
+New-AzAutomationModule -AutomationAccountName $accountName -ResourceGroupName $rgName -Name $moduleName -ContentLinkUri "https://www.powershellgallery.com/api/v2/package/$moduleName/$moduleVersion"
 
 #Add ManageAsApp to Service Principal
 Connect-MgGraph
