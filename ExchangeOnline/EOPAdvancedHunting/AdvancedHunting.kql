@@ -188,3 +188,50 @@ EmailEvents
     FileName
 | where FileName endswith ".zip"
 | summarize Recipient=make_set(RecipientEmailAddress) by Timestamp, FileName, SenderMailFromAddress
+
+
+//Inbound Junked
+EmailEvents 
+| where Timestamp > ago(1d) and EmailDirection == 'Inbound' 
+//| where DeliveryAction != "Delivered"
+| where DeliveryAction == "Junked"
+| project SenderMailFromDomain, SenderFromDomain, SenderIPv4, RecipientEmailAddress, AuthenticationDetails
+
+//Inbound Junked SenderIPv4
+EmailEvents 
+| where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+| where DeliveryAction == "Junked"
+| summarize count() by SenderIPv4
+| order by count_
+
+//Inbound Junked SenderIPv4 --Specific IP
+let IP = dynamic(["1.2.3.4","5.6.7.8"]);
+EmailEvents 
+| where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+| where DeliveryAction == "Junked"
+| where SenderIPv4 has_any (IP)
+| summarize count() by SenderIPv4
+| order by count_
+
+//Inbound Junked SenderMailFromDomain
+EmailEvents 
+| where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+| where DeliveryAction == "Junked"
+| summarize count() by SenderMailFromDomain
+| order by count_
+
+//Inbound Junked SenderMailFromDomain - Specific SenderMailFromDomains
+let SenderDomain = dynamic(["sharepointonline.com","salesforce.com","noreply.com","successfactors.com","ringcentral.com"]);
+EmailEvents 
+| where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+| where DeliveryAction == "Junked"
+| where SenderMailFromDomain has_any (SenderDomain)
+| summarize count() by SenderMailFromDomain
+| order by count_
+
+//Inbound Junked Specific Domain Junked. Show SenderMailFrom and SenderIPv4
+EmailEvents 
+| where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+| where DeliveryAction == "Junked"
+| where SenderMailFromDomain has_any ("domain.tld")
+| summarize count() by SenderMailFromAddress, SenderIPv4
