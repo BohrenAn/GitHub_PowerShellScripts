@@ -9,6 +9,19 @@
 #Script needs to Run as Administrator to uninstall/install PowerShell Modules
 #Requires -RunAsAdministrator
 
+#Check if VSCode or PowerShell is running
+[array]$process = Get-Process | Where-Object {$_.ProcessName -eq "powershell" -or $_.ProcessName -eq "pwsh" -or $_.ProcessName -eq "code"}
+#$process = Get-Process -Name code -ErrorAction SilentlyContinue
+If ($process.Count -gt 1)
+{
+	Write-Host "PowerShell or Visual Studio Code running? Please close it, otherwise the Modules sometimes can't be updated..." -ForegroundColor Red
+	
+	#Press any key to continue
+	Write-Host 'Press any key to continue...';
+	$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+	Write-Host "Checking Modules..."
+}
+
 #Remove loaded Microsoft.Graph* Modules
 Remove-Module Microsoft.Graph*
 
