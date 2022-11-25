@@ -663,11 +663,13 @@ PARAM (
 	$Result.Add("M365", $M365)
 	$Result.Add("TenantId", $TenantID)
 
-	return $Result
+	#return $Result
+	$Result
 }
 
 ###############################################################################
 # Main Script
 ###############################################################################
-$Result = Get-MailProtection -Domain $Domain
-$Result
+Get-MailProtection -Domain $Domain
+#$Result = Get-MailProtection -Domain $Domain
+#$Result
