@@ -29,36 +29,50 @@
 	],
 #>
 
-Get-CASMailbox -Identity a.bohren@icewolf.ch | Format-List imap*
-#Set-CASMailbox -Identity a.bohren@icewolf.ch -ImapEnabled $true
+
 
 $TenantID = "icewolfch.onmicrosoft.com" 
 $AppID = "3bf0cf36-87bf-47a9-927b-0ef9df7cf146"
+$ExchangeService ="00000002-0000-0ff1-ce00-000000000000"
+$ExchangeServiceObjectID = "db57f1dc-836b-4c1f-b0a0-0c0933e4908a"
 $AppObjectID = "fa0c3777-399d-41f4-ac98-d928ef19960b"
-New-ServicePrincipal -AppId $AppID -ServiceId $AppObjectId -Organization $TenantID
+$EnterpriseAppObjectID = "03ee3318-e731-4e1e-81a6-ba18c3ca9cb6"
+#$AppObjectID = "fa0c3777-399d-41f4-ac98-d928ef19960b"
+#New-ServicePrincipal -AppId $AppID -ServiceId $AppObjectId -Organization $TenantID
+#New-ServicePrincipal -AppId $AppID -ServiceId $ExchangeServiceObjectID -Organization $TenantID
+New-ServicePrincipal -AppId $AppID -ServiceId $EnterpriseAppObjectID -Organization $TenantID
 Get-ServicePrincipal -Organization $TenantID | Format-List
 
-$SericePrincipalID = "fa0c3777-399d-41f4-ac98-d928ef19960b"
+#$SericePrincipalID = "fa0c3777-399d-41f4-ac98-d928ef19960b"
+#$SericePrincipalID = "db57f1dc-836b-4c1f-b0a0-0c0933e4908a"
+$SericePrincipalID = "03ee3318-e731-4e1e-81a6-ba18c3ca9cb6"
 Add-MailboxPermission -Identity "sharedmbx@icewolf.ch" -User $SericePrincipalID -AccessRights FullAccess
+#Remove-MailboxPermission -Identity "sharedmbx@icewolf.ch" -User $SericePrincipalID
+Get-MailboxPermission  -Identity "sharedmbx@icewolf.ch" | Where-Object { ($_.AccessRights -eq "FullAccess") -and ($_.IsInherited -eq $false) -and -not ($_.User -like "NT AUTHORITY\SELF") } | ft -AutoSize
 
+Get-CASMailbox -Identity "Sharedmbx@icewolf.ch" | Format-List imap*
+#Set-CASMailbox -Identity "Sharedmbx@icewolf.ch" -ImapEnabled $true
 
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-$AppID = "3bf0cf36-87bf-47a9-927b-0ef9df7cf146"
-$TenantID = "icewolfch.onmicrosoft.com" 
-$ClientSecret = ConvertTo-SecureString "" -AsPlainText -Force
-$ClientSecret = "" 
-$Scope = "https://outlook.office.com/.default"
-$RedirectUri = "https://login.microsoftonline.com/common/oauth2/nativeclient"
 
 
 #Testing
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$AppID = "3bf0cf36-87bf-47a9-927b-0ef9df7cf146"
+$TenantID = "icewolfch.onmicrosoft.com"
+$ClientSecret = "" 
 .\Get-IMAPAccessToken.ps1 -tenantID $TenantID -clientId $AppID -clientsecret $ClientSecret -targetMailbox "sharedmbx@icewolf.ch"
 
 
 ###############################################################################
 # Get Access Token
 ###############################################################################
+
+#Variables
+$AppID = "3bf0cf36-87bf-47a9-927b-0ef9df7cf146"
+$TenantID = "icewolfch.onmicrosoft.com"
+$ClientSecret = ConvertTo-SecureString "" -AsPlainText -Force
+$Scope = "https://outlook.office.com/.default"
+#$RedirectUri = "https://login.microsoftonline.com/common/oauth2/nativeclient"
 
 Import-Module MSAL.PS
 Clear-MsalTokenCache
@@ -69,10 +83,12 @@ $AccessToken = $Token.AccessToken
 $AccessToken | clip
 
 
-$UserName = "Sharedmbx@icewolf.ch"
+$TargetMailbox = "Sharedmbx@icewolf.ch"
 #Base64 Encode
-$Text = "user=" + $userName + "^Aauth=Bearer " + $accessToken + "^A^A"
-$Bytes = [System.Text.Encoding]::Unicode.GetBytes($Text)
+#$Text = "user=" + $TargetMailbox + " ^Aauth=Bearer " + $accessToken + "^A^A"
+$Text = "user=" + $TargetMailbox + " $([char]0x01)auth=Bearer " + $accessToken + "$([char]0x01)$([char]0x01)"
+
+$Bytes = [System.Text.Encoding]::ASCII.GetBytes($Text)
 $EncodedText =[Convert]::ToBase64String($Bytes)
 $EncodedText
 
@@ -84,12 +100,6 @@ $DecodedText
 $Login = "C02 AUTHENTICATE XOAUTH2 $EncodedText"
 $Login
 $Login | clip
-
-C: C01 CAPABILITY
-S: * CAPABILITY … AUTH=XOAUTH2
-S: C01 OK Completed
-C: A01 AUTHENTICATE XOAUTH2 
-S: A01 OK AUTHENTICATE completed.
 
 #Connect
 $ServerName = "outlook.office365.com"
@@ -113,3 +123,12 @@ if(!$ConnectResponse.StartsWith("220")){
 
 openssl s_client -connect outlook.office365.com:993 -crlf 
 C01 CAPABILITY
+
+C: C01 CAPABILITY
+S: * CAPABILITY … AUTH=XOAUTH2
+S: C01 OK Completed
+C: C02 AUTHENTICATE XOAUTH2 
+S: C02 OK AUTHENTICATE completed.
+C: C03 LIST
+S: 
+C: C04 SELECT "INBOX" 

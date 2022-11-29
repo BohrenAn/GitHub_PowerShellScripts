@@ -199,8 +199,10 @@ PARAM (
 ###############################################################################
 Function Get-MailProtection
 {
-PARAM (
-	[Parameter(Mandatory=$true)][String]$Domain
+	[cmdletbinding()]
+	PARAM (
+	[Parameter(Mandatory=$true)][String]$Domain,
+	[Parameter(Mandatory=$false)][Bool]$SMTPConnect
 	)
 
 	[bool]$ZoneDNSSigned = $false
@@ -670,6 +672,6 @@ PARAM (
 ###############################################################################
 # Main Script
 ###############################################################################
-Get-MailProtection -Domain $Domain
+Get-MailProtection -Domain $Domain 
 #$Result = Get-MailProtection -Domain $Domain
 #$Result
