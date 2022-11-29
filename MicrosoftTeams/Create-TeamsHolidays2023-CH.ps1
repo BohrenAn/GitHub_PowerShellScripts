@@ -3,11 +3,12 @@
 # 24.11.2022 - V1.0 - Initial Version - Andres Bohren
 ################################################################################
 
+#List of Holidays in Teams
 Connect-MicrosoftTeams
-$Shedule = Get-CsOnlineSchedule | Where-Object {$_.Type -eq "Fixed"}
-$Shedule
-$Shedule.FixedSchedule
-$Shedule.FixedSchedule.DateTimeRanges
+$Schedule = Get-CsOnlineSchedule | Where-Object {$_.Type -eq "Fixed"}
+$Schedule
+$Schedule.FixedSchedule
+$Schedule.FixedSchedule.DateTimeRanges
 
 #Feiertage 2023
 #https://www.ferienwiki.ch/feiertage/2023/ch
@@ -25,7 +26,7 @@ New-CsOnlineSchedule -Name "Berchtoldstag" -FixedSchedule -DateTimeRanges @($Dat
 
 #Heilige Drei Könige 06.01.2023
 $DateRange = New-CsOnlineDateTimeRange -Start "2023-01-06T00:00:00" -End "2023-01-07T00:00:00"
-New-CsOnlineSchedule -Name "Berchtoldstag" -FixedSchedule -DateTimeRanges @($DateRange)
+New-CsOnlineSchedule -Name "Heilige Drei Könige" -FixedSchedule -DateTimeRanges @($DateRange)
 
 #St. Josef 19.03.2023
 $DateRange = New-CsOnlineDateTimeRange -Start "2023-03-19T00:00:00" -End "2023-03-20T00:00:00"
@@ -77,7 +78,7 @@ New-CsOnlineSchedule -Name "Knabenschiessen" -FixedSchedule -DateTimeRanges @($D
 
 #Eidgenössischer Dank-, Buss- und Bettag 17.09.2023
 $DateRange = New-CsOnlineDateTimeRange -Start "2023-09-17T00:00:00" -End "2023-09-18T00:00:00"
-New-CsOnlineSchedule -Name "Knabenschiessen" -FixedSchedule -DateTimeRanges @($DateRange)
+New-CsOnlineSchedule -Name "Eidgenössischer Dank-, Buss- und Bettag" -FixedSchedule -DateTimeRanges @($DateRange)
 
 #Mauritiustag 22.09.2023
 $DateRange = New-CsOnlineDateTimeRange -Start "2023-09-22T00:00:00" -End "2023-09-23T00:00:00"
@@ -104,16 +105,48 @@ $DateRange = New-CsOnlineDateTimeRange -Start "2023-12-26T00:00:00" -End "2023-1
 New-CsOnlineSchedule -Name "Stephanstag" -FixedSchedule -DateTimeRanges @($DateRange)
 
 #Show global Holidays
-$Shedule = Get-CsOnlineSchedule | Where-Object {$_.Type -eq "Fixed"}
-$Shedule | Format-Table Name, FixedSchedule.DateTimeRanges
-$Shedule.FixedSchedule.DateTimeRanges
+$Schedule = Get-CsOnlineSchedule | Where-Object {$_.Type -eq "Fixed"}
+$Schedule | Select-Object Name,  @{label="Start";expression={$_.FixedSchedule.DateTimeRanges[0].Start}}, @{label="End";expression={$_.FixedSchedule.DateTimeRanges[0].End}} | Sort-Object Start
 
-#Assign Holiday
+#Add Holiday to AutoAttendant
+$AutoAttendantName = "AutoAttendantDemo01"
+$HolidayName = "Berchtoldstag"
+$HolidaySchedule = Get-CsOnlineSchedule | Where-Object {$_.Name -eq $HolidayName}
+$HolidayScheduleName = $HolidaySchedule.Name
+$GreetingPrompt = New-CsAutoAttendantPrompt -TextToSpeechPrompt "An Feiertagen sind wir nicht erreichbar"
+$MenuOption = New-CsAutoAttendantMenuOption -Action DisconnectCall -DtmfResponse Automatic 
+$Menu = New-CsAutoAttendantMenu -Name $HolidayScheduleName -MenuOptions @($MenuOption)
+$CallFlow = New-CsAutoAttendantCallFlow -Name $HolidayScheduleName -Menu $Menu -Greetings $GreetingPrompt
+$CallHandlingAssociation = New-CsAutoAttendantCallHandlingAssociation -Type Holiday -ScheduleId $HolidaySchedule.Id -CallFlowId $CallFlow.Id
+$AutoAttendant = Get-CsAutoAttendant -NameFilter $AutoAttendantName
+$AutoAttendant.CallFlows += @($CallFlow)
+$AutoAttendant.CallHandlingAssociations += @($CallHandlingAssociation)
+Set-CsAutoAttendant -Instance $AutoAttendant
+
+#Remove Holiday from AutoAttendant
+$AutoAttendantName = "AutoAttendantDemo01"
+$HolidayName = "Neujahr"
+$AutoAttendant = Get-CsAutoAttendant -NameFilter $AutoAttendantName
+$CallFlows = $AutoAttendant.CallFlows | Where-Object {$_.Name -ne $HolidayName}
+$CallFlow = $AutoAttendant.CallFlows | Where-Object {$_.Name -eq $HolidayName}
+$CallHandlingAssociations = $AutoAttendant.CallHandlingAssociations | Where-Object {$_.CallFlowId -ne $CallFlow.Id}
+$AutoAttendant.CallFlows = @($CallFlows)
+$AutoAttendant.CallHandlingAssociations = @($CallHandlingAssociations)
+Set-CsAutoAttendant -Instance $AutoAttendant
+
 
 #Show Holidays from Autoattendant
-$AAName = "AutoAttendantDemo01"
-$AA = Get-CsAutoAttendant -NameFilter $AAName
-$AA.Schedules
-$AAHolidays = Get-CsAutoAttendantHolidays -Identity $AA.Identity
-$AAHolidays
-$AAHolidays.DateTimeRanges
+$AutoAttendantName = "AutoAttendantDemo01"
+$AutoAttendant = Get-CsAutoAttendant -NameFilter $AutoAttendantName
+$AutoAttendant.Schedule
+$AutoAttendantHolidays = Get-CsAutoAttendantHolidays -Identity $AutoAttendant.Identity
+$AutoAttendantHolidays
+$AutoAttendantHolidays.DateTimeRanges
+
+
+#Update Holiday 2024
+$HolidayName = "Neujahr"
+$DateRange = New-CsOnlineDateTimeRange -Start "2024-01-01T00:00:00" -End "2024-01-02T00:00:00"
+$Neujahr = Get-CsOnlineSchedule | Where-Object {$_.Name -eq $HolidayName}
+$Neujahr.FixedSchedule.DateTimeRanges = $DateRange
+Set-CsOnlineSchedule -Instance $Neujahr
