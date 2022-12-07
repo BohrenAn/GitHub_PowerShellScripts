@@ -30,12 +30,13 @@ $APPObjectID = $App.Id
 ###############################################################################
 Get-MgApplication
 Get-MgApplication -ApplicationId $APPObjectID
+Get-MgApplication | Where-Object {$_.DisplayName -eq "DemoApp"} | Format-List
 
 ###############################################################################
 #Add additional Owner
 #The User who created the Application is automatically the Owner
 ###############################################################################
-$User = Get-MgUser -UserId "m.muster@domain.tld"
+$User = Get-MgUser -UserId "m.muster@icewolf.ch"
 $ObjectId = $User.ID
 $NewOwner = @{
 	"@odata.id"= "https://graph.microsoft.com/v1.0/directoryObjects/{$ObjectId}"
@@ -46,8 +47,8 @@ New-MgApplicationOwnerByRef -ApplicationId $APPObjectID -BodyParameter $NewOwner
 #Add a ClientSecret
 ###############################################################################
 $passwordCred = @{
-    "displayName" = "DemoClientSecret"
-    "endDateTime" = (Get-Date).AddMonths(+12)
+	"displayName" = "DemoClientSecret"
+	"endDateTime" = (Get-Date).AddMonths(+12)
 }
 $ClientSecret2 = Add-MgApplicationPassword -ApplicationId $APPObjectID -PasswordCredential $passwordCred
 $ClientSecret2
@@ -93,6 +94,8 @@ Set-Content -Path "$CurrentLocation\$Subject-BASE64.cer" -Value $Value
 ###############################################################################
 #Add Certificate to AzureAD App
 ###############################################################################
+#Loading Cert from *.cer (PEM) File
+$Subject = "CN=DemoCert"
 $CurrentLocation = (Get-Location).path
 $CertPath = $CurrentLocation + "\" + $Subject + "-BASE64.cer"
 $Cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate($CertPath)
@@ -104,7 +107,7 @@ $Cert = Get-ChildItem -Path cert:\CurrentUser\my\$ThumbPrint
 #Get Certificate with SubjectName from UserCertStore
 $Subject = "CN=DemoCert"
 $Cert = Get-ChildItem -Path cert:\CurrentUser\my\ | Where-Object {$_.Subject -eq "$Subject"}  
-
+$Cert
 
 # Create a keyCredential (Certificate) for App
 $keyCreds = @{ 
@@ -202,15 +205,6 @@ $App.RequiredResourceAccess | Format-List
 $app.RequiredResourceAccess.resourceaccess
 
 ###############################################################################
-#Grant Admin Consent
-###############################################################################
-#https://login.microsoftonline.com/{tenant-id}/adminconsent?client_id={client-id}
-$TenantID = ""
-$AppID = ""
-$URL = "https://login.microsoftonline.com/$TenantID/adminconsent?client_id=$AppID"
-Start-Process $URL
-
-###############################################################################
 #Redirect URI
 #If you need to add Redirect URI's.
 ###############################################################################
@@ -226,6 +220,16 @@ $params = @{
 	RedirectUris = @($RedirectURI)
 }
 Update-MgApplication -ApplicationId $APPObjectID -IsFallbackPublicClient -PublicClient $params
+
+###############################################################################
+#Grant Admin Consent - Opens URL in Browser
+###############################################################################
+#https://login.microsoftonline.com/{tenant-id}/adminconsent?client_id={client-id}
+$App = Get-MgApplication | Where-Object {$_.DisplayName -eq "DemoApp"} 
+$TenantID = $App.PublisherDomain
+$AppID = $App.AppID
+$URL = "https://login.microsoftonline.com/$TenantID/adminconsent?client_id=$AppID"
+Start-Process $URL
 
 ###############################################################################
 #Remove the Application
