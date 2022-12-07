@@ -1,20 +1,28 @@
-#Integrated Help
-    Get-Help
-    Get-Help Get-Date
-    Get-Help *
+# Integrated Help
+```
+Get-Help
+Get-Help Get-Date
+Get-Help *
+```
 
-#List all cmdlet
-    Get-Command
-    Get-Command -Module MicrosoftTeams
+# List all cmdlet
+```
+Get-Command
+Get-Command -Module MicrosoftTeams
+```
 
-#Powershell Version
-    Get-Host | Select-Object Version
+# Powershell Version
+```
+Get-Host | Select-Object Version
+```
 
-#Execution Policy
-    Get-Help about_signing
-    Get-ExecutionPolicy
-    Set-ExecutionPolicy Unrestricted | RemoteSigned | AllSigned | Restricted | Default | Bypass | Undefined
-    Set-ExecutionPolicy RemoteSigned
+# Execution Policy
+```
+Get-Help about_signing
+Get-ExecutionPolicy
+Set-ExecutionPolicy Unrestricted | RemoteSigned | AllSigned | Restricted | Default | Bypass | Undefined
+Set-ExecutionPolicy RemoteSigned
+```
 
 Policy Wert	Beschreibung
 Restricted (Default)	Keine Skripte werden ausgeführt
@@ -23,7 +31,8 @@ RemoteSigned	Lokal erstellte Skripte sind erlaubt, aber andere Skripte müssen s
 Unrestricted	Jedes Skript wird ausgeführt
 
 
-#Powershell Datatypes
+# Powershell Datatypes
+```
 Datatype	Beschreibung
 [string]	Fixed-length string of Unicode characters
 [char]	A Unicode 16-bit character
@@ -38,8 +47,10 @@ Datatype	Beschreibung
 [xml]	 Xml object
 [array]	An array of values
 [hashtable]	Hashtable object
+```
 
-#Compare Operator
+# Compare Operator
+```
 Operator	Beschreibung
 -lt	Less than
 -le	Less than or equal to
@@ -57,9 +68,10 @@ Operator	Beschreibung
 -bor	Bitwise OR
 -is	Is of Type
 -isnot	Is not of Type
+```
 
-#Operator
-
+# Operator
+```
 Operator	Beschreibung
 \#	The hash key is for comments
 \+	Add
@@ -81,183 +93,255 @@ Operator	Beschreibung
 . (space)	call operator (e.g. $a = "Get-ChildItem" . $a executes Get-ChildItem in the current scope)
 .	for an objects properties $CompSys.TotalPhysicalMemory
 -F	Format operator (e.g. foreach ($p in Get-Process) { "{0,-15} has {1,6} handles" -F  $p.processname,$p.Handlecount } )
+```
 
-#Pipe
-    Get-Service | fl name, status
-    Get-Service | ft name, status
+# Pipe
+```
+Get-Service | fl name, status
+Get-Service | ft name, status
+```
 
-#Pipe Output to clipboard
-    Get-Service | clip
+# Pipe Output to clipboard
+```
+Get-Service | clip
+```
 
-#Sort
-    Get-Service | Sort-Object -Property status
+# Sort
+```
+Get-Service | Sort-Object -Property status
+```
 
-#Where
-    Get-Service | Where-Object {$_.status -eq "Running"}
+# Where
+```
+Get-Service | Where-Object {$_.status -eq "Running"}
+```
 
-#Count Objects
-    Get-Service | Where-Object {$_.status -eq "Running"} | Measure-Object
+# Count Objects
+```
+Get-Service | Where-Object {$_.status -eq "Running"} | Measure-Object
+```
 
-#Output
-    Write-Host "Test"
-    Write-Host "Test" -ForegroundColor "Green"
+# Output
+```
+Write-Host "Test"
+Write-Host "Test" -ForegroundColor "Green"
+```
 
-#Output in HTML
-    get-service | ConvertTo-Html -Property Name,Status > D:\Temp\Service.html
+# Output in HTML
+```
+Get-Service | ConvertTo-Html -Property Name,Status > D:\Temp\Service.html
+```
 
-#Input
-    $a = Read-Host "Enter your name"
-    Write-Host "Hello" $a
+# Input
+```
+$a = Read-Host "Enter your name"
+Write-Host "Hello" $a
+```
+# Import-CSV
+```
+$Header = "Vorname", "Nachname"
+$csv = Import-Csv c:\mitarbeiter.csv -Header $header
+```
 
-#Import-CSV
-    $Header = "Vorname", "Nachname"
-    $csv = Import-Csv c:\mitarbeiter.csv -Header $header
+# Export-CSV
+```
+Get-ADUser | select-object sn, givenName, title | export-csv C:\ad-name-title.csv -encoding UTF8 -NoTypeInformation
+```
 
-#Export-CSV
-    Get-ADUser | select-object sn, givenName, title | export-csv C:\ad-name-title.csv -encoding UTF8 -NoTypeInformation
+# Filesystem
+```
+cd c:\temp
+Get-ChildItem
+Get-ChildItem -Exclude .mp3
+New-Item C:\Test\Powershell -type directory
+Test-Path C:\Temp\somefile.txt
+```
 
-#Filesystem
-    cd c:\temp
-    Get-ChildItem
-    Get-ChildItem -Exclude .mp3
-    New-Item C:\Test\Powershell -type directory
-    Test-Path C:\Temp\somefile.txt
+# Read from File
+```
+[string]\$Attachment = Get-Content C:\Attachment_small.txt
+$sw = new-object system.IO.StreamWriter($LogPath, 1)
+$sw.readline("Just a new Line")
+$sw.close()
+```
 
-#Read from File
-    [string]\$Attachment = Get-Content C:\Attachment_small.txt
-    $sw = new-object system.IO.StreamWriter($LogPath, 1)
-    $sw.readline("Just a new Line")
-    $sw.close()
+# Out-File
+```
+$a = "Hello world"
+$a | out-file test.txt
+```
 
-#Out-File
-    $a = "Hello world"
-    $a | out-file test.txt
+# WriteToFile
+```
+$sw = new-object system.IO.StreamWriter($LogPath, 1)
+$sw.writeline("Just a new Line")
+$sw.close()
+```
 
-#WriteToFile
-    $sw = new-object system.IO.StreamWriter($LogPath, 1)
-    $sw.writeline("Just a new Line")
-    $sw.close()
-
-#Replace
-    $test = "This is just a test"
-    $test= $test.Replace("test", "text")
-    $test
+# Replace
+```
+$test = "This is just a test"
+$test= $test.Replace("test", "text")
+$test
+```
  
-#Split
-    $domuser = "RTS\widmanaf"
-    $arr = $domuser.split("\")
-    $domain = $arr[0]
-    $sam = $arr[1]
+# Split
+```
+$domuser = "DOMAIN\widmanaf"
+$arr = $domuser.split("\")
+$domain = $arr[0]
+$sam = $arr[1]
+```
  
-#Registry
-    Get-ItemProperty -path "REGISTRY::\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\WinTrust\Trust Providers\Software Publishing\" -name State
-    set-ItemProperty -path "REGISTRY::\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\WinTrust\Trust Providers\Software Publishing\" -name State -value 146944
+# Registry
+```
+Get-ItemProperty -path "REGISTRY::\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\WinTrust\Trust Providers\Software Publishing\" -name State
+Get-ItemProperty -path "REGISTRY::\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\WinTrust\Trust Providers\Software Publishing\" -name State -value 146944
+```
 
-#WMI
-    Get-WMIObject -Class Win32_Computersystem
+# WMI
+```
+Get-WMIObject -Class Win32_Computersystem
+```
 
-#Datum
-    [datetime]$datum = "11/01/2012"
-    $Datum = get-date
-    $Datum = (Get-Date).addDays(5)
-    $Datum =  $(get-date -format "dd.MM.yyyy HH:mm:ss")
+# Datum
+```
+[datetime]$datum = "11/01/2012"
+$Datum = get-date
+$Datum = (Get-Date).addDays(5)
+$Datum =  $(get-date -format "dd.MM.yyyy HH:mm:ss")
+```
 
-#If Else
-       If ($Count -gt 0) {
-            Write-Host("Computer " + $Computername + " found") -foregroundcolor Green
-        } else {
-            Write-Host("Computer " + $Computername + " NOT found") -foregroundcolor Red
-        }
+# If Else
+```
+If ($Count -gt 0) {
+	Write-Host("Computer " + $Computername + " found") -foregroundcolor Green
+} else {
+	Write-Host("Computer " + $Computername + " NOT found") -foregroundcolor Red
+}
+```
 
-#Condition
-    $a = "red"
-    switch ($a)
-    {
-    "red" {"The colour is red"}
-    "white"{"The colour is white"}
-    default{"Another colour"}
-    }
+# Condition
+```
+$a = "red"
+switch ($a)
+{
+	"red" {"The colour is red"}
+	"white"{"The colour is white"}
+	default{"Another colour"}
+}
+```
 
-#Match
+# Match
+```
     $string = "Just a little string"
     $searchstring = "little"
     $result = $string -match $searchstring #Result is TRUE
-    /*For Each*/       
-    Foreach (Item in Items){
-    Write-Host("Do whatever you want")
-    }
+```
 
-#Range
-    $range = 1..2000
-    ForEach ($iterator in $range) {
-    $groupname = "Group" + "{0:D4}" -f $iterator
-    new-QADGroup -Name $groupname -SamAccountName $groupname -ParentContainer 'OU=Groups,OU=TEST,DC=destination,DC=internal' -Member j.doe
-    }
+# For Each
+```       
+Foreach (Item in Items)
+{
+	Write-Host("Do whatever you want")
+}
+```
 
-#Do While
-    $a=1
-    Do {$a; $a++}
-    While ($a –lt 10)
+# Range
+```
+$range = 1..2000
+ForEach ($iterator in $range) 
+{
+	$Groupname = "Group" + "{0:D4}" -f $iterator
+	New-QADGroup -Name $groupname -SamAccountName $groupname -ParentContainer 'OU=Groups,OU=TEST,DC=destination,DC=internal' -Member j.doe
+}
+```
 
-#Do Until
-    $a=1
-    Do {$a; $a++}
-    Until ($a –gt 10)
+# Do While
+```
+$a=1
+Do {$a; $a++}
+While ($a –lt 10)
+```
 
-#Array
-    [array]$myarray = @()
-    $myarray += "A"
-    $myarray += "B"
-    $myarray.GetType()
-    $myarray
+# Do Until
+```
+$a=1
+Do {$a; $a++}
+Until ($a –gt 10)
+```
 
-#Powershell Snapin
-    #Check if Forefront Snapin is already loaded
-    $Snapins = get-pssnapin
-    if ($Snapins -match "FSSPSSnapin")
-        {
-            Write-Output $("Forefront PS Snapin already loaded")
-        }
-        else
-        {
-            Write-Output $("Loading Forefront PS Snapin")
-            Add-PsSnapin FSSPSSnapin
-        }
+# Array
+```
+[array]$myarray = @()
+$myarray += "A"
+$myarray += "B"
+$myarray.GetType()
+$myarray
+```
 
-#Eventlog
-    Get-EventLog System -Newest 10
+# Powershell Snapin
+```
+#Check if Forefront Snapin is already loaded
+$Snapins = get-pssnapin
+if ($Snapins -match "FSSPSSnapin")
+	{
+		Write-Output $("Forefront PS Snapin already loaded")
+	}
+	else
+	{
+		Write-Output $("Loading Forefront PS Snapin")
+		Add-PsSnapin FSSPSSnapin
+	}
+```
 
-#Garbage Collector
+# Eventlog
+```
+Get-EventLog System -Newest 10
+```
+
+# Garbage Collector
+```
 [System.GC]::Collect()
+```
 
- #COM Objekte
+# COM Objekte
+```
 $a = New-Object –comobject "wscript.network"
 $a.username
-
-#Credential
+```
+# Credential
+```
 $Cred = Get-Credential
+```
+# Securestring
+```
+$Password = ConvertTo-SecureString Pass@word1 -AsPlainText -Force
+```
 
-#Securestring
-    $Password = ConvertTo-SecureString Pass@word1 -AsPlainText -Force
-
-#Run a Script
+# Run a Script
+```
 powershell.exe "c:\myscript.ps1"
-
+```
 #Parameter
-    myscript.ps1 server1 username
-    $servername = $args[0]
-    $username = $args[1]
+```
+myscript.ps1 server1 username
+$servername = $args[0]
+$username = $args[1]
+```
 
-#Function
-    function sum ([int]$a,[int]$b)
-    {
+# Function
+```
+function sum ([int]$a,[int]$b)
+{
     $result = $a + $b
     return $result
-    }
-    sum 4 5
+}
+sum 4 5
+```
 
- 
-/*Funktion WriteLog*/
+# Funktion WriteLog
+```
 ###############################################################################
 # Function WriteLog
 ###############################################################################
@@ -271,7 +355,10 @@ Function WriteLog {
     $sw.writeline($pDate + " " + $pLogtext)
     $sw.close()
 }
-/*SQL Querys*/
+```
+
+# SQL Querys
+```
 ###############################################################################
 # SQL Query's with Powershell
 ###############################################################################
@@ -307,3 +394,4 @@ Write-Host "Result UPDATE: " $Result
 $SqlConnection.Close()
 #Convert JSON
 $Filetypes = Get-Content -Path E:\temp\FileTypes.json | Out-String | ConvertFrom-Json
+```
