@@ -1,7 +1,7 @@
 ###############################################################################
 # https://docs.microsoft.com/en-us/exchange/client-developer/legacy-protocols/how-to-authenticate-an-imap-pop-smtp-application-by-using-oauth#use-client-credentials-grant-flow-to-authenticate-imap-and-pop-connections
 # https://github.com/DanijelkMSFT/ThisandThat/blob/main/Get-IMAPAccessToken.ps1
-# Work in Progress...
+# Initial Version - 20.12.2022
 ###############################################################################
 #Office 365 Exchange Online
 #- IMAP.AccessAsApp
@@ -30,105 +30,159 @@
 #>
 
 
-
-$TenantID = "icewolfch.onmicrosoft.com" 
-$AppID = "3bf0cf36-87bf-47a9-927b-0ef9df7cf146"
-$ExchangeService ="00000002-0000-0ff1-ce00-000000000000"
-$ExchangeServiceObjectID = "db57f1dc-836b-4c1f-b0a0-0c0933e4908a"
-$AppObjectID = "fa0c3777-399d-41f4-ac98-d928ef19960b"
-$EnterpriseAppObjectID = "03ee3318-e731-4e1e-81a6-ba18c3ca9cb6"
-#$AppObjectID = "fa0c3777-399d-41f4-ac98-d928ef19960b"
-#New-ServicePrincipal -AppId $AppID -ServiceId $AppObjectId -Organization $TenantID
-#New-ServicePrincipal -AppId $AppID -ServiceId $ExchangeServiceObjectID -Organization $TenantID
-New-ServicePrincipal -AppId $AppID -ServiceId $EnterpriseAppObjectID -Organization $TenantID
-Get-ServicePrincipal -Organization $TenantID | Format-List
-
-#$SericePrincipalID = "fa0c3777-399d-41f4-ac98-d928ef19960b"
-#$SericePrincipalID = "db57f1dc-836b-4c1f-b0a0-0c0933e4908a"
-$SericePrincipalID = "03ee3318-e731-4e1e-81a6-ba18c3ca9cb6"
-Add-MailboxPermission -Identity "sharedmbx@icewolf.ch" -User $SericePrincipalID -AccessRights FullAccess
-#Remove-MailboxPermission -Identity "sharedmbx@icewolf.ch" -User $SericePrincipalID
-Get-MailboxPermission  -Identity "sharedmbx@icewolf.ch" | Where-Object { ($_.AccessRights -eq "FullAccess") -and ($_.IsInherited -eq $false) -and -not ($_.User -like "NT AUTHORITY\SELF") } | ft -AutoSize
-
-Get-CASMailbox -Identity "Sharedmbx@icewolf.ch" | Format-List imap*
-#Set-CASMailbox -Identity "Sharedmbx@icewolf.ch" -ImapEnabled $true
-
-
-
-#Testing
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-$AppID = "3bf0cf36-87bf-47a9-927b-0ef9df7cf146"
-$TenantID = "icewolfch.onmicrosoft.com"
-$ClientSecret = "" 
-.\Get-IMAPAccessToken.ps1 -tenantID $TenantID -clientId $AppID -clientsecret $ClientSecret -targetMailbox "sharedmbx@icewolf.ch"
-
+###############################################################################
+# Get AzureAD Application with Microsoft.Graph PowerShell
+###############################################################################
+Connect-MgGraph -Scopes 'Application.Read.All'
+$ServicePrincipalDetails = Get-MgServicePrincipal -Filter "DisplayName eq 'DemoEXO-POP3-IMAP'"
+$ServicePrincipalDetails
 
 ###############################################################################
-# Get Access Token
+# Create Exchange Service Principal
 ###############################################################################
+Connect-ExchangeOnline
+New-ServicePrincipal -AppId $ServicePrincipalDetails.AppId -ServiceId $ServicePrincipalDetails.Id -DisplayName "EXO Serviceprincipal $($ServicePrincipalDetails.Displayname)"
 
-#Variables
-$AppID = "3bf0cf36-87bf-47a9-927b-0ef9df7cf146"
-$TenantID = "icewolfch.onmicrosoft.com"
-$ClientSecret = ConvertTo-SecureString "" -AsPlainText -Force
-$Scope = "https://outlook.office.com/.default"
-#$RedirectUri = "https://login.microsoftonline.com/common/oauth2/nativeclient"
+###############################################################################
+# CAS Mailbox 
+###############################################################################
+Get-CASMailbox -Identity m.muster@icewolf.ch | Format-List imap*
+Set-CASMailbox -Identity m.muster@icewolf.ch -PopEnabled $true -ImapEnabled $true
 
+###############################################################################
+#Full Access
+###############################################################################
+$Mailbox = "m.muster@icewolf.ch"
+$SericePrincipal = "EXO Serviceprincipal DemoEXO-POP3-IMAP"
+Add-MailboxPermission -Identity $Mailbox -User $SericePrincipal -AccessRights FullAccess -AutoMapping $false
+
+$Mailbox = "m.muster@icewolf.ch"
+Get-MailboxPermission  -Identity $Mailbox | Where-Object { ($_.AccessRights -eq "FullAccess") -and ($_.IsInherited -eq $false) -and -not ($_.User -like "NT AUTHORITY\SELF") } | ft -AutoSize
+
+###############################################################################
+# Get Access Token with MSAL
+###############################################################################
 Import-Module MSAL.PS
+
+$AppID = "3bf0cf36-87bf-47a9-927b-0ef9df7cf146"
+$TenantID = "icewolfch.onmicrosoft.com" 
+$ClientSecret = ConvertTo-SecureString "YourClientSecret" -AsPlainText -Force
+$Scope = "https://outlook.office.com/.default"
+
 Clear-MsalTokenCache
 $Token = Get-MSALToken -ClientId $AppID -ClientSecret $ClientSecret -TenantId $TenantID -Scope $Scope
-#$Token = Get-MSALToken -ClientId $AppID -ClientSecret $ClientSecret -TenantId $TenantID -Interactive
-#$Token = Get-MSALToken -ClientId $AppID  -TenantId $TenantID -Interactive -RedirectUri $RedirectUri -Scope $Scope
 $AccessToken = $Token.AccessToken
-$AccessToken | clip
 
+###############################################################################
+# connecting to Office 365 IMAP Service
+###############################################################################
+Write-Host "Connect to Office 365 IMAP Service." -ForegroundColor DarkGreen
+$ComputerName = "Outlook.office365.com"
+$Port = "993"
+    try {
+        $TCPConnection = New-Object System.Net.Sockets.Tcpclient($($ComputerName), $Port)
+        $TCPStream = $TCPConnection.GetStream()
+        try {
+            $SSLStream  = New-Object System.Net.Security.SslStream($TCPStream)
+            $SSLStream.ReadTimeout = 5000
+            $SSLStream.WriteTimeout = 5000
+            $CheckCertRevocationStatus = $true
+            $SSLStream.AuthenticateAsClient($ComputerName,$null,[System.Security.Authentication.SslProtocols]::Tls12,$CheckCertRevocationStatus)
+        }
+        catch  {
+            Write-Host "Ran into an exception while negotating SSL connection. Exiting." -ForegroundColor Red
+            $_.Exception.Message
+            break
+        }
+    }
+    catch  {
+    Write-Host "Ran into an exception while opening TCP connection. Exiting." -ForegroundColor Red
+    $_.Exception.Message
+    break
+    }   
 
-$TargetMailbox = "Sharedmbx@icewolf.ch"
-#Base64 Encode
-#$Text = "user=" + $TargetMailbox + " ^Aauth=Bearer " + $accessToken + "^A^A"
-$Text = "user=" + $TargetMailbox + " $([char]0x01)auth=Bearer " + $accessToken + "$([char]0x01)$([char]0x01)"
+# continue if connection was successfully established
+$SSLstreamReader = new-object System.IO.StreamReader($sslStream)
+$SSLstreamWriter = new-object System.IO.StreamWriter($sslStream)
+$SSLstreamWriter.AutoFlush = $true
+$SSLstreamReader.ReadLine()
 
+###############################################################################
+# Send "C01 CAPABILITY"
+###############################################################################
+Write-Host "C01 CAPABILITY" -ForegroundColor "Cyan"
+$Text = "C01 CAPABILITY"
+$SSLstreamWriter.WriteLine($Text)
+$ResponseStr = $SSLstreamReader.ReadLine()
+Write-Host "$ResponseStr" -ForegroundColor "Cyan"
+
+#Wait for "C01 OK CAPABILITY completed"
+$ResponseStr = $SSLstreamReader.ReadLine()
+Write-Host "$ResponseStr" -ForegroundColor "Cyan"
+
+###############################################################################
+# Build Login
+###############################################################################
+$UserName = "m.muster@icewolf.ch"
+#$Text = "user=test@contoso.onmicrosoft.com^Aauth=Bearer EwBAAl3BAAUFFpUAo7J3Ve0bjLBWZWCclRC3EoAA^A^A"
+$Text = "user=" + $UserName + "$([char]0x01)auth=Bearer " + $accessToken + "$([char]0x01)$([char]0x01)"
 $Bytes = [System.Text.Encoding]::ASCII.GetBytes($Text)
 $EncodedText =[Convert]::ToBase64String($Bytes)
-$EncodedText
 
-#DECODE
-$DecodedText = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($EncodedText))
-$DecodedText
-
-#Create Login
 $Login = "C02 AUTHENTICATE XOAUTH2 $EncodedText"
-$Login
-$Login | clip
+#$Login
+#$Login | clip
 
-#Connect
-$ServerName = "outlook.office365.com"
-$Port = "993"
-Write-Host("Connect $ServerName $Port") -ForegroundColor Green
-$socket = new-object System.Net.Sockets.TcpClient($ServerName, $Port)
-$stream = $socket.GetStream()
-$streamWriter = new-object System.IO.StreamWriter($stream)
-$streamReader = new-object System.IO.StreamReader($stream)
-$stream.ReadTimeout = 5000
-$stream.WriteTimeout = 5000  
-$streamWriter.AutoFlush = $true
-$sslStream = New-Object System.Net.Security.SslStream($stream)
-$sslStream.ReadTimeout = 5000
-$sslStream.WriteTimeout = 5000       
-$ConnectResponse = $streamReader.ReadLine();
-Write-Host($ConnectResponse)
-if(!$ConnectResponse.StartsWith("220")){
-    throw "Error connecting to the SMTP Server"
+###############################################################################
+# Authenticate with XOAUTH2
+###############################################################################
+Write-Host "Authenticate using XOAuth2" -ForegroundColor "Cyan"
+$SSLstreamWriter.WriteLine($Login)
+$ResponseStr = $SSLstreamReader.ReadLine()
+Write-Host "$ResponseStr" -ForegroundColor "Cyan"
+
+###############################################################################
+# List
+###############################################################################
+$Text = 'C03 LIST "" *'
+$SSLstreamWriter.WriteLine($Text)
+while ($ResponseStr -notmatch "LIST completed") 
+{
+	$ResponseStr = $SSLstreamReader.ReadLine()
+	Write-Host "$ResponseStr" -ForegroundColor "Cyan"
 }
 
-openssl s_client -connect outlook.office365.com:993 -crlf 
-C01 CAPABILITY
+###############################################################################
+# Close
+###############################################################################
+Write-Host "C04 LOGOUT" -ForegroundColor "Cyan"
+$Text = 'C04 LOGOUT'
+$SSLstreamWriter.WriteLine($Text)
+$ResponseStr = $SSLstreamReader.ReadLine()
+Write-Host "$ResponseStr" -ForegroundColor "Cyan"
+
+###############################################################################
+# Cleanup
+###############################################################################
+$SSLstreamWriter.Close()
+$SSLstreamReader.Close()
+$SSLStream.Close()
+
+
+###############################################################################
+# Test with OpenSSL
+###############################################################################
+<#
+cd C:\Program Files\Git\usr\bin
+openssl.exe s_client -connect outlook.office365.com:993 -crlf -quiet
 
 C: C01 CAPABILITY
 S: * CAPABILITY … AUTH=XOAUTH2
 S: C01 OK Completed
-C: C02 AUTHENTICATE XOAUTH2 
+C: C02 AUTHENTICATE XOAUTH2 dXNlcj1zb21ldXNlckBleGFtcGxlLmNvbQFhdXRoPUJlYXJlciB5YTI5LnZGOWRmdDRxbVRjMk52YjNSbGNrQmhkSFJoZG1semRHRXVZMjl0Q2cBAQ==
 S: C02 OK AUTHENTICATE completed.
-C: C03 LIST
-S: 
-C: C04 SELECT "INBOX" 
+C: C03 LIST "" *
+S: C03 OK LIST completed
+C: C04 Logout
+S: C04 OK LOGOUT completed
+#>
