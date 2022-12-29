@@ -21,7 +21,7 @@ Probably works from Exchange 2013 to 2019
 
 ## How to Install
 ```
-Install-Module Icewolf.Exchange.MAPI
+Install-Module Icewolf.Exchange.MAPI -AllowPrerelease
 ```
 
 ## Built in Help

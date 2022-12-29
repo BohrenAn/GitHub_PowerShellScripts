@@ -11,7 +11,7 @@
 RootModule = 'Icewolf.Exchange.MAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.3'
+ModuleVersion = '0.3.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -103,7 +103,7 @@ PrivateData = @{
         # LicenseUri = ''
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Icewolf.Exchange.MAPI'
 
         # A URL to an icon representing this module.
         # IconUri = ''
@@ -113,13 +113,13 @@ PrivateData = @{
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
 
-V0.3-Preview1
+V0.3.0-Preview1
 Updates and Cleaning Code
 
-V0.2
+V0.2.0
 Updates and Cleaning Code
 
-V0.1
+V0.1.0
 Initial Release of the Module
 ---------------------------------------------------------------------------------------------		
 '
