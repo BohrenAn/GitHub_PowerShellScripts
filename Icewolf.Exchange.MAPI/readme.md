@@ -24,6 +24,14 @@ Probably works from Exchange 2013 to 2019
 Install-Module Icewolf.Exchange.MAPI
 ```
 
+## Built in Help
+```
+Get-Command -Module Icewolf.Exchange.MAPI
+Get-Help Add-MAPIPermission
+Get-Help Remove-MAPIPermission
+Get-Help Export-MAPIPermission
+ ```
+
 ## How to use
 Connect to Exchange or Exchange Online
 
