@@ -50,7 +50,7 @@ Function Export-MAPIPermission
 		{
 			#File alredy Exists
 			Write-Host "File already exists." -ForegroundColor Yellow
-			$readhost = Read-Host "Do You like to open the overwrite File? (y/n)[n]?"
+			$readhost = Read-Host "Do you like to overwrite the File? (y/n)[n]?"
 			if ($readhost -eq "n")
 			{
 				#Stop Script
@@ -110,7 +110,7 @@ Function Export-MAPIPermission
 	$sw.close()
 	$sw.dispose()
 	
-	$readhost = Read-Host "Do You like to open the exported File? (y/n)[n]?"
+	$readhost = Read-Host "Do you like to open the exported File? (y/n)[n]?"
 	if ($readhost -eq "y")
 	{
 		Invoke-Item $FilePath		
