@@ -73,6 +73,14 @@ $Result = Get-MgUserMailFolder -UserId $Mailbox
 $Result | Format-List DisplayName, TotalItemCount, UnreadItemCount, id
 
 ###############################################################################
+#Get-MgUserMailFolderChildFolder
+#SubFoldershttps://learn.microsoft.com/en-us/powershell/module/microsoft.graph.mail/get-mgusermailfolderchildfolder?view=graph-powershell-1.0
+###############################################################################
+#FolderNames are Language Specific :(
+$Folder = $Result | Where-Object {$_.DisplayName -eq "Posteingang"} | Select-Object id
+Get-MgUserMailFolderChildFolder -UserId $Mailbox -MailFolderId $Folder.ID | Format-Table displayName, ID, ChildFolderCount
+
+###############################################################################
 #List messages
 #https://docs.microsoft.com/en-us/graph/api/user-list-messages?view=graph-rest-1.0&tabs=http
 ###############################################################################
