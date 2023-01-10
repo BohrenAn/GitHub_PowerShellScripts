@@ -86,7 +86,7 @@ Function Get-EmailaddressFromAlias {
 }
 
 ##############################################################################
-# Check-ExchangeOnlineConnection
+# Check-ExchangeConnection
 ##############################################################################
 Function Test-ExchangeConnection {
 	try {
