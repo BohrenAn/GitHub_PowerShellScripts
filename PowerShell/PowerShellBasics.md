@@ -157,6 +157,15 @@ New-Item C:\Test\Powershell -type directory
 Test-Path C:\Temp\somefile.txt
 ```
 
+#  Delete File if exist
+```
+$CSVFile = ".\demo.csv"
+If (Test-Path -Path $CSVFile)
+{
+	Remove-Item -Path $CSVFile
+}
+```
+
 # Read from File
 ```
 [string]\$Attachment = Get-Content C:\Attachment_small.txt
@@ -176,6 +185,11 @@ $a | out-file test.txt
 $sw = new-object system.IO.StreamWriter($LogPath, 1)
 $sw.writeline("Just a new Line")
 $sw.close()
+```
+
+# Add Content
+```
+Add-Content -Path $CSVFile -Value "$Var1;$Var2;$Var3"
 ```
 
 # Replace
@@ -241,7 +255,7 @@ switch ($a)
 
 # For Each
 ```       
-Foreach (Item in Items)
+Foreach ($Item in $Items)
 {
 	Write-Host("Do whatever you want")
 }
