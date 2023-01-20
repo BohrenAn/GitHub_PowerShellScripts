@@ -62,6 +62,17 @@ $TenantId = "icewolfch.onmicrosoft.com"
 Connect-MgGraph -AppId $AppID -Certificate $Certificate -TenantId $TenantId
 Disconnect-MgGraph
 
+#Connect with Certificate PFX File
+$AppID = "c1a5903b-cd73-48fe-ac1f-e71bde968412" #DelegatedMail
+$TenantId = "icewolfch.onmicrosoft.com"
+#Make sure the PFXPassword is securely Stored and not in Code like here
+$PFXPassword = ConvertTo-SecureString -String "SecretPa$$word!" -Force -AsPlainText
+$PFX = Get-PfxData -FilePath "C:\GIT_WorkingDir\O365Powershell3.pfx" -Password $PFXPassword
+$Certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+$Certificate = $PFX.EndEntityCertificates[0]
+Connect-MgGraph -AppId $AppID -Certificate $Certificate -TenantId $TenantId
+Disconnect-MgGraph
+
 ###############################################################################
 #Create SelfSignedCertificate
 # https://docs.microsoft.com/en-us/powershell/module/pki/new-selfsignedcertificate?view=windowsserver2022-ps
