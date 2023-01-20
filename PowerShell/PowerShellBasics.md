@@ -1,23 +1,23 @@
 # Integrated Help
-```
+```posh
 Get-Help
 Get-Help Get-Date
 Get-Help *
 ```
 
 # List all cmdlet
-```
+```posh
 Get-Command
 Get-Command -Module MicrosoftTeams
 ```
 
 # Powershell Version
-```
+```posh
 Get-Host | Select-Object Version
 ```
 
 # Execution Policy
-```
+```posh
 Get-Help about_signing
 Get-ExecutionPolicy
 Set-ExecutionPolicy Unrestricted | RemoteSigned | AllSigned | Restricted | Default | Bypass | Undefined
@@ -32,7 +32,7 @@ Unrestricted	Jedes Skript wird ausgeführt
 
 
 # Powershell Datatypes
-```
+```posh
 Datatype	Beschreibung
 [string]	Fixed-length string of Unicode characters
 [char]	A Unicode 16-bit character
@@ -50,7 +50,7 @@ Datatype	Beschreibung
 ```
 
 # Compare Operator
-```
+```posh
 Operator	Beschreibung
 -lt	Less than
 -le	Less than or equal to
@@ -71,7 +71,7 @@ Operator	Beschreibung
 ```
 
 # Operator
-```
+```posh
 Operator	Beschreibung
 \#	The hash key is for comments
 \+	Add
@@ -96,44 +96,44 @@ Operator	Beschreibung
 ```
 
 # Pipe
-```
+```posh
 Get-Service | fl name, status
 Get-Service | ft name, status
 ```
 
 # Pipe Output to clipboard
-```
+```posh
 Get-Service | clip
 ```
 
 # Sort
-```
+```posh
 Get-Service | Sort-Object -Property status
 ```
 
 # Where
-```
+```posh
 Get-Service | Where-Object {$_.status -eq "Running"}
 ```
 
 # Count Objects
-```
+```posh
 Get-Service | Where-Object {$_.status -eq "Running"} | Measure-Object
 ```
 
 # Output
-```
+```posh
 Write-Host "Test"
 Write-Host "Test" -ForegroundColor "Green"
 ```
 
 # Output in HTML
-```
+```posh
 Get-Service | ConvertTo-Html -Property Name,Status > D:\Temp\Service.html
 ```
 
 # Input
-```
+```posh
 $a = Read-Host "Enter your name"
 Write-Host "Hello" $a
 ```
@@ -144,12 +144,12 @@ $csv = Import-Csv c:\mitarbeiter.csv -Header $header
 ```
 
 # Export-CSV
-```
+```posh
 Get-ADUser | select-object sn, givenName, title | export-csv C:\ad-name-title.csv -encoding UTF8 -NoTypeInformation
 ```
 
 # Filesystem
-```
+```posh
 cd c:\temp
 Get-ChildItem
 Get-ChildItem -Exclude .mp3
@@ -158,7 +158,7 @@ Test-Path C:\Temp\somefile.txt
 ```
 
 #  Delete File if exist
-```
+```posh
 $CSVFile = ".\demo.csv"
 If (Test-Path -Path $CSVFile)
 {
@@ -167,7 +167,7 @@ If (Test-Path -Path $CSVFile)
 ```
 
 # Read from File
-```
+```posh
 [string]\$Attachment = Get-Content C:\Attachment_small.txt
 $sw = new-object system.IO.StreamWriter($LogPath, 1)
 $sw.readline("Just a new Line")
@@ -175,32 +175,32 @@ $sw.close()
 ```
 
 # Out-File
-```
+```posh
 $a = "Hello world"
 $a | out-file test.txt
 ```
 
 # WriteToFile
-```
+```posh
 $sw = new-object system.IO.StreamWriter($LogPath, 1)
 $sw.writeline("Just a new Line")
 $sw.close()
 ```
 
 # Add Content
-```
+```posh
 Add-Content -Path $CSVFile -Value "$Var1;$Var2;$Var3"
 ```
 
 # Replace
-```
+```posh
 $test = "This is just a test"
 $test= $test.Replace("test", "text")
 $test
 ```
  
 # Split
-```
+```posh
 $domuser = "DOMAIN\widmanaf"
 $arr = $domuser.split("\")
 $domain = $arr[0]
@@ -208,18 +208,18 @@ $sam = $arr[1]
 ```
  
 # Registry
-```
+```posh
 Get-ItemProperty -path "REGISTRY::\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\WinTrust\Trust Providers\Software Publishing\" -name State
 Get-ItemProperty -path "REGISTRY::\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\WinTrust\Trust Providers\Software Publishing\" -name State -value 146944
 ```
 
 # WMI
-```
+```posh
 Get-WMIObject -Class Win32_Computersystem
 ```
 
 # Datum
-```
+```posh
 [datetime]$datum = "11/01/2012"
 $Datum = get-date
 $Datum = (Get-Date).addDays(5)
@@ -227,7 +227,7 @@ $Datum =  $(get-date -format "dd.MM.yyyy HH:mm:ss")
 ```
 
 # If Else
-```
+```posh
 If ($Count -gt 0) {
 	Write-Host("Computer " + $Computername + " found") -foregroundcolor Green
 } else {
@@ -236,7 +236,7 @@ If ($Count -gt 0) {
 ```
 
 # Condition
-```
+```posh
 $a = "red"
 switch ($a)
 {
@@ -247,14 +247,14 @@ switch ($a)
 ```
 
 # Match
-```
+```posh
     $string = "Just a little string"
     $searchstring = "little"
     $result = $string -match $searchstring #Result is TRUE
 ```
 
 # For Each
-```       
+```posh
 Foreach ($Item in $Items)
 {
 	Write-Host("Do whatever you want")
@@ -262,7 +262,7 @@ Foreach ($Item in $Items)
 ```
 
 # Range
-```
+```posh
 $range = 1..2000
 ForEach ($iterator in $range) 
 {
@@ -272,21 +272,21 @@ ForEach ($iterator in $range)
 ```
 
 # Do While
-```
+```posh
 $a=1
 Do {$a; $a++}
 While ($a –lt 10)
 ```
 
 # Do Until
-```
+```posh
 $a=1
 Do {$a; $a++}
 Until ($a –gt 10)
 ```
 
 # Array
-```
+```posh
 [array]$myarray = @()
 $myarray += "A"
 $myarray += "B"
@@ -295,7 +295,7 @@ $myarray
 ```
 
 # Powershell Snapin
-```
+```posh
 #Check if Forefront Snapin is already loaded
 $Snapins = get-pssnapin
 if ($Snapins -match "FSSPSSnapin")
@@ -310,42 +310,45 @@ if ($Snapins -match "FSSPSSnapin")
 ```
 
 # Eventlog
-```
+```posh
 Get-EventLog System -Newest 10
 ```
 
 # Garbage Collector
-```
+```posh
 [System.GC]::Collect()
 ```
 
 # COM Objekte
-```
+```posh
 $a = New-Object –comobject "wscript.network"
 $a.username
 ```
+
 # Credential
-```
+```posh
 $Cred = Get-Credential
 ```
+
 # Securestring
-```
+```posh
 $Password = ConvertTo-SecureString Pass@word1 -AsPlainText -Force
 ```
 
 # Run a Script
-```
+```posh
 powershell.exe "c:\myscript.ps1"
 ```
-#Parameter
-```
+
+# Parameter
+```posh
 myscript.ps1 server1 username
 $servername = $args[0]
 $username = $args[1]
 ```
 
 # Function
-```
+```posh
 function sum ([int]$a,[int]$b)
 {
     $result = $a + $b
@@ -355,7 +358,7 @@ sum 4 5
 ```
 
 # Funktion WriteLog
-```
+```posh
 ###############################################################################
 # Function WriteLog
 ###############################################################################
@@ -372,7 +375,7 @@ Function WriteLog {
 ```
 
 # SQL Querys
-```
+```posh
 ###############################################################################
 # SQL Query's with Powershell
 ###############################################################################
