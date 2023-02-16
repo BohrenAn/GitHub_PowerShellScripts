@@ -113,6 +113,9 @@ PrivateData = @{
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
 
+V0.3.0-Preview2
+Fix spelling in a Output
+
 V0.3.0-Preview1
 Updates and Cleaning Code
 
@@ -125,7 +128,7 @@ Initial Release of the Module
 '
 
         # Prerelease string of this module
-        Prerelease = 'Preview1'
+        Prerelease = 'Preview2'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         RequireLicenseAcceptance = $false
