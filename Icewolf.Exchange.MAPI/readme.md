@@ -52,14 +52,14 @@ That's the generated CSV File
 
 ### Add MAPI Permissions to Mailbox Folders
 ```
-Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -Trustee erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-includeSubfolders $true] [-SendOnBehalf $true]
+Add-MAPIPermission -Mailbox john.doe@yourdomain.com -Trustee erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-includeSubfolders $true] [-SendOnBehalf $true]
 ```
 
 ![Image](Icewolf.Exchange.MAPI_03.jpg)
 
 ### Remove MAPI Permissions from Mailbox Folders
 ```
-Remove-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.ch -User erika.mustermann@yourdomain.com -Folder Calendar [-IncludeSubfolders $true] [-RemoveSendOnBehalf $true] [-DeleteRootFolderPermission $true]
+Remove-MAPIPermission -Mailbox john.doe@yourdomain.ch -Trustee erika.mustermann@yourdomain.com -Folder Calendar [-IncludeSubfolders $true] [-RemoveSendOnBehalf $true] [-DeleteRootFolderPermission $true]
 ```
 
 ![Image](Icewolf.Exchange.MAPI_04.jpg)
