@@ -1,5 +1,5 @@
 ###############################################################################
-# Get Exchange Schema Version
+# Get Exchange AD Schema Version
 # 23.02.2023 - Initial Version - Andres Bohren
 ###############################################################################
 #Needs ActiveDirectory PowerShell Module
