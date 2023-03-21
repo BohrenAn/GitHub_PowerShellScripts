@@ -72,38 +72,43 @@ Function Export-MAPIPermission
 	$folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "Audits" -AND $_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*"}
 	#Create file to write in
 	$sw = new-object system.IO.StreamWriter($FilePath,0)
-	$sw.writeline("Mailbox;Trustee;AccessRights")
+	$sw.writeline("Mailbox;User;AccessRights")
 	foreach ($Line in $folderstats)
 	{
 		#If the Folder is in the root directory
 		if ($Line.FolderType -eq "Root")
 		{
-			$foldername = $Line.Identity.replace($Line.Identity, $Mailbox + ":\")
+			$Foldername = $Line.Identity.replace($Line.Identity, $Mailbox + ":\")
+			$FolderId = $Mailbox + ":" + $Line.FolderId
 		}
 		else 
 		{
-			$foldername = $Line.Identity.replace($Mailbox,$Mailbox +":")
+			$Foldername = $Line.Identity.replace($Mailbox,$Mailbox +":")
+			$FolderId = $Mailbox + ":" + $Line.FolderId
 		}
 	
-		[string]$foldername = $foldername -replace([char]63743,"/")
-		Write-Host "Working on Folder: $foldername"
-		$folderpermissions = Get-MailboxFolderPermission -Identity "$foldername"
 		
-		foreach ($fp in $folderpermissions)
+		#[string]$foldername = $foldername -replace([char]63743,"/")
+		Write-Host "Working on Folder: $foldername"
+		#$FolderPermissions = Get-MailboxFolderPermission -Identity "$foldername"
+		$FolderPermissions = Get-MailboxFolderPermission -Identity "$FolderId"
+		
+		
+		foreach ($FP in $FolderPermissions)
 		{	  
 			#if default user
-			if ($Null -eq $fp.user.adrecipient) 
+			if ($Null -eq $FP.user.adrecipient) 
 			{
-				$Trustee = $fp.user.DisplayName
-				$accessrights = $fp.accessrights
+				$User = $FP.user.DisplayName
+				$Accessrights = $FP.accessrights
 			}
 			else 
 			{
-				$Trustee = $fp.user.adrecipient.userprincipalname
-				$accessrights = $fp.accessrights
+				$User = $FP.user.adrecipient.userprincipalname
+				$Accessrights = $FP.accessrights
 			}
 			#Write into File
-			$sw.writeline("$foldername;$Trustee;$accessrights") 
+			$sw.writeline("$Foldername;$User;$Accessrights") 
 		}
 	}
 	#Cleanup
@@ -113,7 +118,7 @@ Function Export-MAPIPermission
 	$readhost = Read-Host "Do you like to open the exported File? (y/n)[n]?"
 	if ($readhost -eq "y")
 	{
-		Invoke-Item $FilePath		
+		Invoke-Item $FilePath
 	} Else {
 		Write-Host "Please check $FilePath" -ForegroundColor Yellow
 	}

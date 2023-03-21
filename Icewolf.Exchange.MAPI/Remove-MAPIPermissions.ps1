@@ -17,13 +17,16 @@ Function Remove-MAPIPermission {
 	
 .DESCRIPTION
 	Remove MAPI Permission from a specific User
-	Remove-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.ch -Trustee erika.mustermann@yourdomain.com -Folder Inbox -RemoveSendOnBehalf $true
+	Remove-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.ch -User erika.mustermann@yourdomain.com -Folder Inbox -RemoveSendOnBehalf $true
 
 .PARAMETER Mailbox
 	The mailbox on which the permission will be removed
 	
-.PARAMETER Trustee
+.PARAMETER User
 	The User which permissions will be removed
+
+.PARAMETER Trustee
+	Alias for Parameter User. The User which permissions will be removed
 
 .PARAMETER Folder
 	A specific defaultfolder:
@@ -32,6 +35,13 @@ Function Remove-MAPIPermission {
 	- Notes
 	- Tasks
 	- Contacts
+
+.PARAMETER ExcludeFolders
+	A secific SubFolder to Exclude
+	john.doe@yourdomain.com:\Inbox\Subfolder1
+
+	Can also be an Array of Folders
+	$ExcludeFolders = @("john.doe@yourdomain.com:\Inbox\Subfolder1","john.doe@yourdomain.com:\Inbox\Subfolder2")
 
 .PARAMETER IncludeSubfolders
 	Boolean Value (True/False) if MAPI Permission are removed on all Subfolders
@@ -45,15 +55,18 @@ Function Remove-MAPIPermission {
 
 	
 .EXAMPLE
-	Remove-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.ch -User erika.mustermann@yourdomain.com -Folder Inbox
-	Remove-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.ch -User erika.mustermann@yourdomain.com -Folder Calendar [-IncludeSubfolders $true] [-RemoveSendOnBehalf $true] [-DeleteRootFolderPermission $true]
+	Remove-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -Folder Inbox
+	Remove-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -Folder Calendar [-IncludeSubfolders $true] [-ExcludeFolders john.doe@yourdomain.com:\Inbox\Subfolder1] [-RemoveSendOnBehalf $true] [-DeleteRootFolderPermission $true]
 
+	$ExcludeFolders = @("john.doe@yourdomain.com:\Inbox\Subfolder1","john.doe@yourdomain.com:\Inbox\Subfolder2")
+	Remove-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -Folder Calendar [-IncludeSubfolders $true] [-ExcludeFolders $ExcludeFolders] [-RemoveSendOnBehalf $true] [-DeleteRootFolderPermission $true]
 #>
 
 	param(
 	[parameter(Mandatory=$true)][String]$Mailbox,
-	[parameter(Mandatory=$true)][String]$Trustee,
+	[parameter(Mandatory=$true)][Alias("Trustee")][String]$User,
 	[parameter(Mandatory=$true)][String]$Folder,
+	[parameter(Mandatory=$false)][Array]$ExcludeFolder,
 	[bool]$includeSubfolders = $false,
 	[bool]$DeleteRootFolderPermission = $false,
 	[bool]$RemoveSendOnBehalf = $false
@@ -77,25 +90,25 @@ Function Remove-MAPIPermission {
 		Break
 	}
 
-	#Check if Trustee (exists and has the Right Type)
-	Write-Host "Checking Parameter Trustee: $Trustee"
-	$FunctionResult = Get-RecipientType -Emailaddress $Trustee
+	#Check if User (exists and has the Right Type)
+	Write-Host "Checking Parameter User: $User"
+	$FunctionResult = Get-RecipientType -Emailaddress $User
 	If ($FunctionResult[0] -eq $false)
 	{
-		Write-Host "Trustee Recipient not found. Please Enter a valid Trustee Emailaddress ($Trustee)" -ForegroundColor Yellow		
+		Write-Host "User Recipient not found. Please Enter a valid User Emailaddress ($User)" -ForegroundColor Yellow		
 		$readhost = Read-Host "Maybe it's a deleted Mailbox. Do you want to continue? (y/n)[n]?"
 		if ($readhost -eq "y")
 		{
 			#$TrusteeRecipientType = $FunctionResult[1]
-			$TrusteePrimarySMTPAddress = $Trustee
-			$TrusteeDisplayName = $Trustee
-			$TrusteeAlias = $Trustee
+			$TrusteePrimarySMTPAddress = $User
+			$TrusteeDisplayName = $User
+			$TrusteeAlias = $User
 		} Else {		
 			Write-Host "The script will be ended right now." -ForegroundColor Yellow
 			Break
 		}
 	} else {
-		$FunctionResult = Get-RecipientType -Emailaddress $Trustee
+		$FunctionResult = Get-RecipientType -Emailaddress $User
 		$TrusteeRecipientType = $FunctionResult[1]
 		$TrusteePrimarySMTPAddress = $FunctionResult[2]
 		$TrusteeDisplayName = $FunctionResult[3]
@@ -106,11 +119,11 @@ Function Remove-MAPIPermission {
 	Write-Host "Checking Parameter Folder: $Folder"
 	If ($Folder -ne $null)
 	{
-		$folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*" -AND $_.FolderType -NotLike "Yammer*" -AND $_.FolderType -NotLike "BirthdayCalendar"}		
+		$Folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*" -AND $_.FolderType -NotLike "Yammer*" -AND $_.FolderType -NotLike "BirthdayCalendar"}		
 
 		switch ($Folder) 
 		{
-			"Inbox" 
+			"Inbox"
 			{
 				$InboxObject = $folderstats | Where-Object FolderType -eq "Inbox"
 				$CustomFolderName = $InboxObject.Name
@@ -129,7 +142,6 @@ Function Remove-MAPIPermission {
 			{
 				$TaskObject = $folderstats | Where-Object FolderType -eq "Tasks"
 				$CustomFolderName = $TaskObject.Name
-		   
 			}
 			"Contacts"
 			{
@@ -142,6 +154,20 @@ Function Remove-MAPIPermission {
 				Write-Host "The script will be ended right now." -ForegroundColor Yellow
 				Break
 			}
+		}
+	}
+
+	#Check $ExcludeFolder Variable
+	#Check Format: Mailbox:\Folder\Subfolder
+	Write-Host "Checking Parameter ExcludeFolder: $ExcludeFolder"
+	Foreach ($ExcludeFolderEntry in $ExcludeFolder)
+	{
+		Write-Debug "DEBUG: $ExcludeFolderEntry"
+		If (($ExcludeFolderEntry -match "^.+:\\.+\\.+$") -eq $false)
+		{
+			Write-Host "The Parameter -ExcludeFolder is incorrect. Correct Syntax: Mailbox:\Folder\Subfolder" -foregroundColor Yellow
+			Write-Host "The script will be ended right now." -ForegroundColor Yellow
+			break
 		}
 	}
 
@@ -172,7 +198,7 @@ Function Remove-MAPIPermission {
 				}
 			}
 		}
-	
+
 		If ($RootPermissionFound -eq $true)
 		{
 			#Add Prmission
@@ -187,21 +213,20 @@ Function Remove-MAPIPermission {
 	Write-Host "Configure Folder <$Folder> Permission"
 	$FolderPermissions = get-MailboxFolderPermission $Mailbox":\$CustomFolderName"
 	#$UserMBXFolderIsNotSet=$true
-		
-	#Check if Trustee is already in the Trustee Array for that Folder
+
+	#Check if User is already in the User Array for that Folder
 	Foreach ($Line in $FolderPermissions)
 	{
 		If ($Line.User.Displayname -eq $TrusteeDisplayName)
 		{
 			$AccessRight = $Line.AccessRights
 			Write-Host "REMOVE: "$Mailbox":\$CustomFolderName > $AccessRight > $TrusteePrimarySMTPAddress" -ForegroundColor Green
-			Remove-MailboxFolderPermission -Identity $Mailbox":\$CustomFolderName" -User $Trustee -Confirm:$false | Out-Null
+			Remove-MailboxFolderPermission -Identity $Mailbox":\$CustomFolderName" -User $User -Confirm:$false | Out-Null
 			
 			#Exit Foreach
 			Break
 		}
 	}
-	
 
 	###########################################################################
 	#Subfolders
@@ -211,20 +236,43 @@ Function Remove-MAPIPermission {
 		Write-Host "Configure SubFolders of <$Folder>"
 		foreach ($SubFolder in $folderstats)
 		{
-			if ($SubFolder.identity -match "$Mailbox\\$CustomFolderName\\")
+			$SubFolderIdentity = $SubFolder.identity
+			if ($SubFolderIdentity -match "$Mailbox\\$CustomFolderName\\")
 			{
-				$NormalizedSubfolder = $SubFolder.identity.replace($Mailbox,$Mailbox +":")
-				$NormalizedSubfolder = $NormalizedSubfolder -replace([char]63743,"/")
 
-				$FolderPermissions = get-MailboxFolderPermission $NormalizedSubfolder
-				Foreach ($Line in $FolderPermissions)
+				#Check for Exclude Folder
+				$ExcludeFolderMatch = $False
+				Foreach ($ExcludeFolderEntry in $ExcludeFolder)
 				{
-					If ($Line.User.Displayname -eq $TrusteeDisplayName)
+					[regex]$pattern = ":\\"
+					$ExcludeFolderEntry2 = $pattern.replace($ExcludeFolderEntry, "\", 1) #Replace first ":\" with "\"
+
+					Write-Verbose "ExcludeFolderEntry: $ExcludeFolderEntry2 > SubFolderIdentity $SubFolderIdentity"
+
+					If ("$ExcludeFolderEntry2" -eq "$SubFolderIdentity")
 					{
-						$AccessRight = $Line.AccessRights
-						Write-Host "REMOVE: $NormalizedSubfolder > $AccessRight > $Trustee" -ForegroundColor Green
-						Remove-MailboxFolderPermission -Identity $NormalizedSubfolder -User $TrusteePrimarySMTPAddress -Confirm:$false
-						
+						$ExcludeFolderMatch = $True
+					}
+					
+				}
+
+				If ($ExcludeFolderMatch -eq $true)
+				{
+					Write-Host "Skipping excluded Folder: $SubFolderIdentity" -ForegroundColor Yellow
+				} else {
+					$Foldername = $Subfolder.Identity.replace($Mailbox,$Mailbox +":")
+					$FolderId =  $Mailbox + ":" + $SubFolder.FolderId
+
+					$FolderPermissions = get-MailboxFolderPermission $FolderId
+					Foreach ($Line in $FolderPermissions)
+					{
+						If ($Line.User.Displayname -eq $TrusteeDisplayName)
+						{
+							$AccessRight = $Line.AccessRights
+							Write-Host "REMOVE: $FolderName > $AccessRight > $User" -ForegroundColor Green
+							Remove-MailboxFolderPermission -Identity $FolderID -User $TrusteePrimarySMTPAddress -Confirm:$false
+							
+						}
 					}
 				}
 			}
@@ -252,8 +300,8 @@ Function Remove-MAPIPermission {
 				$SendOnBehalfArr.Add($PrimarySMTPAddress) | Out-Null
 			} 
 		}
-		
-		Write-Host "Remove Send on Behalf to $Mailbox for $TrusteePrimarySMTPAddress" -ForegroundColor Green
+
+		Write-Host "REMOVE Send on Behalf to $Mailbox for $TrusteePrimarySMTPAddress" -ForegroundColor Green
 		Set-Mailbox $Mailbox -GrantSendOnBehalfTo $SendOnBehalfArr
 	}
 }

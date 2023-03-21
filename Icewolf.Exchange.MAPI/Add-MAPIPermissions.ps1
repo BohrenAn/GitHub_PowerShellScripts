@@ -3,9 +3,10 @@
 # V0.1 04.10.2021 - Initial Version - Andres Bohren
 # V0.2 10.03.2022 - Updates and Cleaning Code - Andres Bohren
 # V0.3 28.12.2022 - Updates and Cleaning Code - Andres Bohren
+# V0.3 25.02.2023 - Changed Parameter from Trustee to User - Andres Bohren
 ##############################################################################
 
-Function Add-MAPIPermission {	
+Function Add-MAPIPermission {
 
 <# 
 .SYNOPSIS
@@ -14,7 +15,7 @@ Function Add-MAPIPermission {
 	
 .DESCRIPTION
 	Adding Exchange MAPI Folderpermissions
-	Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -Trustee erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-IncludeSubfolders $false] [-SendOnBehalf $true]
+	Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-IncludeSubfolders $false] [-SendOnBehalf $true]
 
 	Folder:
 	- Inbox
@@ -23,7 +24,7 @@ Function Add-MAPIPermission {
 	- Tasks
 	- Contacts
 
-	AccessRights:		
+	AccessRights:
 	-Reviewer
 	-Contributor
 	-Author
@@ -36,19 +37,29 @@ Function Add-MAPIPermission {
 .PARAMETER Mailbox
 	The mailbox on which the permission will be set
 
-.PARAMETER Trustee
+.PARAMETER User
 	Mailboxuser which will be authorised to access the MailboxFolder
 
+.PARAMETER Trustee
+	Alias for Parameter User. Mailboxuser which will be authorised to access the MailboxFolder
+
 .PARAMETER Folder
-	A specific defaultfolder:
+	A specific default Folder:
 	- Inbox
 	- Calendar
 	- Notes
 	- Tasks
 	- Contacts
 
+.PARAMETER ExcludeFolders
+	A secific SubFolder to Exclude
+	john.doe@yourdomain.com:\Inbox\Subfolder1
+
+	Can also be an Array of Folders
+	$ExcludeFolders = @("john.doe@yourdomain.com:\Inbox\Subfolder1","john.doe@yourdomain.com:\Inbox\Subfolder2")
+
 .PARAMETER AccessRight
-	AccessRights:		
+	AccessRights:
 	-Reviewer
 	-Contributor
 	-Author
@@ -62,18 +73,22 @@ Function Add-MAPIPermission {
 	Boolean Value (True/False) if MAPI Permission is applied on all Subfolders
 	
 .PARAMETER SendOnBehalf
-	Boolean Value (True/False) if the Trustee is also granted the "SendOnBehalf" Permission
+	Boolean Value (True/False) if the User is also granted the "SendOnBehalf" Permission
 	
 .EXAMPLE
-	Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -Trustee erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Calendar [-includeSubfolders $true]
-	Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -Trustee erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-includeSubfolders $false] [-SendOnBehalf $true]
+	Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Calendar [-includeSubfolders $true]
+	Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-includeSubfolders $true] [-ExcludeFolders john.doe@yourdomain.com:\Inbox\Subfolder1] [-SendOnBehalf $true]
+
+	$ExcludeFolders = @("john.doe@yourdomain.com:\Inbox\Subfolder1","john.doe@yourdomain.com:\Inbox\Subfolder2")
+	Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-includeSubfolders $true] [-ExcludeFolders $ExcludeFolders] [-SendOnBehalf $true]
 	
 #>
 
 	Param(
 		[parameter(Mandatory=$true)][String]$Mailbox,
-		[parameter(Mandatory=$true)][String]$Trustee,
+		[parameter(Mandatory=$true)][Alias("Trustee")][String]$User,
 		[parameter(Mandatory=$true)][String]$Folder,
+		[parameter(Mandatory=$false)][Array]$ExcludeFolders,
 		[Parameter(Mandatory=$true)][String]$AccessRight,
 		[bool]$IncludeSubfolders = $false,
 		[bool]$SendOnBehalf = $false
@@ -97,13 +112,13 @@ Function Add-MAPIPermission {
 		Break
 	}
 
-	#Check if Trustee (exists and has the Right Type)
-	Write-Host "Checking Parameter Trustee: $Trustee"	
-	$FunctionResult = Get-RecipientType -Emailaddress $Trustee
+	#Check if User (exists and has the Right Type)
+	Write-Host "Checking Parameter User: $User"
+	$FunctionResult = Get-RecipientType -Emailaddress $User
 	If ($FunctionResult[0] -eq $false)
 	{
-		Write-Host "Trustee Recipient not found. Please Enter a valid Trustee Emailaddress ($Trustee)" -ForegroundColor Yellow
-		Write-Host "The script will be ended right now." -ForegroundColor Yellow
+		Write-Host "User Recipient not found. Please Enter a valid User Emailaddress ($User)" -ForegroundColor Yellow
+		Write-Host "The Script will be ended right now." -ForegroundColor Yellow
 		Break
 	} else {		
 		$TrusteeRecipientType = $FunctionResult[1]
@@ -116,7 +131,7 @@ Function Add-MAPIPermission {
 	Write-Host "Checking Parameter Folder: $Folder"
 	If ($Folder -ne $null)
 	{
-		$folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*" -AND $_.FolderType -NotLike "Yammer*" -AND $_.FolderType -NotLike "BirthdayCalendar"}
+		$Folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*" -AND $_.FolderType -NotLike "Yammer*" -AND $_.FolderType -NotLike "BirthdayCalendar"}
 
 		switch ($Folder) 
 		{
@@ -152,6 +167,20 @@ Function Add-MAPIPermission {
 				Write-Host "The script will be ended right now." -ForegroundColor Yellow
 				Break
 			}
+		}
+	}
+
+	#Check $ExcludeFolder Variable
+	#Check Format: Mailbox:\Folder\Subfolder
+	Write-Host "Checking Parameter ExcludeFolder: $ExcludeFolders"
+	Foreach ($ExcludeFolderEntry in $ExcludeFolders)
+	{
+		Write-Debug "DEBUG: $ExcludeFolderEntry"
+		If (($ExcludeFolderEntry -match "^.+:\\.+\\.+$") -eq $false)
+		{
+			Write-Host "The Parameter -ExcludeFolder is incorrect. Correct Syntax: Mailbox:\Folder\Subfolder" -foregroundColor Yellow
+			Write-Host "The script will be ended right now." -ForegroundColor Yellow
+			break
 		}
 	}
 
@@ -202,24 +231,24 @@ Function Add-MAPIPermission {
 	If ($RootPermissionFound -eq $false)
 	{
 		#Add Prmission
-		Write-Host "ADD: "$Mailbox":\ > FolderVisible > $Trustee" -ForegroundColor Green
-		Add-MailboxFolderPermission -Identity $Mailbox":\" -User $Trustee -AccessRights "FolderVisible" | out-null
+		Write-Host "ADD: "$Mailbox":\ > FolderVisible > $User" -ForegroundColor Green
+		Add-MailboxFolderPermission -Identity $Mailbox":\" -User $User -AccessRights "FolderVisible" | out-null
 	}
 
 	###########################################################################
 	#Set/Add Custom Permission to Folder
 	###########################################################################
 	Write-Host "Configure Folder <$Folder> Permission"
-	$FolderPermissions = get-MailboxFolderPermission $Mailbox":\$CustomFolderName"
+	$FolderPermissions = Get-MailboxFolderPermission $Mailbox":\$CustomFolderName"
 	$UserMBXFolderIsNotSet=$true
 		
-	#Check if Trustee is already in the Trustee Array for that Folder
+	#Check if User is already in the User Array for that Folder
 	Foreach ($Line in $FolderPermissions)
 	{
 		If ($Line.User.Displayname -eq $TrusteeDisplayName)
 		{
-			Write-Host "SET: "$Mailbox":\$CustomFolderName > $AccessRight > $Trustee" -ForegroundColor Green
-			Set-MailboxFolderPermission -Identity $Mailbox":\$CustomFolderName" -User $Trustee -AccessRights $AccessRight -WarningAction SilentlyContinue | Out-Null
+			Write-Host "SET: "$Mailbox":\$CustomFolderName > $AccessRight > $User" -ForegroundColor Green
+			Set-MailboxFolderPermission -Identity $Mailbox":\$CustomFolderName" -User $User -AccessRights $AccessRight -WarningAction SilentlyContinue | Out-Null
 			
 			#Exit Foreach
 			$UserMBXFolderIsNotSet=$false
@@ -227,11 +256,11 @@ Function Add-MAPIPermission {
 		}
 	}
 	
-	#Trustee is not in the Trustee List Array for that Folder
+	#User is not in the User List Array for that Folder
 	if ($UserMBXFolderIsNotSet)
 	{
-		Write-Host "ADD: "$Mailbox":\$CustomFolderName > $AccessRight > $Trustee" -ForegroundColor Green
-		Add-MailboxFolderPermission -Identity $Mailbox":\$CustomFolderName" -User $Trustee -AccessRights $AccessRight | Out-Null
+		Write-Host "ADD: "$Mailbox":\$CustomFolderName > $AccessRight > $User" -ForegroundColor Green
+		Add-MailboxFolderPermission -Identity $Mailbox":\$CustomFolderName" -User $User -AccessRights $AccessRight | Out-Null
 	}
 
 	###########################################################################
@@ -242,34 +271,70 @@ Function Add-MAPIPermission {
 		Write-Host "Configure SubFolders of <$Folder>"
 		foreach ($SubFolder in $folderstats)
 		{
-			if ($SubFolder.identity -match "$Mailbox\\$CustomFolderName\\")
+			$SubFolderIdentity = $SubFolder.identity
+			if ($SubFolderIdentity -match "$Mailbox\\$CustomFolderName\\")			
 			{
-				$NormalizedSubfolder = $SubFolder.identity.replace($Mailbox,$Mailbox +":")
-				$NormalizedSubfolder = $NormalizedSubfolder -replace([char]63743,"/")
-	
-				$FolderPermissions = get-MailboxFolderPermission $NormalizedSubfolder
-				$UserMBXSubFolderIsNotSet=$true
-				Foreach ($Line in $FolderPermissions)
+				#Check for Exclude Folder
+				$ExcludeFolderMatch = $False
+				Foreach ($ExcludeFolderEntry in $ExcludeFolders)
 				{
-					If ($Line.User.Displayname -eq $TrusteeDisplayName)
+					[regex]$pattern = ":\\"
+					$ExcludeFolderEntry2 = $pattern.replace($ExcludeFolderEntry, "\", 1) #Replace first ":\" with "\"
+
+					Write-Verbose "ExcludeFolderEntry: $ExcludeFolderEntry2 > SubFolderIdentity $SubFolderIdentity"
+
+					If ("$ExcludeFolderEntry2" -eq "$SubFolderIdentity")
 					{
-						Write-Host "SET: $NormalizedSubfolder > $AccessRight > $Trustee" -ForegroundColor Green
-						Set-MailboxFolderPermission -Identity $NormalizedSubfolder -User $Trustee -AccessRights $AccessRight -WarningAction SilentlyContinue | Out-Null
-						$UserMBXSubFolderIsNotSet=$false
+						$ExcludeFolderMatch = $True
 					}
+					
 				}
-				if ($UserMBXSubFolderIsNotSet)
+
+				If ($ExcludeFolderMatch -eq $true)
 				{
-					#Folder should not be a Holiday-Calendar/Logging
-					switch ($NormalizedSubfolder) 
-					{ 
-						{$_ -match "Feiertage "} {}
-						{$_ -match "Festività "} {}
-						{$_ -match " holidays "} {}
-						{$_ -match " fériés "} {}
-						default {
-							Write-Host "ADD: $NormalizedSubfolder > $AccessRight > $Trustee" -ForegroundColor Green
-							Add-MailboxFolderPermission -Identity $NormalizedSubfolder -User $Trustee -AccessRights $AccessRight | Out-Null
+					Write-Host "Skipping excluded Folder: $SubFolderIdentity" -ForegroundColor Yellow
+				} else {
+
+					$Foldername = $Subfolder.Identity.replace($Mailbox,$Mailbox +":")
+					$FolderId =  $Mailbox + ":" + $SubFolder.FolderId
+
+					$FolderPermissions = Get-MailboxFolderPermission $FolderId
+					$UserMBXSubFolderIsNotSet=$true
+					Foreach ($Line in $FolderPermissions)
+					{
+						If ($Line.User.Displayname -eq $TrusteeDisplayName)
+						{
+							Write-Host "SET: $Foldername > $AccessRight > $User" -ForegroundColor Green
+							#Set-MailboxFolderPermission -Identity $NormalizedSubfolder -User $User -AccessRights $AccessRight -WarningAction SilentlyContinue | Out-Null
+							Set-MailboxFolderPermission -Identity $FolderId -User $User -AccessRights $AccessRight -WarningAction SilentlyContinue | Out-Null
+							$UserMBXSubFolderIsNotSet=$false
+						}
+					}
+					if ($UserMBXSubFolderIsNotSet)
+					{
+						#Folder should not be a Holiday-Calendar/Logging
+						switch ($Foldername) 
+						{ 
+							{$_ -match " holidays "} {Write-Verbose "Holiday Calendar ENG"} #ENG
+							{$_ -match "Feiertage "} {Write-Verbose "Holiday Calendar GER"} #GER
+							{$_ -match " fériés "} {Write-Verbose "Holiday Calendar FRA"} #FRA
+							{$_ -match "Festività "} {Write-Verbose "Holiday Calendar ITA"} #ITA
+							{$_ -match "Feriados "} {Write-Verbose "Holiday Calendar PRT"} #PRT
+							{$_ -match " festivos "} {Write-Verbose "Holiday Calendar ESP"} #ESP
+							{$_ -match "Feestdagen "} {Write-Verbose "Holiday Calendar NLD"} #NLD
+							{$_ -match "helgdagar "} {Write-Verbose "Holiday Calendar SWE/FIN"} #SWE/FIN
+							{$_ -match "Heilagdagar "} {Write-Verbose "Holiday Calendar NOR"} #NOR
+							{$_ -match " święta"} {Write-Verbose "Holiday Calendar POL"} #POL
+							{$_ -match "Svátky "} {Write-Verbose "Holiday Calendar CZE"} #CZE
+							{$_ -match " ünnepei"} {Write-Verbose "Holiday Calendar HUN"} #HUN
+							{$_ -match " sviatky"} {Write-Verbose "Holiday Calendar SVK"} #SVK
+							{$_ -match " prazniki"} {Write-Verbose "Holiday Calendar SVN"} #SVN
+							{$_ -match "Blagdani "} {Write-Verbose "Holiday Calendar HRV/BIH"} #HRV/BIH
+							default {
+								Write-Verbose "NO Holiday Calendar"
+								Write-Host "ADD: $Foldername > $AccessRight > $User" -ForegroundColor Green
+								Add-MailboxFolderPermission -Identity $FolderId -User $User -AccessRights $AccessRight | Out-Null
+							}
 						}
 					}
 				}
@@ -285,7 +350,7 @@ Function Add-MAPIPermission {
 	{
 		Write-Host "Configure SendOnBehalf"
 
-		#Get Users in Send On Behalf and Add to Array		
+		#Get Users in Send On Behalf and Add to Array
 		$SOB = Get-Mailbox $Mailbox | Select-Object GrantSendOnBehalfTo
 		
 		#Check if User is already on the List
@@ -297,7 +362,7 @@ Function Add-MAPIPermission {
 			$PrimarySmtpAddress = ($Recipient.PrimarySmtpAddress).ToString()
 			If ($PrimarySmtpAddress -eq $TrusteePrimarySMTPAddress)
 			{
-				#Trustee is already Member
+				#User is already Member
 				$SOBAlreadyMember = $true
 				Write-Host "$TrusteePrimarySMTPAddress is already Member of Send on Behalf for $Mailbox" -ForegroundColor Yellow
 			} else {
@@ -308,8 +373,8 @@ Function Add-MAPIPermission {
 
 		If ($SOBAlreadyMember -eq $false)
 		{
-			$SendOnBehalfArr.Add($Trustee) | Out-Null
-			Write-Host "Setting Send on Behalf to $Mailbox for $TrusteePrimarySMTPAddress" -ForegroundColor Green
+			$SendOnBehalfArr.Add($User) | Out-Null
+			Write-Host "SET Send on Behalf to $Mailbox for $TrusteePrimarySMTPAddress" -ForegroundColor Green
 			Set-Mailbox $Mailbox -GrantSendOnBehalfTo $SendOnBehalfArr
 		}
 	}

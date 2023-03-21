@@ -112,6 +112,11 @@ PrivateData = @{
         ReleaseNotes = '
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
+V0.3.0-Preview3
+Changed Parameter -Trustee to -User (with Alias Trustee)
+Added -ExcludeFolder Parameter to exclude specific Subfolders (String or Array)
+Fixed Issue with special Characters on Folder DisplayNames
+
 
 V0.3.0-Preview2
 Fix spelling in a Output
@@ -128,7 +133,7 @@ Initial Release of the Module
 '
 
         # Prerelease string of this module
-        Prerelease = 'Preview2'
+        Prerelease = 'Preview3'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         RequireLicenseAcceptance = $false
