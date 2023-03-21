@@ -94,29 +94,28 @@ AliasesToExport = @()
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
 
-    PSData = @{
+	PSData = @{
 
-        # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @('Exchange', 'ExchangeOnline', 'MAPI', 'FolderPermission')
+		# Tags applied to this module. These help with module discovery in online galleries.
+		Tags = @('Exchange', 'ExchangeOnline', 'MAPI', 'FolderPermission')
 
-        # A URL to the license for this module.
-        # LicenseUri = ''
+		# A URL to the license for this module.
+		# LicenseUri = ''
 
-        # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Icewolf.Exchange.MAPI'
+		# A URL to the main website for this project.
+		ProjectUri = 'https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Icewolf.Exchange.MAPI'
 
-        # A URL to an icon representing this module.
-        # IconUri = ''
+		# A URL to an icon representing this module.
+		# IconUri = ''
 
-        # ReleaseNotes of this module
-        ReleaseNotes = '
+		# ReleaseNotes of this module
+		ReleaseNotes = '
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
 V0.3.0-Preview3
 Changed Parameter -Trustee to -User (with Alias Trustee)
-Added -ExcludeFolder Parameter to exclude specific Subfolders (String or Array)
+Added -ExcludeFolders Parameter to exclude specific Subfolders (String or Array)
 Fixed Issue with special Characters on Folder DisplayNames
-
 
 V0.3.0-Preview2
 Fix spelling in a Output
@@ -132,16 +131,16 @@ Initial Release of the Module
 ---------------------------------------------------------------------------------------------		
 '
 
-        # Prerelease string of this module
-        Prerelease = 'Preview3'
+		# Prerelease string of this module
+		Prerelease = 'Preview3'
 
-        # Flag to indicate whether the module requires explicit user acceptance for install/update/save
-        RequireLicenseAcceptance = $false
+		# Flag to indicate whether the module requires explicit user acceptance for install/update/save
+		RequireLicenseAcceptance = $false
 
-        # External dependent modules of this module
-        # ExternalModuleDependencies = @()
+		# External dependent modules of this module
+		# ExternalModuleDependencies = @()
 
-    } # End of PSData hashtable
+	} # End of PSData hashtable
 
 } # End of PrivateData hashtable
 
