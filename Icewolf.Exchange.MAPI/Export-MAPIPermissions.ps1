@@ -64,15 +64,16 @@ Function Export-MAPIPermission
 	{
 		#No Mailbox found
 		Write-Host "Mailbox not found" -ForegroundColor Red
-		Break
+		break
 	}
 
 	#Get the Mailboxfolders
 	Write-Host "Getting folders..."
 	$folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "Audits" -AND $_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*"}
 	#Create file to write in
-	$sw = new-object system.IO.StreamWriter($FilePath,0)
-	$sw.writeline("Mailbox;User;AccessRights")
+	Set-Content -Path $FilePath -Value "Mailbox;User;AccessRights"
+
+	#Loop through Folders
 	foreach ($Line in $folderstats)
 	{
 		#If the Folder is in the root directory
@@ -91,6 +92,7 @@ Function Export-MAPIPermission
 		#[string]$foldername = $foldername -replace([char]63743,"/")
 		Write-Host "Working on Folder: $foldername"
 		#$FolderPermissions = Get-MailboxFolderPermission -Identity "$foldername"
+		#Write-Verbose "FolderID: $FolderID"
 		$FolderPermissions = Get-MailboxFolderPermission -Identity "$FolderId"
 		
 		
@@ -107,13 +109,11 @@ Function Export-MAPIPermission
 				$User = $FP.user.adrecipient.userprincipalname
 				$Accessrights = $FP.accessrights
 			}
-			#Write into File
-			$sw.writeline("$Foldername;$User;$Accessrights") 
+			#Write into File			
+			Add-Content -Path $FilePath -Value "$Foldername;$User;$Accessrights"
 		}
 	}
-	#Cleanup
-	$sw.close()
-	$sw.dispose()
+
 	
 	$readhost = Read-Host "Do you like to open the exported File? (y/n)[n]?"
 	if ($readhost -eq "y")
