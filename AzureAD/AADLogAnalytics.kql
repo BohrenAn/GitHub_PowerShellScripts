@@ -51,27 +51,27 @@ let data = SigninLogs
     | where AppDisplayName in ('*') or '*' in ('*')
     | where UserDisplayName in ('*') or '*' in ('*')
     | extend errorCode = toint(Status.errorCode)
-    | extend SigninStatus = case(errorCode == 0, "Success",                       
-        errorCode == 50058, "Interrupt",                       
-        errorCode == 50140, "Interrupt",                       
-        errorCode == 51006, "Interrupt",                       
-        errorCode == 50059, "Interrupt",                       
-        errorCode == 65001, "Interrupt",                       
-        errorCode == 52004, "Interrupt",                       
-        errorCode == 50055, "Interrupt",                       
-        errorCode == 50144, "Interrupt",                       
-        errorCode == 50072, "Interrupt",                       
-        errorCode == 50074, "Interrupt",                       
-        errorCode == 16000, "Interrupt",                       
-        errorCode == 16001, "Interrupt",                       
-        errorCode == 16003, "Interrupt",                       
-        errorCode == 50127, "Interrupt",                       
-        errorCode == 50125, "Interrupt",                       
-        errorCode == 50129, "Interrupt",                       
-        errorCode == 50143, "Interrupt",                       
-        errorCode == 81010, "Interrupt",                       
-        errorCode == 81014, "Interrupt",                       
-        errorCode == 81012, "Interrupt",                       
+    | extend SigninStatus = case(errorCode == 0, "Success",
+        errorCode == 50058, "Interrupt",
+        errorCode == 50140, "Interrupt",
+        errorCode == 51006, "Interrupt",
+        errorCode == 50059, "Interrupt",
+        errorCode == 65001, "Interrupt",
+        errorCode == 52004, "Interrupt",
+        errorCode == 50055, "Interrupt",
+        errorCode == 50144, "Interrupt",
+        errorCode == 50072, "Interrupt",
+        errorCode == 50074, "Interrupt",
+        errorCode == 16000, "Interrupt",
+        errorCode == 16001, "Interrupt",
+        errorCode == 16003, "Interrupt",
+        errorCode == 50127, "Interrupt",
+        errorCode == 50125, "Interrupt",
+        errorCode == 50129, "Interrupt",
+        errorCode == 50143, "Interrupt",
+        errorCode == 81010, "Interrupt",
+        errorCode == 81014, "Interrupt",
+        errorCode == 81012, "Interrupt",
         "Failure") 
     | where SigninStatus == '*' or '*' == '*' or '*' == 'All Sign-ins'    
     | extend Reason = tostring(Status.failureReason)
@@ -94,4 +94,28 @@ AuditLogs | summarize count () by OperationName
 //Usage Avg. Latency
 Usage | project TimeGenerated, AvgLatencyInSeconds
 | summarize count () by bin(TimeGenerated, 1h), AvgLatencyInSeconds
-| render timechart  
+| render timechart
+
+//Search for ADAL Logins
+let nonInteractive = AADNonInteractiveUserSignInLogs 
+| where TimeGenerated > ago(30d)
+|mv-expand ParsedFields=parse_json(AuthenticationProcessingDetails)
+    |extend Key = ParsedFields.key
+    |extend Value = ParsedFields.value
+    |where Key contains "AD App"
+    |where Value contains "ADAL"
+    |extend details = split(Value, " ")
+    |extend Version = strcat(details[3]," ",details[4])
+|project TimeGenerated, ['App Name'] = AppDisplayName, ['App ID'] = AppId, ['ADAL Version'] = Version
+|summarize ['Sign-in Count'] = dcount(TimeGenerated, 4) by ['App Name'], ['App ID'], ['ADAL Version'];
+let interactive = SigninLogs
+|mv-expand ParsedFields=parse_json(AuthenticationProcessingDetails)
+    |extend Key = ParsedFields.key
+    |extend Value = ParsedFields.value
+    |where Key contains "AD App"
+    |where Value contains "ADAL"
+    |extend details = split(Value, " ")
+    |extend Version = strcat(details[3]," ",details[4])
+|project TimeGenerated, ['App Name'] = AppDisplayName, ['App ID'] = AppId, ['ADAL Version'] = Version
+|summarize ['Sign-in Count'] = dcount(TimeGenerated, 4) by ['App Name'], ['App ID'], ['ADAL Version'];
+union interactive, nonInteractive
