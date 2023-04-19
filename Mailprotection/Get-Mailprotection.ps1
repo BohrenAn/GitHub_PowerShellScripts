@@ -6,15 +6,16 @@
 # Version 1.3 / 26.08.2022 Addet BIMI / DANE / MTA-STS / M365 Checks
 # Version 1.4 / 03.10.2022 Addet Reverse Lookup of MX Records / CAA Lookup / TLS-RPT Lookup
 # Version 1.5 / 13.10.2022 Fixed Lyncdiscover / Added NS Records & Autodiscover / Minor fixes
+# Version 1.6 / 03.04.2023 Addet Parameter -SMTPConnect [true/false] 
+#	 					   and -ReturnObject [false/true] that is now a PSCustomObject
 # Andres Bohren / www.icewolf.ch / blog.icewolf.ch / info@icewolf.ch
 # Backlog / Whishlist
-# - Response Object as PSCustomObject
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.5
+.VERSION 1.6
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -28,7 +29,6 @@
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES It's still an early Version and might contain Errors.
 .PRIVATEDATA
-
 #>
 
 <#
@@ -88,7 +88,8 @@
 
 PARAM (
 	[Parameter(Mandatory=$true)][String]$Domain,
-	[bool]$SMTPConnect = $True
+	[Parameter(Mandatory=$false)][bool]$SMTPConnect = $True,
+	[Parameter(Mandatory=$false)][bool]$ReturnObject = $false
 	)
 
 	###############################################################################
@@ -164,11 +165,6 @@ PARAM (
 					$ccCol = New-Object System.Security.Cryptography.X509Certificates.X509CertificateCollection
 					$sslStream.AuthenticateAsClient($ServerName,$ccCol,[System.Security.Authentication.SslProtocols]::Tls12,$false)	
 					$Cert = $sslStream.RemoteCertificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
-					#$KeyUsages = $cert.Extensions.keyUsages | Out-String
-					#$Cert2 = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
-					#$cert2 = $sslStream.RemoteCertificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
-					#$PublicKeySize = $cert2.PublicKey.Key.KeySize | Out-String
-					#$PublicKeyAlgorithm = $cert2.PublicKey.Key.KeyExchangeAlgorithm | Out-String
 
 					#Show Certificate Details
 					Write-Host "Certificate Details:" -ForegroundColor Green
@@ -178,9 +174,6 @@ PARAM (
 					Write-Host "ValidTo: $($sslStream.RemoteCertificate.GetExpirationDateString())"
 					Write-Host "SerialNumber: $($sslStream.RemoteCertificate.GetSerialNumberString())"
 					Write-Host "Thumbprint: $($sslStream.RemoteCertificate.GetCertHashString())"
-					#Write-Host "KeyUsage: $KeyUsages"
-					#Write-Host "PublicKeySize: $PublicKeySize"
-					#Write-Host "PublicKeyAlgorithm: $PublicKeyAlgorithm"
 
 					$stream.Dispose()
 					$sslStream.Dispose()
@@ -206,29 +199,21 @@ Function Get-MailProtection
 	)
 
 	[bool]$ZoneDNSSigned = $false
-	[string]$Nameserver = ""
-	[string]$CAA = ""
 	[bool]$MXAvailable = $False
 	[int]$MXCount = 0
-	[string]$MXRecord = ""
-	[string]$MXReverseLookup = ""
+	$MXReverseLookup = $Null
 	[int]$StartTLSCount = 0
 	[bool]$SPFAvailable = $False
-	[string]$SPFRecord = ""
 	[bool]$DomainKeyAvailable = $False
-	[String]$DomainKeySupport = ""
-	[string]$DomainKeyRecord = ""
+	[String]$DomainKeySupport = "None"
 	[bool]$DMARCAvailable = $False
-	[string]$DMARCRecord = ""
 	[int]$DANECount = 0
 	[bool]$DANEAvailable = $false
-	[string]$DANESupport = 0
-	[string]$DANERecord = ""
+	[string]$DANESupport = "None"
 	[bool]$M365 = $False
 	[bool]$BIMIAvailable = $False
-	[string]$BIMIRecord = ""
-	[bool]$MTASTSAvailable = $false
-	#[Array]$Result = @()
+	#[string]$BIMIRecord = ""
+	[bool]$MTASTSAvailable = $false	
 
 	## Check if DNS Zone is signed
 	Write-Host "Check: DNS Zone Signed" -foregroundcolor Green
@@ -241,18 +226,19 @@ Function Get-MailProtection
 	}
 
 	## Nameserver (NS)
+	$Nameserver = $Null
 	$NS = Resolve-DnsName -Type NS $Domain
 	If ($null -ne $NS)
 	{
-		$Nameserver = ($NS.NameHost | Out-String).Trim()
+		[Array]$Nameserver += ($NS.NameHost | Out-String).Trim()
 	} 
 
 	# CAA
 	#https://de.wikipedia.org/wiki/DNS_Certification_Authority_Authorization
 	#$Domain = "iis.se"
-	
+	$CAA = $Null
 	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$Domain&type=CAA"
-	If ($Null -ne $json)
+	If ($Null -ne $json.Answer.Data)
 	{
 		#$json.Answer
 		#$json.Answer.Data
@@ -263,12 +249,13 @@ Function Get-MailProtection
 	##Check for MX Record
 	Write-Host "Check: MX Record" -foregroundcolor Green
 	$MX = Resolve-DnsName -Name $Domain -Type MX -ErrorAction SilentlyContinue
-	$MXRecord = ($mx.nameExchange | Out-String).Trim()
+	[Array]$MXRecord = $MX.NameExchange #($mx.nameExchange | Out-String).Trim()
 	If ($NULL -eq $MXRecord -or $MXRecord -eq "" -or $MXRecord -eq $False)
 	{
 		$MXRecord = $NULL
 	}
 
+	$DANERecord = $NULL
 	Foreach ($MXEntry in $MX)
 	{
 		If ($Null -ne $MXEntry.NameExchange)
@@ -290,9 +277,8 @@ Function Get-MailProtection
 				If ($Null -ne $ReverseLookupName)
 				{
 					Write-Host "MX ReverseLookup $($ReverseLookupName.NameHost)" -foregroundcolor cyan
-					$MXReverseLookup = $MXReverseLookup + " " + $ReverseLookupName.NameHost
+					[Array]$MXReverseLookup += $ReverseLookupName.NameHost
 				}
-
 			}
 
 			#StartTLS
@@ -301,15 +287,15 @@ Function Get-MailProtection
 			#Only Connect if Parameter $SMTPConnect is True (default)
 			If ($SMTPConnect -eq $True)
 			{
+				Write-Host "StartTLS: " $StartTLS	
 				$StartTLS = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
-				#Write-Host "StartTLS: " $StartTLS	
 			}
 			If ($StartTLS -eq $true)
 			{
 				$StartTLSCount = $StartTLSCount + 1
 			}
 
-			#DANE
+			#DANE			
 			Write-Host "Check: DANE" -foregroundcolor Green
 			$TLSAQuery = "_25._tcp.$($MXEntry.NameExchange)"
 			#$URL= "https://dns.google/resolve?name=$TLSAQuery&type=TLSA"
@@ -324,7 +310,7 @@ Function Get-MailProtection
 				#$TLSA
 				$DANEAvailable = $true
 				$DANECount = $DANECount + 1
-				$DaneRecord = $DaneRecord + $TLSA
+				$DANERecord = $DANERecord + $TLSA
 			}
 			
 		}
@@ -378,7 +364,7 @@ Function Get-MailProtection
 
 	## SPF
 	Write-Host "Check: SPF" -foregroundcolor Green
-	$SPFRecord = "NULL"
+	$SPFRecord = $Null
 	$TXT = Resolve-DnsName -Name $Domain -Type TXT -ErrorAction SilentlyContinue
 	$SPFRecord = $TXT.strings -match "v=spf"
 	If ($SPFRecord -eq $false -or $NULL -eq $SPFRecord) 
@@ -406,8 +392,8 @@ Function Get-MailProtection
 
 	## Check for DomainKey / DKIM
 	Write-Host "Check: DKIM" -foregroundcolor Green
-	$DomainKeySupport = "no"
-	$DomainKeyRecord = ""
+	$DomainKeyRecord = $Null
+	$DomainKeySupport = $False
 	$dnshost = "_domainkey." + $Domain
 	$Domainkey = Resolve-DnsName -Name $dnshost -Type TXT -ErrorAction SilentlyContinue
 	Foreach ($Key in $DomainKey)
@@ -416,7 +402,7 @@ Function Get-MailProtection
 		{
 			#DomainKey Found
 			$DomainKeyAvailable = $true
-			$DomainKeySupport = "yes"
+			$DomainKeySupport = $True
 			$DomainKeyRecord = $KEY.Strings
 			#Write-Host "DomainKey Found" -foregroundcolor Green
 		}
@@ -430,11 +416,10 @@ Function Get-MailProtection
 		$DomainkeyS2 = Resolve-DnsName -Name $dnshost2 -Type CNAME -ErrorAction SilentlyContinue
 		If ($Null -ne $DomainkeyS1.NameHost -or $Null -ne $DomainkeyS2.NameHost)
 		{
-			$DomainKeySupport = "yes"
-			$DomainKeyAvailable = $true
-			$DomainKeyRecord = $DomainkeyS1.NameHost
-			$DomainKeyRecord = $DomainKeyRecord + " " + $DomainkeyS2.NameHost
-			#Write-Host "DomainKey <SELECTOR1/2> Found" -foregroundcolor Green
+			$DomainKeySupport = $True
+			$DomainKeyAvailable = $True
+			[Array]$DomainKeyRecord += $DomainkeyS1.NameHost
+			[Array]$DomainKeyRecord += $DomainkeyS2.NameHost
 		}
 	}
 	 #If DomainKey TXT is not Available check NS
@@ -451,7 +436,7 @@ Function Get-MailProtection
 
 	## Check for DMARC
 	Write-Host "Check: DMARC" -foregroundcolor Green
-	$DMARCRecord = "NULL" 
+	$DMARCRecord = $Null 
 	$dnshost = "_dmarc." + $Domain
 	#Write-Host "DNSHOST: " $dnshost
 	$DMARC = Resolve-DnsName -Name $dnshost -Type TXT -ErrorAction SilentlyContinue
@@ -469,7 +454,7 @@ Function Get-MailProtection
 
 	## BIMI
 	Write-Host "Check: BIMI" -foregroundcolor Green
-	$BIMIRecord = ""
+	$BIMIRecord = $Null
 	#default._bimi.example.com in txt
 	#"v=BIMI1; l=https://www.example.com/path/to/logo/example.svg; a=https://www.example.com/path/to/vmc/VMC.pem;"
 	$dnshost = "default._bimi." + $Domain
@@ -597,7 +582,7 @@ Function Get-MailProtection
 	}
 
 	Write-Host "SUMMARY: $Domain" -foregroundcolor cyan
-	Write-Host "Nameserver: $Nameserver" -foregroundcolor cyan
+	Write-Host "Nameserver:"$Nameserver.Replace("`r`n"," ") -foregroundcolor cyan
 	Write-Host "Zone DNS Signed: $ZoneDNSSigned" -foregroundcolor cyan
 	Write-Host "Certification Authority Authorization (CAA): $CAA" -foregroundcolor cyan
 	Write-Host "MXCount: $MXCount" -foregroundcolor cyan
@@ -628,9 +613,41 @@ Function Get-MailProtection
 	Write-Host "TenantID: $TenantID" -foregroundcolor cyan
 
 	#Better ResponseObject
-	#$ResultObject = [PSCustomObject]@{}
-	#$ResultObject | Add-Member -MemberType NoteProperty -Name 'TestArray' -Value $Array
+	$ResultObject = [PSCustomObject]@{}
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'Domain' -Value $Domain
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'NameServer' -Value $Nameserver
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'ZoneDNSSigned' -Value $ZoneDNSSigned
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'CAA' -Value $CAA
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MXCount' -Value $MXCount
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MXRecord' -Value $MXRecord
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MXIP' -Value $MXIP
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MXReverseLookup' -Value $MXReverseLookup
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'StartTLSCount' -Value $StartTLSCount
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'StartTLSSupport' -Value $StartTLSSupport
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFAvailable' -Value $SPFAvailable
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFRecord' -Value $SPFRecord
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DomainKeyAvailable' -Value $DomainKeyAvailable
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DomainKeySupport' -Value $DomainKeySupport
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DomainKeyRecord' -Value $DomainKeyRecord
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DMARCAvailable' -Value $DMARCAvailable
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DMARCRecord' -Value $DMARCRecord
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DANECount' -Value $DANECount
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DANESupport' -Value $DANESupport
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DANERecord' -Value $DANERecord
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'BIMIAvailable' -Value $BIMIAvailable
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'BIMIRecord' -Value $BIMIRecord
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MTA-STSAvailable' -Value $MTASTSAvailable
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MTA-STSWeb' -Value $MTASTSTXT
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'TLSRPT' -Value $TLSRPT
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'Autodiscover' -Value $Autodiscover
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'LyncDiscover' -Value $Lyncdiscover
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SkypeFederation' -Value $SkypeFederation
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'M365' -Value $M365
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'TenantID' -Value $TenantID
 
+	return $ResultObject
+
+	<#
 	#$Result = $MXAvailable, $SPFAvailable, $DomainKeyAvailable,$DMARCAvailable	
 	#$Result = $Domain, $ZoneDNSSigned, $CAA, $MXCount, $MXRecord, $MXReverseLookup, $StartTLSCount, $StartTLSSupport, $DANECount, $SPFAvailable, $SPFRecord, $DomainKeyAvailable, $DomainKeySupport, $DomainKeyRecord, $DMARCAvailable, $DMARCRecord, $DANECount, $DANESupport, $DANERecord, $BIMIAvailable, $BIMIRecord, $MTASTSAvailable, $MTASTSTXT, $TLSRPTRecord, $Lyncdiscover, $SkypeFederation, $M365, $TenantId
 	#$Result = $Domain, $ZoneDNSSigned, $CAA, $MXCount, $MXRecord, $MXReverseLookup, $StartTLSCount, $StartTLSSupport, $SPFAvailable, $SPFRecord, $DomainKeyAvailable, $DomainKeySupport, $DomainKeyRecord, $DMARCAvailable, $DMARCRecord, $DANECount, $DANESupport, $DANERecord, $BIMIAvailable, $BIMIRecord, $MTASTSAvailable, $MTASTSTXT, $TLSRPTRecord, $Lyncdiscover, $SkypeFederation, $M365, $TenantId
@@ -667,11 +684,14 @@ Function Get-MailProtection
 
 	#return $Result
 	$Result
+	#>
 }
 
 ###############################################################################
 # Main Script
 ###############################################################################
-Get-MailProtection -Domain $Domain 
-#$Result = Get-MailProtection -Domain $Domain
-#$Result
+$Result = Get-MailProtection -Domain $Domain -SMTPConnect $SMTPConnect
+If ($ReturnObject -eq $true)
+{
+	$Result
+}

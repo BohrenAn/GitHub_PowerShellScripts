@@ -30,9 +30,19 @@ It checks for the following Information
 > Install-Script Get-Mailprotection
 
 ## How to use
->$Result = Get-Mailprotection -Domain domain.tld -SMTPConnect [$True/$False]
+>Get-Mailprotection -Domain domain.tld
+![Image](Get-Mailprotection01.jpg)
 
-![Image](Get-Mailprotection.jpg)
+You don't want the Script to make a SMTP Connection to figure out if the Mailservers in the MX Records support STARTTLS
+>Get-Mailprotection -Domain domain.tld -SMTPConnect $False
+![Image](Get-Mailprotection02.jpg)
+
+You want a return Object that has all the Properties
+>$MP = Get-Mailprotection -Domain domain.tld -ReturnObject $True
+>$MP.NameServer
+>$MP.MXRecord
+![Image](Get-Mailprotection03.jpg)
+
 
 # Details
 ## DNS Zone Signed (DNSSEC)
