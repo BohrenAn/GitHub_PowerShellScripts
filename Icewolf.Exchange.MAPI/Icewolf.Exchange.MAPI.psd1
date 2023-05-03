@@ -112,27 +112,15 @@ PrivateData = @{
 		ReleaseNotes = '
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
-V0.3.0-Preview3
+V0.3.0
 Changed Parameter -Trustee to -User (with Alias Trustee)
-Added -ExcludeFolders Parameter to exclude specific Subfolders (String or Array)
+Add/Remove-MAPIPermission: Added -ExcludeFolders Parameter to exclude specific Subfolders (String or Array)
 Fixed Issue with special Characters on Folder DisplayNames
-
-V0.3.0-Preview2
-Fix spelling in a Output
-
-V0.3.0-Preview1
-Updates and Cleaning Code
-
-V0.2.0
-Updates and Cleaning Code
-
-V0.1.0
-Initial Release of the Module
 ---------------------------------------------------------------------------------------------		
 '
 
 		# Prerelease string of this module
-		Prerelease = 'Preview3'
+		#Prerelease = 'Preview3'
 
 		# Flag to indicate whether the module requires explicit user acceptance for install/update/save
 		RequireLicenseAcceptance = $false

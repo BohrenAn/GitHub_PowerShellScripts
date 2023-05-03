@@ -86,3 +86,21 @@ AccessRights:
 - Owner
 - PublishingEditor
 - PublishingAuthor
+
+## Release Notes
+V0.3.0
+- Changed Parameter -Trustee to -User (with Alias Trustee)
+- Add/Remove-MAPIPermission: Added -ExcludeFolders Parameter to exclude specific Subfolders (String or Array)
+- Fixed Issue with special Characters on Folder DisplayNames
+
+V0.3.0-Preview2
+- Fix spelling in a Output
+
+V0.3.0-Preview1
+- Updates and Cleaning Code
+
+V0.2.0
+- Updates and Cleaning Code
+
+V0.1.0
+- Initial Release of the Module
