@@ -14,8 +14,19 @@ Get-AzureADGroup -SearchString PostmasterGraphRestriction | Format-Table Display
 #App: DelegatedMail c1a5903b-cd73-48fe-ac1f-e71bde968412
 New-ApplicationAccessPolicy -AccessRight RestrictAccess -AppId c1a5903b-cd73-48fe-ac1f-e71bde968412 -PolicyScopeGroupId PostmasterGraphRestriction@icewolf.ch -Description "Restrict this app to members of this Group"
 Get-ApplicationAccessPolicy
+Get-ApplicationAccessPolicy | Where-Object {$_.Appid -eq "c1a5903b-cd73-48fe-ac1f-e71bde968412"}
 Test-ApplicationAccessPolicy -AppId c1a5903b-cd73-48fe-ac1f-e71bde968412 -Identity postmaster@icewolf.ch
 Test-ApplicationAccessPolicy -AppId c1a5903b-cd73-48fe-ac1f-e71bde968412 -Identity SharedMBX@icewolf.ch
+
+###############################################################################
+# Exchange Online Role Based Access Control (RBAC) for Applications
+# https://blog.icewolf.ch/archive/2023/01/05/exchange-online-role-based-access-control-rbac-for-applications/
+###############################################################################
+# The most important Takeaways are:
+# - The Preview is now available to all customers in our worldwide multi-tenant environment, and we expect to reach general availability in H1 2023
+#- This feature extends our current RBAC model and will replace the current Application Access Policy feature.
+#- Service Principals representing apps must be manually created in Exchange Online during the Preview, but this process will be automated to offer a more efficient user experience at GA
+#- The Preview provides two resource scoping mechanisms, both of which are supported by Exchange RBAC: management scopes, and admin units
 
 ###############################################################################
 #Clear Tokencache
