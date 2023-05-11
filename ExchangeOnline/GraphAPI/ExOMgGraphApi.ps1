@@ -3,13 +3,42 @@
 # 08.03.2022 V0.1 - Initial Draft - Andres Bohren
 ###############################################################################
 
-Install-Module Microsoft.Graph
-Get-InstalledModule Microsoft.Graph*
+###############################################################################
+# Limiting application permissions to specific Exchange Online mailboxes
+# https://docs.microsoft.com/en-us/graph/auth-limit-mailbox-access
+#
+# Limit Microsoft Graph Access to specific Exchange Mailboxes
+#https://blog.icewolf.ch/archive/2021/02/06/limit-microsoft-graph-access-to-specific-exchange-mailboxes.aspx
+###############################################################################
+Get-AzureADGroup -SearchString PostmasterGraphRestriction | Format-Table DisplayName, ObjectId, SecurityEnabled, MailEnabled, Mail
+#App: DelegatedMail c1a5903b-cd73-48fe-ac1f-e71bde968412
+New-ApplicationAccessPolicy -AccessRight RestrictAccess -AppId c1a5903b-cd73-48fe-ac1f-e71bde968412 -PolicyScopeGroupId PostmasterGraphRestriction@icewolf.ch -Description "Restrict this app to members of this Group"
+Get-ApplicationAccessPolicy
+Get-ApplicationAccessPolicy | Where-Object {$_.Appid -eq "c1a5903b-cd73-48fe-ac1f-e71bde968412"}
+Test-ApplicationAccessPolicy -AppId c1a5903b-cd73-48fe-ac1f-e71bde968412 -Identity postmaster@icewolf.ch
+Test-ApplicationAccessPolicy -AppId c1a5903b-cd73-48fe-ac1f-e71bde968412 -Identity SharedMBX@icewolf.ch
 
+###############################################################################
+# Exchange Online Role Based Access Control (RBAC) for Applications
+# https://blog.icewolf.ch/archive/2023/01/05/exchange-online-role-based-access-control-rbac-for-applications/
+###############################################################################
+# The most important Takeaways are:
+# - The Preview is now available to all customers in our worldwide multi-tenant environment, and we expect to reach general availability in H1 2023
+#- This feature extends our current RBAC model and will replace the current Application Access Policy feature.
+#- Service Principals representing apps must be manually created in Exchange Online during the Preview, but this process will be automated to offer a more efficient user experience at GA
+#- The Preview provides two resource scoping mechanisms, both of which are supported by Exchange RBAC: management scopes, and admin units
+
+
+###############################################################################
 #Needed Modules
+###############################################################################
 # -Microsoft.Graph.Mail
 # -Microsoft.Graph.Calendar
 # -Microsoft.Graph.PersonalContacts
+
+Install-Module Microsoft.Graph
+Get-InstalledModule Microsoft.Graph*
+
 
 ###############################################################################
 #Connect-MgGraph
