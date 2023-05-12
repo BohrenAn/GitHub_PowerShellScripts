@@ -3,6 +3,7 @@
 # Query Public DNS for Mail Related DNS Records
 # 20.11.2020 V1.0 Initial Version - Andres Bohren
 # 12.05.2023 V1.1 Updated to Google DNS - Andres Bohren
+# https://blog.icewolf.ch/archive/2020/11/20/get-mail-related-dns-entrys-with-powershell/
 ###############################################################################
 #CSV Excample
 #DomainName;NS;MX;SPF;DKIM;DMARC;Owner;TechContact
