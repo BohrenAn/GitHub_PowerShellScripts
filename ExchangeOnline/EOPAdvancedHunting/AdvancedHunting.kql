@@ -190,12 +190,20 @@ EmailEvents
 | summarize Recipient=make_set(RecipientEmailAddress) by Timestamp, FileName, SenderMailFromAddress
 
 
+//Inbound DeliveryAction
+EmailEvents 
+| where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
+| summarize count() by DeliveryAction
+| render piechart  
+
 //Inbound Junked
 EmailEvents 
 | where Timestamp > ago(1d) and EmailDirection == 'Inbound' 
-//| where DeliveryAction != "Delivered"
-| where DeliveryAction == "Junked"
-| project SenderMailFromDomain, SenderFromDomain, SenderIPv4, RecipientEmailAddress, AuthenticationDetails
+| where DeliveryAction != "Delivered"
+//| where DeliveryAction == "Junked"
+//| where DeliveryAction == "Blocked"
+| project SenderMailFromDomain, SenderFromDomain, DeliveryAction, DeliveryLocation, SenderIPv4, RecipientEmailAddress, AuthenticationDetails
+
 
 //Inbound Junked SenderIPv4
 EmailEvents 
@@ -213,11 +221,12 @@ EmailEvents
 | summarize count() by SenderIPv4
 | order by count_
 
-//Inbound Junked SenderMailFromDomain
+//SenderMailFromDomain / SenderFromDomain
 EmailEvents 
 | where Timestamp > ago(30d) and EmailDirection == 'Inbound' 
 | where DeliveryAction == "Junked"
-| summarize count() by SenderMailFromDomain
+//| summarize count() by SenderMailFromDomain
+| summarize count() by SenderFromDomain
 | order by count_
 
 //Inbound Junked SenderMailFromDomain - Specific SenderMailFromDomains
