@@ -8,6 +8,7 @@
 # Version 1.5 / 13.10.2022 Fixed Lyncdiscover / Added NS Records & Autodiscover / Minor fixes
 # Version 1.6 / 03.04.2023 Addet Parameter -SMTPConnect [true/false] 
 #	 					   and -ReturnObject [false/true] that is now a PSCustomObject
+# Version 1.7 / 16.05.2023 Fixed Lyncdiscover CNAME
 # Andres Bohren / www.icewolf.ch / blog.icewolf.ch / info@icewolf.ch
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
@@ -539,7 +540,7 @@ Function Get-MailProtection
 	$LyncdiscoverCNAME = $Lyncdiscover | Where-Object {$_.Type -eq "CNAME"}
 	If ($NULL -ne $LyncdiscoverCNAME)
 	{
-		$Lyncdiscover = ($LyncdiscoverCNAME | Select-Object Name -Unique).name
+		$Lyncdiscover = ($LyncdiscoverCNAME | Select-Object Name,NameHost -Unique).NameHost
 	} else {
 		$LyncdiscoverA = $Lyncdiscover | Where-Object {$_.Type -eq "A"}
 		If ($NULL -ne $LyncDiscoverA)
