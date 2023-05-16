@@ -443,7 +443,9 @@ $SqlCmd.CommandText = $qSQL
 $SqlCmd.Connection = $SqlConnection
 $SQLReader = $SqlCmd.ExecuteReader()
 $sqlReader.Read()
-$Count = $sqlReader["SearchForPST"]
+$Column1 = $sqlReader["Column1"]
+$Column2 = $sqlReader["Column2"]
+Write-Host "Column1: $Column1 / Column2: $Column2"
 $SQLReader.close()
 
 #SQL INSERT
@@ -458,7 +460,14 @@ $SqlCmd.CommandText = $qSQL
 $Result = $SqlCmd.ExecuteNonQuery()
 Write-Host "Result UPDATE: " $Result
 
+#SQL connection Close
 $SqlConnection.Close()
+```
+
+## JSON
+Convert JSON to Object
+
+```pwsh
 #Convert JSON
 $Filetypes = Get-Content -Path E:\temp\FileTypes.json | Out-String | ConvertFrom-Json
 ```
