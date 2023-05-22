@@ -442,10 +442,12 @@ $SqlCmd = New-Object System.Data.SqlClient.SqlCommand
 $SqlCmd.CommandText = $qSQL
 $SqlCmd.Connection = $SqlConnection
 $SQLReader = $SqlCmd.ExecuteReader()
-$sqlReader.Read()
-$Column1 = $sqlReader["Column1"]
-$Column2 = $sqlReader["Column2"]
-Write-Host "Column1: $Column1 / Column2: $Column2"
+while ($sqlReader.Read()) 
+{
+	$Column1 = $sqlReader["Column1"]
+	$Column2 = $sqlReader["Column2"]
+	Write-Host "Column1: $Column1 / Column2: $Column2"
+}
 $SQLReader.close()
 
 #SQL INSERT
