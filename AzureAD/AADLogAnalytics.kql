@@ -6,12 +6,62 @@
 //Check a single User
 SigninLogs | where UserPrincipalName == ewservice@icewolf.ch
 
+
+//Azure Active Directory PowerShell / MSOnline
+SigninLogs
+| where TimeGenerated > ago(30d)
+| where AppDisplayName in ('Azure Active Directory PowerShell') or '*' in ('Azure Active Directory PowerShell')
+| where  ResultType == 0 //Sucessful Login
+| summarize count() by UserPrincipalName, AppDisplayName
+| order by count_ desc
+
+
+//Usage Details of Azure Active Directory PowerShell / MSOnline
+let details = dynamic({"Name": "", "Type": "*"});
+let data = SigninLogs
+    | extend AppDisplayName = iff(AppDisplayName == '', 'Unknown', AppDisplayName)
+    | where AppDisplayName in ('Azure Active Directory PowerShell') or '*' in ('Azure Active Directory PowerShell')
+    | where UserDisplayName in ('*') or '*' in ('*')
+    | extend Country = tostring(LocationDetails.countryOrRegion)
+    | extend City = tostring(LocationDetails.city)
+    | extend errorCode = Status.errorCode
+    | extend SigninStatus = case(errorCode == 0, "Success", errorCode == 50058, "Pending user action", errorCode == 50140, "Pending user action", errorCode == 51006, "Pending user action", errorCode == 50059, "Pending user action", errorCode == 65001, "Pending user action", errorCode == 52004, "Pending user action", errorCode == 50055, "Pending user action", errorCode == 50144, "Pending user action", errorCode == 50072, "Pending user action", errorCode == 50074, "Pending user action", errorCode == 16000, "Pending user action", errorCode == 16001, "Pending user action", errorCode == 16003, "Pending user action", errorCode == 50127, "Pending user action", errorCode == 50125, "Pending user action", errorCode == 50129, "Pending user action", errorCode == 50143, "Pending user action", errorCode == 81010, "Pending user action", errorCode == 81014, "Pending user action", errorCode == 81012, "Pending user action", "Failure")
+    | where SigninStatus == '*' or '*' == '*' or '*' == 'All Sign-ins'
+    | where details.Type == '*'
+        or (details.Type == 'Country' and Country == details.Name)
+        or (details.Type == 'City' and City == details.Name);
+data
+| top 200 by TimeGenerated desc
+| extend TimeFromNow = now() - TimeGenerated
+| extend TimeAgo = strcat(case(TimeFromNow < 2m, strcat(toint(TimeFromNow / 1m), ' seconds'), TimeFromNow < 2h, strcat(toint(TimeFromNow / 1m), ' minutes'), TimeFromNow < 2d, strcat(toint(TimeFromNow / 1h), ' hours'), strcat(toint(TimeFromNow / 1d), ' days')), ' ago')
+| project
+    User = UserDisplayName,
+    ['Sign-in Status'] = strcat(iff(SigninStatus == 'Success', '✔️', '❌'), ' ', SigninStatus),
+    ['Sign-in Time'] = TimeAgo,
+    App = AppDisplayName,
+    ['Error code'] = errorCode,
+    ['Result type'] = ResultType,
+    ['Result signature'] = ResultSignature,
+    ['Result description'] = ResultDescription,
+    ['Conditional access policies'] = ConditionalAccessPolicies,
+    ['Conditional access status'] = ConditionalAccessStatus,
+    ['Operating system'] = DeviceDetail.operatingSystem,
+    Browser = DeviceDetail.browser,
+    ['Country or region'] = LocationDetails.countryOrRegion,
+    ['State'] = LocationDetails.state,
+    ['City'] = LocationDetails.city,
+    ['Time generated'] = TimeGenerated,
+    Status,
+    ['User principal name'] = UserPrincipalName
+
+
 //Legacy Auth
 let data = SigninLogs
 | extend isLegacyAuth = case(ClientAppUsed contains "Browser", "No", ClientAppUsed contains "Mobile Apps and Desktop clients", "No", ClientAppUsed contains "Exchange ActiveSync", "Yes", ClientAppUsed contains "Unknown", "Unknown", "Yes")
 | where isLegacyAuth == "Yes" and ResultType==0;
 data
 | summarize count() by UserPrincipalName, AppDisplayName
+
 
 //Legacy Auth
 SigninLogs
@@ -21,6 +71,7 @@ SigninLogs
 | summarize count() by UserPrincipalName, ClientAppUsed
 | order by count_ desc
 
+
 //Legacy Auth ohne ActiveSync
 SigninLogs
 | where ResultType==0
@@ -28,6 +79,7 @@ SigninLogs
 //| summarize count() by UserPrincipalName, AppDisplayName
 | summarize count() by UserPrincipalName, ClientAppUsed
 | order by count_ desc
+
 
 //Sucessful POP3 / IMAP Logins
 AADNonInteractiveUserSignInLogs
@@ -37,6 +89,7 @@ AADNonInteractiveUserSignInLogs
 | summarize count() by UserPrincipalName, ClientAppUsed
 | order by count_ desc
 
+
 //Unsucessful POP3 / IMAP Logins
 AADNonInteractiveUserSignInLogs
 | where TimeGenerated > ago(30d)
@@ -44,6 +97,7 @@ AADNonInteractiveUserSignInLogs
 | where ResultType != 0
 | summarize count() by UserPrincipalName, ClientAppUsed
 | order by count_ desc
+
 
 //Legacy Auth Workbook
 let details = dynamic({"Name": "", "Type": "*"});
@@ -91,10 +145,12 @@ data
 AuditLogs | summarize count () by OperationName
 | order by count_
 
+
 //Usage Avg. Latency
 Usage | project TimeGenerated, AvgLatencyInSeconds
 | summarize count () by bin(TimeGenerated, 1h), AvgLatencyInSeconds
 | render timechart
+
 
 //Search for ADAL Logins
 let nonInteractive = AADNonInteractiveUserSignInLogs 
@@ -141,6 +197,7 @@ DeviceEvents
 | evaluate bag_unpack(command)
 | project DeviceName,InitiatingProcessAccountName, InitiatingProcessFileName, Command
 | summarize PowerShellCommands = make_set(Command) by DeviceName, InitiatingProcessAccountName
+
 
 // Search for PowerShell commands included in the PowerShell module: MSOnline Version:1.1.183.66)
 let pscommands = dynamic (["Add-MsolAdministrativeUnitMember","Add-MsolForeignGroupToRole","Add-MsolGroupMember","Add-MsolRoleMember","Add-MsolScopedRoleMember","Confirm-MsolDomain","Confirm-MsolEmailVerifiedDomain","Connect-MsolService","Convert-MsolDomainToFederated","Convert-MsolDomainToStandard","Convert-MsolFederatedUser","Disable-MsolDevice","Enable-MsolDevice","Get-MsolAccountSku","Get-MsolAdministrativeUnit","Get-MsolAdministrativeUnitMember","Get-MsolCompanyAllowedDataLocation","Get-MsolCompanyInformation","Get-MsolContact","Get-MsolDevice","Get-MsolDeviceRegistrationServicePolicy","Get-MsolDirSyncConfiguration","Get-MsolDirSyncFeatures","Get-MsolDirSyncProvisioningError","Get-MsolDomain","Get-MsolDomainFederationSettings","Get-MsolDomainVerificationDns","Get-MsolFederationProperty","Get-MsolGroup","Get-MsolGroupMember","Get-MsolHasObjectsWithDirSyncProvisioningErrors","Get-MsolPartnerContract","Get-MsolPartnerInformation","Get-MsolPasswordPolicy","Get-MsolRole","Get-MsolRoleMember","Get-MsolScopedRoleMember","Get-MsolServicePrincipal","Get-MsolServicePrincipalCredential","Get-MsolSubscription","Get-MsolUser","Get-MsolUserByStrongAuthentication","Get-MsolUserRole","New-MsolAdministrativeUnit","New-MsolDomain","New-MsolFederatedDomain","New-MsolGroup","New-MsolLicenseOptions","New-MsolServicePrincipal","New-MsolServicePrincipalAddresses","New-MsolServicePrincipalCredential","New-MsolUser","New-MsolWellKnownGroup","Redo-MsolProvisionContact","Redo-MsolProvisionGroup","Redo-MsolProvisionUser","Remove-MsolAdministrativeUnit","Remove-MsolAdministrativeUnitMember","Remove-MsolApplicationPassword","Remove-MsolContact","Remove-MsolDevice","Remove-MsolDomain","Remove-MsolFederatedDomain","Remove-MsolForeignGroupFromRole","Remove-MsolGroup","Remove-MsolGroupMember","Remove-MsolRoleMember","Remove-MsolScopedRoleMember","Remove-MsolServicePrincipal","Remove-MsolServicePrincipalCredential","Remove-MsolUser","Reset-MsolStrongAuthenticationMethodByUpn","Restore-MsolUser","Set-MsolADFSContext","Set-MsolAdministrativeUnit","Set-MsolCompanyAllowedDataLocation","Set-MsolCompanyContactInformation","Set-MsolCompanyMultiNationalEnabled","Set-MsolCompanySecurityComplianceContactInformation","Set-MsolCompanySettings","Set-MsolDeviceRegistrationServicePolicy","Set-MsolDirSyncConfiguration","Set-MsolDirSyncEnabled","Set-MsolDirSyncFeature","Set-MsolDomain","Set-MsolDomainAuthentication","Set-MsolDomainFederationSettings","Set-MsolGroup","Set-MsolPartnerInformation","Set-MsolPasswordPolicy","Set-MsolServicePrincipal","Set-MsolUser","Set-MsolUserLicense","Set-MsolUserPassword","Set-MsolUserPrincipalName","Update-MsolFederatedDomain"]);
