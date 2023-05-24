@@ -1,6 +1,7 @@
 // ############################################################################
 // Azure AD Diagnostic Logging into Azure LogAnalytics Workspace
 // 22.03.2022 V1.0 - Initial Version - Andres Bohren
+// 24.05.2023 V1.1 - Updated AzureAD / MSOL Querys
 // ############################################################################
 
 //Check a single User
@@ -8,6 +9,15 @@ SigninLogs | where UserPrincipalName == ewservice@icewolf.ch
 
 
 //Azure Active Directory PowerShell / MSOnline
+// Last 4 Hours Detail
+SigninLogs
+| where TimeGenerated > ago(4h)
+| where AppDisplayName in ('Azure Active Directory PowerShell') or '*' in ('Azure Active Directory PowerShell')
+| where  ResultType == 0 //Sucessful Login
+|project TimeGenerated, UserPrincipalName,AppDisplayName,ResultType
+
+//Azure Active Directory PowerShell / MSOnline
+// Last 30 Days Summary (Count by UPN)
 SigninLogs
 | where TimeGenerated > ago(30d)
 | where AppDisplayName in ('Azure Active Directory PowerShell') or '*' in ('Azure Active Directory PowerShell')
