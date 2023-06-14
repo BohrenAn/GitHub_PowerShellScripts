@@ -16,6 +16,7 @@ SigninLogs
 | where  ResultType == 0 //Sucessful Login
 |project TimeGenerated, UserPrincipalName,AppDisplayName,ResultType
 
+
 //Azure Active Directory PowerShell / MSOnline
 // Last 30 Days Summary (Count by UPN)
 SigninLogs
@@ -24,6 +25,16 @@ SigninLogs
 | where  ResultType == 0 //Sucessful Login
 | summarize count() by UserPrincipalName, AppDisplayName
 | order by count_ desc
+
+
+//Azure Active Directory PowerShell / MSOnline
+// Last 30 Days Summary (Count by UPN) with Columnchart
+SigninLogs
+| where TimeGenerated > ago(30d)
+| where AppDisplayName in ('Azure Active Directory PowerShell') or '*' in ('Azure Active Directory PowerShell')
+| where  ResultType == 0 //Sucessful Login
+| summarize count () by bin(TimeGenerated, 1d)
+| render columnchart
 
 
 //Usage Details of Azure Active Directory PowerShell / MSOnline
