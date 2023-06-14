@@ -8,7 +8,7 @@
 Connect-MicrosoftTeams
 
 #Get all Teams users
-$CSUsers = Get-CsOnlineUser -ResultSize 0
+$CSUsers = Get-CsOnlineUser -ResultSize 0 | Where-Object {$_.InterpretedUserType -eq "HybridOnlineTeamsOnlyUser"}
 
 Set-Content -Path .\TeamsVoiceMail.csv -Value "UPN;VoicemailEnabled;PromptLanguage"
 
