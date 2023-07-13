@@ -104,3 +104,8 @@ V0.2.0
 
 V0.1.0
 - Initial Release of the Module
+
+## Backlog
+Allow Additional Folders
+- DeletedItems
+- SentItems
