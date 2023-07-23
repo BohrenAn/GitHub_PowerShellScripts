@@ -63,7 +63,7 @@ $AppID = "e9d3d08b-d477-4688-b972-8cb06eefe439"
 $TenantID = "icewolfch.onmicrosoft.com"
 $RedirectURI = "msale9d3d08b-d477-4688-b972-8cb06eefe439://auth"
 Clear-MsalTokenCache
-$Scopes = @("IMAP.AccessAsUser.All","Mail.Send.Shared")
+$Scopes = "https://outlook.office.com/.default"
 $Token = Get-MsalToken -Interactive -Scopes $Scopes -TenantID $TenantID -ClientId $AppID -RedirectURI $RedirectURI
 $AccessToken = $Token.AccessToken
 Get-JWTDetails -token $AccessToken
