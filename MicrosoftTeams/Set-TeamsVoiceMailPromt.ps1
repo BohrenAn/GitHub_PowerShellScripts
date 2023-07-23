@@ -26,7 +26,7 @@ Foreach ($CSUser in $CSUsers)
 	$PromptLanguage = $VoiceMailSettings.PromptLanguage
 	Write-Host "$UPN > $PromptLanguage > $msExchUserCulture"
 	Add-Content -Path $CSVPath -Value "$UPN;$PromptLanguage;$msExchUserCulture"
-	If ($msExchUserCulture -ne $null -or $msExchUserCulture -ne "")
+	If ($Null -ne $msExchUserCulture -or $msExchUserCulture -ne "")
 	{
 		If ($msExchUserCulture -eq "it-CH")
 		{
