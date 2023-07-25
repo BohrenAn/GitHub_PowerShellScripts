@@ -8,7 +8,10 @@
 # https://docs.microsoft.com/en-us/graph/auth-limit-mailbox-access
 #
 # Limit Microsoft Graph Access to specific Exchange Mailboxes
-#https://blog.icewolf.ch/archive/2021/02/06/limit-microsoft-graph-access-to-specific-exchange-mailboxes.aspx
+# https://blog.icewolf.ch/archive/2021/02/06/limit-microsoft-graph-access-to-specific-exchange-mailboxes.aspx
+#
+# Find Azure AD and MSOnline cmdlets in Microsoft Graph PowerShell
+# https://docs.microsoft.com/en-us/powershell/microsoftgraph/azuread-msoline-cmdlet-map?view=graph-powershell-1.0
 ###############################################################################
 Get-AzureADGroup -SearchString PostmasterGraphRestriction | Format-Table DisplayName, ObjectId, SecurityEnabled, MailEnabled, Mail
 #App: DelegatedMail c1a5903b-cd73-48fe-ac1f-e71bde968412
@@ -24,25 +27,24 @@ Test-ApplicationAccessPolicy -AppId c1a5903b-cd73-48fe-ac1f-e71bde968412 -Identi
 ###############################################################################
 # The most important Takeaways are:
 # - The Preview is now available to all customers in our worldwide multi-tenant environment, and we expect to reach general availability in H1 2023
-#- This feature extends our current RBAC model and will replace the current Application Access Policy feature.
-#- Service Principals representing apps must be manually created in Exchange Online during the Preview, but this process will be automated to offer a more efficient user experience at GA
-#- The Preview provides two resource scoping mechanisms, both of which are supported by Exchange RBAC: management scopes, and admin units
-
+# - This feature extends our current RBAC model and will replace the current Application Access Policy feature.
+# - Service Principals representing apps must be manually created in Exchange Online during the Preview, but this process will be automated to offer a more efficient user experience at GA
+# - The Preview provides two resource scoping mechanisms, both of which are supported by Exchange RBAC: management scopes, and admin units
 
 ###############################################################################
-#Needed Modules
+# Needed Modules
 ###############################################################################
-# -Microsoft.Graph.Mail
-# -Microsoft.Graph.Calendar
-# -Microsoft.Graph.PersonalContacts
+# - Microsoft.Graph.Mail
+# - Microsoft.Graph.Calendar
+# - Microsoft.Graph.PersonalContacts
 
 Install-Module Microsoft.Graph
 Get-InstalledModule Microsoft.Graph*
 
 
 ###############################################################################
-#Connect-MgGraph
-#https://github.com/microsoftgraph/msgraph-sdk-powershell
+# Connect-MgGraph
+# https://github.com/microsoftgraph/msgraph-sdk-powershell
 ###############################################################################
 $TenantId = "icewolfch.onmicrosoft.com"
 $Scope = "https://graph.microsoft.com/.default" 

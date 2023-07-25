@@ -2,11 +2,11 @@
 # How to Start with Microsoft.Graph PowerShell Modules
 # V1.0 - Initial Version - Andres Bohren
 ###############################################################################
-#Microsoft Graph PowerShell overview
-#https://docs.microsoft.com/en-us/powershell/microsoftgraph/overview?view=graph-powershell-1.0
+# Microsoft Graph PowerShell overview
+# https://docs.microsoft.com/en-us/powershell/microsoftgraph/overview?view=graph-powershell-1.0
 
-#Find Azure AD and MSOnline cmdlets in Microsoft Graph PowerShell
-#https://docs.microsoft.com/en-us/powershell/microsoftgraph/azuread-msoline-cmdlet-map?view=graph-powershell-1.0
+# Find Azure AD and MSOnline cmdlets in Microsoft Graph PowerShell
+# https://docs.microsoft.com/en-us/powershell/microsoftgraph/azuread-msoline-cmdlet-map?view=graph-powershell-1.0
 
 #Install Module
 Install-Module MicrosoftGraph

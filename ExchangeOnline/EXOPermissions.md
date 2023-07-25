@@ -4,6 +4,9 @@ Here are the commands for FullAccess, SendAs and SendOnBehalf Permissions in Exc
 
 ## Full Access
 ```pwsh
+###############################################################################
+# FullAccess
+###############################################################################
 $Mailbox = "demo@example.com"
 $User = "user@example.com"
 
@@ -19,6 +22,9 @@ Remove-MailboxPermission -Identity $Mailbox -User $User -AccessRights FullAccess
 
 ## SendAs
 ```pwsh
+###############################################################################
+# SendAs
+###############################################################################
 $Mailbox = "demo@example.com"
 $Trustee = "user@example.com"
 
@@ -34,6 +40,9 @@ Remove-RecipientPermission -Identity $Mailbox -Trustee $Trustee -AccessRights Se
 
 ## SendOnBehalf
 ```pwsh
+###############################################################################
+# Send on Behalf
+###############################################################################
 $Mailbox = "demo@example.com"
 
 #Get SendOnBehalf Permissions
