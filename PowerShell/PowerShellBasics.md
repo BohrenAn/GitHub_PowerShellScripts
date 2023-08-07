@@ -312,10 +312,15 @@ $ArrayList[0]
 ## List
 ```pwsh
 $MyList = [System.Collections.Generic.List[object]]::new()
+$MyList = [System.Collections.Generic.List[int]]::new()
+$MyList = [System.Collections.Generic.List[string]]::new()
 $MyList.Add("Value1")
 $MyList.Add("Value2")
+$MyList.Add("Value3")
 $MyList
 $MyList[0]
+$MyList.Remove("Value2")
+$MyList
 ```
 
 ## Hashtable
