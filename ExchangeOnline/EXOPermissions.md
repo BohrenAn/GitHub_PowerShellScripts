@@ -2,8 +2,18 @@
 
 Here are the commands for FullAccess, SendAs and SendOnBehalf Permissions in Exchange Online.
 
+## Connect to Exchange Online
+
+```pwsh
+#Install-Module ExchangeOnlineManagement
+Connect-ExchangeOnline -ShowBanner:$false
+```
+
 ## Full Access
 ```pwsh
+###############################################################################
+# FullAccess
+###############################################################################
 $Mailbox = "demo@example.com"
 $User = "user@example.com"
 
@@ -19,6 +29,9 @@ Remove-MailboxPermission -Identity $Mailbox -User $User -AccessRights FullAccess
 
 ## SendAs
 ```pwsh
+###############################################################################
+# SendAs
+###############################################################################
 $Mailbox = "demo@example.com"
 $Trustee = "user@example.com"
 
@@ -34,14 +47,17 @@ Remove-RecipientPermission -Identity $Mailbox -Trustee $Trustee -AccessRights Se
 
 ## SendOnBehalf
 ```pwsh
+###############################################################################
+# Send on Behalf
+###############################################################################
 $Mailbox = "demo@example.com"
 
 #Get SendOnBehalf Permissions
-Get-O365Mailbox -Identity $Mailbox | select -ExpandProperty GrantSendOnBehalfTo
+Get-Mailbox -Identity $Mailbox | select -ExpandProperty GrantSendOnBehalfTo
 
 #Add SendOnBehalf Permissions
-Set-O365Mailbox -Identity $Mailbox -GrantSendOnBehalfTo "User1,User2,User3"
+Set-Mailbox -Identity $Mailbox -GrantSendOnBehalfTo "User1,User2,User3"
 
 #Remove SendOnBehalf Permissions
-Set-O365Mailbox -Identity $Mailbox -GrantSendOnBehalfTo $Null
+Set-Mailbox -Identity $Mailbox -GrantSendOnBehalfTo $Null
 ```

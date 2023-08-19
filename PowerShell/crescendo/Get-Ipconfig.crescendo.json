@@ -1,0 +1,15 @@
+{
+  "Verb": "Get",
+  "Noun": "Ipconfig",
+  "OriginalName": "C:\\Windows\\System32\\ipconfig.exe",
+  "Platform": [
+    "Windows",
+    "Linux",
+    "MacOS"
+  ],
+  "SupportsShouldProcess": false,
+  "SupportsTransactions": false,
+  "NoInvocation": false,
+  "Parameters": [],
+  "Examples": []
+}
