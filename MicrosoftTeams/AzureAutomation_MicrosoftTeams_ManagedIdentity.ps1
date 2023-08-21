@@ -178,7 +178,7 @@ Disconnect-MicrosoftTeams
 
 ## Get-CS / Set-CS Commands do not work ##
 ###############################################################################
-#Add Service Principal to Teams Administrator
+#Add Service Principal to Skype for Business Administrator
 ###############################################################################
 $roleId = (Get-MgRoleManagementDirectoryRoleDefinition -Filter "DisplayName eq 'Skype for Business Administrator'").id
 New-MgRoleManagementDirectoryRoleAssignment -PrincipalId $SPID -RoleDefinitionId $roleId -DirectoryScopeId "/"
