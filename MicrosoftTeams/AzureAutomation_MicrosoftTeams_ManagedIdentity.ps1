@@ -175,3 +175,19 @@ Connect-MicrosoftTeams -Identity
 $Teams = Get-Team
 Write-Output "Found $($teams.Count) teams"
 Disconnect-MicrosoftTeams
+
+## Get-CS / Set-CS Commands do not work ##
+###############################################################################
+#Add Service Principal to Teams Administrator
+###############################################################################
+$roleId = (Get-MgRoleManagementDirectoryRoleDefinition -Filter "DisplayName eq 'Skype for Business Administrator'").id
+New-MgRoleManagementDirectoryRoleAssignment -PrincipalId $SPID -RoleDefinitionId $roleId -DirectoryScopeId "/"
+
+###############################################################################
+# Demo Teams Runbook
+###############################################################################
+Connect-MicrosoftTeams -Identity
+$Teams = Get-Team
+Write-Output "Found $($teams.Count) teams"
+Get-CsOnlineUser -Identity a.bohren@icewolf.ch | fl *Ent*,*host*,*voice*, *line*
+Disconnect-MicrosoftTeams
