@@ -302,6 +302,8 @@ Until ($a –gt 10)
 # Array
 > Is depreciated
 ```pwsh
+#Arrays are depreciated and should not be used anymore - they also have a bad performance
+
 #Initialize Array
 [array]$myarray = @()
 #Bad Performance because a new Array is created and the values are copied
