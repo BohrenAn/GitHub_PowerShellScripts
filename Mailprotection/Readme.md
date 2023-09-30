@@ -30,11 +30,20 @@ It checks for the following Information
 > Install-Script Get-Mailprotection
 
 ## How to use
+Output to Console
 >Get-Mailprotection -Domain domain.tld
+
+No connection to MX Records
+>Get-Mailprotection -Domain domain.tld -SMTPConnect $False
+
+Return the Result as Object
+>$ReturnObject = Get-Mailprotection -Domain domain.tld -ReturnObject $true
+
 ![Image](Get-Mailprotection01.jpg)
 
 You don't want the Script to make a SMTP Connection to figure out if the Mailservers in the MX Records support STARTTLS
 >Get-Mailprotection -Domain domain.tld -SMTPConnect $False
+
 ![Image](Get-Mailprotection02.jpg)
 
 You want a return Object that has all the Properties
