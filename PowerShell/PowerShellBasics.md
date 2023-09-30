@@ -111,6 +111,16 @@ Get-Service | clip
 Get-Service | Sort-Object -Property status
 ```
 
+# Select
+```pwsh
+$Services = Get-Service
+$Services[0] | Format-List
+$Services | Select-Object Name, DisplayName, Status
+
+#SubProperty
+$Object | select-object @{Name="Property1"; Expression={$_.PropertyObject.Property1}}
+```
+
 # Where
 ```pwsh
 Get-Service | Where-Object {$_.status -eq "Running"}
@@ -147,6 +157,7 @@ $csv = Import-Csv c:\mitarbeiter.csv -Header $header -Delimiter ";"
 ```pwsh
 Get-ADUser | select-object sn, givenName, title | export-csv C:\ad-name-title.csv -encoding UTF8 -NoTypeInformation
 ```
+
 
 # Filesystem
 ```pwsh
@@ -289,7 +300,10 @@ Until ($a –gt 10)
 ```
 
 # Array
+> Is depreciated
 ```pwsh
+#Arrays are depreciated and should not be used anymore - they also have a bad performance
+
 #Initialize Array
 [array]$myarray = @()
 #Bad Performance because a new Array is created and the values are copied
@@ -300,6 +314,7 @@ $myarray
 $myarray[0]
 ```
 ## Arraylist
+> Is depreciated
 ```pwsh
 #Arraylists are depreciated
 $ArrayList = [System.Collections.ArrayList]@()
@@ -321,6 +336,13 @@ $MyList
 $MyList[0]
 $MyList.Remove("Value2")
 $MyList
+```
+
+## String from Array
+> Requires PowerShell 7.x
+```pwsh
+$StringFromArray = $MyList  | Join-String -Separator ","
+$StringFromArray
 ```
 
 ## Hashtable
