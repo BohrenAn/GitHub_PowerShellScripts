@@ -20,6 +20,9 @@
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
+# - SMTPBanner
+# - SMTPCertificate Issuer
+# - Parameter for DKIM Selector
 ###############################################################################
 
 <#PSScriptInfo
@@ -603,9 +606,13 @@ Function Get-MailProtection
 	}
 
 	$MXIPString = $MXIPArray -join " "
+	If ($Null -ne $Nameserver -or $Nameserver -ne "")
+	{
+		$NameserverString = $Nameserver -Join " "
+	}
 
 	Write-Host "SUMMARY: $Domain" -ForegroundColor cyan
-	Write-Host "Nameserver:"$Nameserver.Replace("`r`n"," ") -ForegroundColor cyan
+	Write-Host "Nameserver:" $NameserverString -ForegroundColor cyan
 	Write-Host "Zone DNS Signed: $ZoneDNSSigned" -ForegroundColor cyan
 	Write-Host "Certification Authority Authorization (CAA): $CAA" -ForegroundColor cyan
 	Write-Host "MXCount: $MXCount" -ForegroundColor cyan
