@@ -9,6 +9,13 @@
 # Version 1.6 / 03.04.2023 Addet Parameter -SMTPConnect [true/false] 
 #	 					   and -ReturnObject [false/true] that is now a PSCustomObject
 # Version 1.7 / 16.05.2023 Fixed Lyncdiscover CNAME
+# Version 1.8 / 30.09.2023 - Andres Bohren
+# - Fixed ReturnObject Nameserver
+# - Changed MTA-STSAvailable to MTA-STSAvailable and MTA-STSWeb to MTASTSWeb in ReturnObject
+# - ReturnObject of MTASTSWeb is now String
+# - ReturnObject of TLSRPT is now String
+# - ReturnObject of MXIP is now Array
+# - ReturnObject of CAA is now Array
 # Andres Bohren / www.icewolf.ch / blog.icewolf.ch / info@icewolf.ch
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
@@ -16,7 +23,7 @@
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.6
+.VERSION 1.8
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -28,7 +35,18 @@
 .EXTERNALMODULEDEPENDENCIES 
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
-.RELEASENOTES It's still an early Version and might contain Errors.
+.RELEASENOTES 
+	Version 1.8 / 30.09.2023
+	- Fixed ReturnObject Nameserver
+	- Changed MTA-STSAvailable to MTA-STSAvailable and MTA-STSWeb to MTASTSWeb in ReturnObject
+	- ReturnObject of MTASTSWeb is now String
+	- ReturnObject of TLSRPT is now String
+	- ReturnObject of BIMIRecord is now String
+	- ReturnObject of MXIP is now Array
+	- ReturnObject of CAA is now Array
+	
+	- Version 1.7 / 16.05.2023 
+	- Fixed Lyncdiscover CNAME
 .PRIVATEDATA
 #>
 
@@ -213,16 +231,16 @@ Function Get-MailProtection
 	[string]$DANESupport = "None"
 	[bool]$M365 = $False
 	[bool]$BIMIAvailable = $False
-	#[string]$BIMIRecord = ""
-	[bool]$MTASTSAvailable = $false	
+	[string]$BIMIRecord = $Null
+	[bool]$MTASTSAvailable = $false
 
 	## Check if DNS Zone is signed
-	Write-Host "Check: DNS Zone Signed" -foregroundcolor Green
+	Write-Host "Check: DNS Zone Signed" -ForegroundColor Green
 	$URI = "https://dns.google/resolve?name=$Domain&type=NS"	
 	$json = Invoke-RestMethod -URI $URI
 	If ($json.ad -eq "True")
 	{
-		#Write-Host "DNS Zone signed" -foregroundcolor Green
+		#Write-Host "DNS Zone signed" -ForegroundColor Green
 		$ZoneDNSSigned = $true
 	}
 
@@ -231,7 +249,8 @@ Function Get-MailProtection
 	$NS = Resolve-DnsName -Type NS $Domain
 	If ($null -ne $NS)
 	{
-		[Array]$Nameserver += ($NS.NameHost | Out-String).Trim()
+		#[Array]$Nameserver += ($NS.NameHost | Out-String).Trim()
+		[Array]$Nameserver = $NS.NameHost
 	} 
 
 	# CAA
@@ -243,12 +262,12 @@ Function Get-MailProtection
 	{
 		#$json.Answer
 		#$json.Answer.Data
-		$CAA = ($json.Answer.Data | Out-String).Trim()
+		[Array]$CAA = $json.Answer.Data # ($json.Answer.Data | Out-String).Trim()
 	}
 	
 
 	##Check for MX Record
-	Write-Host "Check: MX Record" -foregroundcolor Green
+	Write-Host "Check: MX Record" -ForegroundColor Green
 	$MX = Resolve-DnsName -Name $Domain -Type MX -ErrorAction SilentlyContinue
 	[Array]$MXRecord = $MX.NameExchange #($mx.nameExchange | Out-String).Trim()
 	If ($NULL -eq $MXRecord -or $MXRecord -eq "" -or $MXRecord -eq $False)
@@ -264,20 +283,20 @@ Function Get-MailProtection
 			#MX Found
 			$MXAvailable = $true
 			$MXCount = $MXCount + 1
-			#Write-Host "MX Found: " $MXEntry.NameExchange -foregroundcolor Green
+			#Write-Host "MX Found: " $MXEntry.NameExchange -ForegroundColor Green
 
 			#ReverseLookup
 			$MXIP = Resolve-DnsName $MXEntry.NameExchange -ErrorAction SilentlyContinue | Where-Object {$_.Type -eq "A"}
-			Write-Host "MXIP $($MXIP.IPAddress)" -foregroundcolor cyan			
+			Write-Host "MXIP $($MXIP.IPAddress)" -ForegroundColor cyan
 			Foreach ($IP in $MXIP.IPAddress)
 			{
-				$MXIPstr = $IP + " " + $MXIPstr
+				[Array]$MXIPArray += $IP
 				#Write-Host "DEBUG: IP $IP"
 				$ReverseLookupName = Resolve-DnsName $IP -ErrorAction SilentlyContinue
 				#Write-Host "DEBUG: ReverseLookupName $($ReverseLookupName | Out-String)"
 				If ($Null -ne $ReverseLookupName)
 				{
-					Write-Host "MX ReverseLookup $($ReverseLookupName.NameHost)" -foregroundcolor cyan
+					Write-Host "MX ReverseLookup $($ReverseLookupName.NameHost)" -ForegroundColor cyan
 					[Array]$MXReverseLookup += $ReverseLookupName.NameHost
 				}
 			}
@@ -297,11 +316,11 @@ Function Get-MailProtection
 			}
 
 			#DANE			
-			Write-Host "Check: DANE" -foregroundcolor Green
+			Write-Host "Check: DANE" -ForegroundColor Green
 			$TLSAQuery = "_25._tcp.$($MXEntry.NameExchange)"
 			#$URL= "https://dns.google/resolve?name=$TLSAQuery&type=TLSA"
-			#Write-Host "DEBUG: TLSAQuery: $TLSAQuery" -foregroundcolor magenta
-			#Write-Host "DEBUG: URI https://dns.google/resolve?name=$TLSAQuery&type=TLSA" -foregroundcolor magenta
+			#Write-Host "DEBUG: TLSAQuery: $TLSAQuery" -ForegroundColor magenta
+			#Write-Host "DEBUG: URI https://dns.google/resolve?name=$TLSAQuery&type=TLSA" -ForegroundColor magenta
 
 			$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$TLSAQuery&type=TLSA"
 			If ($null -ne $json.Answer.data)
@@ -317,7 +336,7 @@ Function Get-MailProtection
 		}
 	}
 	#Check if all MX support StartTLS
-	Write-Host "Check: StartTLS Support" -foregroundcolor Green
+	Write-Host "Check: StartTLS Support" -ForegroundColor Green
 	If ($MXCount -gt 0)
 	{
 		If ($MXCount -eq $StartTLSCount)
@@ -364,7 +383,7 @@ Function Get-MailProtection
 	#Write-Host "DANE Support: " $DANESupport
 
 	## SPF
-	Write-Host "Check: SPF" -foregroundcolor Green
+	Write-Host "Check: SPF" -ForegroundColor Green
 	$SPFRecord = $Null
 	$TXT = Resolve-DnsName -Name $Domain -Type TXT -ErrorAction SilentlyContinue
 	$SPFRecord = $TXT.strings -match "v=spf"
@@ -387,12 +406,12 @@ Function Get-MailProtection
 		{
 			#SPF Found
 			$SPFAvailable = $true
-			#Write-Host "SPF Found" -foregroundcolor Green
+			#Write-Host "SPF Found" -ForegroundColor Green
 		}
 	}
 
 	## Check for DomainKey / DKIM
-	Write-Host "Check: DKIM" -foregroundcolor Green
+	Write-Host "Check: DKIM" -ForegroundColor Green
 	$DomainKeyRecord = $Null
 	$DomainKeySupport = $False
 	$dnshost = "_domainkey." + $Domain
@@ -405,7 +424,7 @@ Function Get-MailProtection
 			$DomainKeyAvailable = $true
 			$DomainKeySupport = $True
 			$DomainKeyRecord = $KEY.Strings
-			#Write-Host "DomainKey Found" -foregroundcolor Green
+			#Write-Host "DomainKey Found" -ForegroundColor Green
 		}
 	}
 	#Try O365 Selector1 and Selector2
@@ -431,12 +450,12 @@ Function Get-MailProtection
 		If ($Null -ne $DomainkeyNS)
 		{
 			$DomainKeySupport = "maybe"
-			#Write-Host "DomainKey Maybe" -foregroundcolor Green
+			#Write-Host "DomainKey Maybe" -ForegroundColor Green
 		}
 }
 
 	## Check for DMARC
-	Write-Host "Check: DMARC" -foregroundcolor Green
+	Write-Host "Check: DMARC" -ForegroundColor Green
 	$DMARCRecord = $Null 
 	$dnshost = "_dmarc." + $Domain
 	#Write-Host "DNSHOST: " $dnshost
@@ -449,13 +468,12 @@ Function Get-MailProtection
 			#DMARC Found
 			$DMARCRecord = ($DMARCEntry.Strings).Replace("'","")
 			$DMARCAvailable = $true
-			#Write-Host "DMARC Found" -foregroundcolor Green
+			#Write-Host "DMARC Found" -ForegroundColor Green
 		}
 	}
 
 	## BIMI
-	Write-Host "Check: BIMI" -foregroundcolor Green
-	$BIMIRecord = $Null
+	Write-Host "Check: BIMI" -ForegroundColor Green	
 	#default._bimi.example.com in txt
 	#"v=BIMI1; l=https://www.example.com/path/to/logo/example.svg; a=https://www.example.com/path/to/vmc/VMC.pem;"
 	$dnshost = "default._bimi." + $Domain
@@ -466,13 +484,13 @@ Function Get-MailProtection
 		{
 			#BIMI Found
 			$BIMIAvailable = $true
-			$BIMIRecord = $BIMIEntry.Strings
-			#Write-Host "BIMI Found" -foregroundcolor Green
+			[String]$BIMIRecord = $BIMIEntry.Strings -Join " "
+			#Write-Host "BIMI Found" -ForegroundColor Green
 		}
 	}
 
 	## MTA STS
-	Write-Host "Check: MTA-STS" -foregroundcolor Green
+	Write-Host "Check: MTA-STS" -ForegroundColor Green 
 	#mta-sts.domain.de/.well-known/mta-sts.txt	
 	#https://mta-sts.dmarcian.com/.well-known/mta-sts.txt
 	#$Domain = "dmarcian.com"
@@ -487,34 +505,36 @@ Function Get-MailProtection
 		{
 			#MTA-STS Found
 			$MTASTSAvailable = $true
-			Write-Host "MTA STS Found" -foregroundcolor Green
+			Write-Host "MTA STS Found" -ForegroundColor Green
 
 			$URI = "https://mta-sts.$Domain/.well-known/mta-sts.txt"
 			Write-Host "DEBUG: MTA-STS URI: $URI" -ForegroundColor Magenta
 			try {
 				$Response = Invoke-WebRequest -URI $URI
-				$MTASTSTXT = ($response.Content).trim()
+				$MTASTSTXT = ($response.Content).trim().Replace("`r`n","")
 			#$MTASTSTXT
 			} catch {
-				Write-Host "An exception was caught: $($_.Exception.Message)" -foregroundColor Red
+				Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Red
 			}
+		} else {
+			$MTASTSAvailable = $False
 		}
 	}
 
 	## TLS-RPT
 	#_smtp._tls.google.com IN TXT "{v=TLSRPTv1;rua=mailto:sts-reports@google.com}"
-	Write-Host "Check: TLS-RPT" -foregroundcolor Green
+	Write-Host "Check: TLS-RPT" -ForegroundColor Green
 	$TLSRPTQuery = "_smtp._tls.$Domain"
 	$TLSRPT = Resolve-DnsName -Name $TLSRPTQuery -Type TXT -ErrorAction SilentlyContinue
 	If ($Null -ne $TLSRPT)
 	{
-		$TLSRPTRecord = $TLSRPT.Strings
+		[String]$TLSRPTRecord = $TLSRPT.Strings
 	}
 
 	##Autodiscover
 	#AutodiscoverV2
 	#$URI = "https://autodiscover.icewolf.ch/autodiscover/autodiscover.json/v1.0/info@$domain?Protocol=AutodiscoverV1"
-	Write-Host "Check: Autodiscover" -foregroundcolor Green
+	Write-Host "Check: Autodiscover" -ForegroundColor Green
 	$Autodiscover = Resolve-DnsName -Name autodiscover.$Domain -ErrorAction SilentlyContinue
 	$AutodiscoverCNAME = $Autodiscover | Where-Object {$_.Type -eq "CNAME"}
 	If ($NULL -ne $AutodiscoverCNAME)
@@ -535,7 +555,7 @@ Function Get-MailProtection
 
 
 	##LyncDiscover
-	Write-Host "Check: Lyncdiscover" -foregroundcolor Green
+	Write-Host "Check: Lyncdiscover" -ForegroundColor Green
 	$Lyncdiscover = Resolve-DnsName lyncdiscover.$Domain -ErrorAction SilentlyContinue
 	$LyncdiscoverCNAME = $Lyncdiscover | Where-Object {$_.Type -eq "CNAME"}
 	If ($NULL -ne $LyncdiscoverCNAME)
@@ -554,7 +574,7 @@ Function Get-MailProtection
 	}
 
 	## Skype4B / Teams Federation
-	Write-Host "Check: Skype4B / Teams Federation" -foregroundcolor Green
+	Write-Host "Check: Skype4B / Teams Federation" -ForegroundColor Green
 	$SRV = Resolve-DnsName _sipfederationtls._tcp.$Domain -Type SRV -ErrorAction SilentlyContinue
 	$SkypeFederation = ($SRV.NameTarget | Out-String).Trim()
 	If ($SkypeFederation -eq "" -or $Null -eq $SkypeFederation)
@@ -563,7 +583,7 @@ Function Get-MailProtection
 	}
 
 	##M365
-	Write-Host "Check: M365 Tenant (OpenIDConnect)" -foregroundcolor Green
+	Write-Host "Check: M365 Tenant (OpenIDConnect)" -ForegroundColor Green
 	try {
 		#$TenantID = (Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration|ConvertFrom-Json).token_endpoint.Split('/')[3] 
 		$Response = Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration
@@ -571,7 +591,7 @@ Function Get-MailProtection
 		$M365 = $True 
 
 	} catch {
-		Write-Host "An exception was caught: $($_.Exception.Message)" -foregroundColor Red
+		Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Red
 		#$_.Exception.Response 
 		$TenantID = "NULL"
 		$M365 = $False 
@@ -582,36 +602,38 @@ Function Get-MailProtection
 		$TenantID = "NULL"
 	}
 
-	Write-Host "SUMMARY: $Domain" -foregroundcolor cyan
-	Write-Host "Nameserver:"$Nameserver.Replace("`r`n"," ") -foregroundcolor cyan
-	Write-Host "Zone DNS Signed: $ZoneDNSSigned" -foregroundcolor cyan
-	Write-Host "Certification Authority Authorization (CAA): $CAA" -foregroundcolor cyan
-	Write-Host "MXCount: $MXCount" -foregroundcolor cyan
-	Write-Host "MXRecord: $MXRecord" -foregroundcolor cyan
-	Write-Host "MXIP: $MXIPstr" -foregroundcolor cyan
-	Write-Host "MXReverseLookup: $MXReverseLookup" -foregroundcolor cyan
-	Write-Host "STARTTLS: $StartTLSCount" -foregroundcolor cyan
-	Write-Host "STARTTLS Support: $StartTLSSupport" -foregroundcolor cyan
-	Write-Host "SPF: $SPFAvailable" -foregroundcolor cyan
-	Write-Host "SPFRecord: $SPFRecord" -foregroundcolor cyan
-	Write-Host "DKIM: $DomainKeyAvailable" -foregroundcolor cyan
-	Write-Host "DKIM Support: $DomainKeySupport" -foregroundcolor cyan
-	Write-Host "DKIM Record: $DomainKeyRecord" -foregroundcolor cyan
-	Write-Host "DMARC: $DMARCAvailable " -foregroundcolor cyan
-	Write-Host "DMARCRecord: $DMARCRecord" -foregroundcolor cyan
-	Write-Host "DANECount: $DANECount" -foregroundcolor cyan
-	Write-Host "DANESupport: $DANESupport" -foregroundcolor cyan
-	Write-Host "DANERecord: $DANERecord" -foregroundcolor cyan
-	Write-Host "BIMI: $BIMIAvailable" -foregroundcolor cyan
-	Write-Host "BIMI Record: $BIMIRecord" -foregroundcolor cyan
-	Write-Host "MTA-STS: $MTASTSAvailable" -foregroundcolor cyan
-	Write-Host "MTA-STS-Web: $MTASTSTXT" -foregroundcolor cyan
-	Write-Host "TLS-RPT: $TLSRPTRecord" -foregroundcolor cyan
-	Write-Host "Autodiscover: $Autodiscover" -foregroundcolor cyan
-	Write-Host "Lyncdiscover: $Lyncdiscover" -foregroundcolor cyan
-	Write-Host "SkypeFederation: $SkypeFederation" -foregroundcolor cyan
-	Write-Host "M365: $M365" -foregroundcolor cyan
-	Write-Host "TenantID: $TenantID" -foregroundcolor cyan
+	$MXIPString = $MXIPArray -join " "
+
+	Write-Host "SUMMARY: $Domain" -ForegroundColor cyan
+	Write-Host "Nameserver:"$Nameserver.Replace("`r`n"," ") -ForegroundColor cyan
+	Write-Host "Zone DNS Signed: $ZoneDNSSigned" -ForegroundColor cyan
+	Write-Host "Certification Authority Authorization (CAA): $CAA" -ForegroundColor cyan
+	Write-Host "MXCount: $MXCount" -ForegroundColor cyan
+	Write-Host "MXRecord: $MXRecord" -ForegroundColor cyan
+	Write-Host "MXIP: $MXIPString" -ForegroundColor cyan
+	Write-Host "MXReverseLookup: $MXReverseLookup" -ForegroundColor cyan
+	Write-Host "STARTTLS: $StartTLSCount" -ForegroundColor cyan
+	Write-Host "STARTTLS Support: $StartTLSSupport" -ForegroundColor cyan
+	Write-Host "SPF: $SPFAvailable" -ForegroundColor cyan
+	Write-Host "SPFRecord: $SPFRecord" -ForegroundColor cyan
+	Write-Host "DKIM: $DomainKeyAvailable" -ForegroundColor cyan
+	Write-Host "DKIM Support: $DomainKeySupport" -ForegroundColor cyan
+	Write-Host "DKIM Record: $DomainKeyRecord" -ForegroundColor cyan
+	Write-Host "DMARC: $DMARCAvailable " -ForegroundColor cyan
+	Write-Host "DMARCRecord: $DMARCRecord" -ForegroundColor cyan
+	Write-Host "DANECount: $DANECount" -ForegroundColor cyan
+	Write-Host "DANESupport: $DANESupport" -ForegroundColor cyan
+	Write-Host "DANERecord: $DANERecord" -ForegroundColor cyan
+	Write-Host "BIMI: $BIMIAvailable" -ForegroundColor cyan
+	Write-Host "BIMI Record: $BIMIRecord" -ForegroundColor cyan
+	Write-Host "MTA-STS: $MTASTSAvailable" -ForegroundColor cyan
+	Write-Host "MTA-STS-Web: $MTASTSTXT" -ForegroundColor cyan
+	Write-Host "TLS-RPT: $TLSRPTRecord" -ForegroundColor cyan
+	Write-Host "Autodiscover: $Autodiscover" -ForegroundColor cyan
+	Write-Host "Lyncdiscover: $Lyncdiscover" -ForegroundColor cyan
+	Write-Host "SkypeFederation: $SkypeFederation" -ForegroundColor cyan
+	Write-Host "M365: $M365" -ForegroundColor cyan
+	Write-Host "TenantID: $TenantID" -ForegroundColor cyan
 
 	#Better ResponseObject
 	$ResultObject = [PSCustomObject]@{}
@@ -621,7 +643,7 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'CAA' -Value $CAA
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MXCount' -Value $MXCount
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MXRecord' -Value $MXRecord
-	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MXIP' -Value $MXIP
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MXIP' -Value $MXIPArray
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MXReverseLookup' -Value $MXReverseLookup
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'StartTLSCount' -Value $StartTLSCount
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'StartTLSSupport' -Value $StartTLSSupport
@@ -637,9 +659,9 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DANERecord' -Value $DANERecord
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'BIMIAvailable' -Value $BIMIAvailable
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'BIMIRecord' -Value $BIMIRecord
-	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MTA-STSAvailable' -Value $MTASTSAvailable
-	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MTA-STSWeb' -Value $MTASTSTXT
-	$ResultObject | Add-Member -MemberType NoteProperty -Name 'TLSRPT' -Value $TLSRPT
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MTASTSAvailable' -Value $MTASTSAvailable
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MTASTSWeb' -Value $MTASTSTXT
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'TLSRPT' -Value $TLSRPTRecord
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'Autodiscover' -Value $Autodiscover
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'LyncDiscover' -Value $Lyncdiscover
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SkypeFederation' -Value $SkypeFederation
