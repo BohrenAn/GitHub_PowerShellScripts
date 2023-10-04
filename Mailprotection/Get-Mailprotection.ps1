@@ -1,5 +1,7 @@
 ###############################################################################
 # Get-Mailprotection.ps1
+# Andres Bohren / www.icewolf.ch / blog.icewolf.ch / info@icewolf.ch
+#
 # Version 1.0 / 21.02.2015 Initial Version
 # Version 1.1 / 08.04.2015 IDN Domains / Crawled Domains / Unique Domains
 # Version 1.2 / 13.04.2015 STARTTLS Support
@@ -16,10 +18,14 @@
 # - ReturnObject of TLSRPT is now String
 # - ReturnObject of MXIP is now Array
 # - ReturnObject of CAA is now Array
-# Andres Bohren / www.icewolf.ch / blog.icewolf.ch / info@icewolf.ch
+# Version 1.9 / xx.xx.2023 - Andres Bohren
+# - Fixed Error in Nameserver Output
+# - Addet SMTPBanner
+# - Addet SMTPCertificateIssuer
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
+# - Parameter for DKIM Selector
 ###############################################################################
 
 <#PSScriptInfo
@@ -35,7 +41,12 @@
 .EXTERNALMODULEDEPENDENCIES 
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
-.RELEASENOTES 
+.RELEASENOTES
+	Version 1.9 / xx.xx.2023 - Andres Bohren	
+	- Fixed Error in Nameserver Output
+	- Addet SMTPBanner
+	- Addet SMTPCertificateIssuer
+
 	Version 1.8 / 30.09.2023
 	- Fixed ReturnObject Nameserver
 	- Changed MTA-STSAvailable to MTA-STSAvailable and MTA-STSWeb to MTASTSWeb in ReturnObject
@@ -136,7 +147,7 @@ PARAM (
 			$streamWriter = new-object System.IO.StreamWriter($stream)
 			$streamReader = new-object System.IO.StreamReader($stream)
 			$stream.ReadTimeout = 500
-			$stream.WriteTimeout = 500  
+			$stream.WriteTimeout = 500
 			$streamWriter.AutoFlush = $true
 
 			$Callback = {param($sender,$cert,$chain,$errors) return $true}
@@ -148,6 +159,9 @@ PARAM (
 			Write-Host($ConnectResponse)
 			if(!$ConnectResponse.StartsWith("220")){
 				#throw "Error connecting to the SMTP Server"
+			} else {
+				$SMTPBanner = $ConnectResponse
+				#Write-Host "DEBUG: SMTPBanner: $SMTPBanner"
 			}
 
 			#Send "EHLO"
@@ -182,7 +196,7 @@ PARAM (
 
 					#Get Certificate
 					$ccCol = New-Object System.Security.Cryptography.X509Certificates.X509CertificateCollection
-					$sslStream.AuthenticateAsClient($ServerName,$ccCol,[System.Security.Authentication.SslProtocols]::Tls12,$false)	
+					$sslStream.AuthenticateAsClient($ServerName,$ccCol,[System.Security.Authentication.SslProtocols]::Tls12,$false)
 					$Cert = $sslStream.RemoteCertificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
 
 					#Show Certificate Details
@@ -194,6 +208,9 @@ PARAM (
 					Write-Host "SerialNumber: $($sslStream.RemoteCertificate.GetSerialNumberString())"
 					Write-Host "Thumbprint: $($sslStream.RemoteCertificate.GetCertHashString())"
 
+					$SMTPCertIssuer = $sslStream.RemoteCertificate.Issuer
+					#Write-Host "DEBUG: CertIssuer: $CertIssuer"
+
 					$stream.Dispose()
 					$sslStream.Dispose()
 
@@ -203,7 +220,14 @@ PARAM (
 			}
 
 		}
-		return $TLSSupport
+
+		$ResultObject = [PSCustomObject]@{}
+		$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPBanner' -Value $SMTPBanner
+		$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPCertIssuer' -Value $SMTPCertIssuer
+		$ResultObject | Add-Member -MemberType NoteProperty -Name 'TLSSupport' -Value $TLSSupport
+
+		return $ResultObject
+		#return $TLSSupport
 	}
 
 ###############################################################################
@@ -302,20 +326,20 @@ Function Get-MailProtection
 			}
 
 			#StartTLS
-			[bool]$StartTLS = $false
-
 			#Only Connect if Parameter $SMTPConnect is True (default)
 			If ($SMTPConnect -eq $True)
 			{
 				Write-Host "StartTLS: " $StartTLS	
-				$StartTLS = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
+				$StartTLSReturn = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
+				[Array]$SMTPBannerArray += $StartTLSReturn.SMTPBanner
+				[Array]$SMTPCertIssuerArray += $StartTLSReturn.SMTPCertIssuer
 			}
-			If ($StartTLS -eq $true)
+			If ($StartTLSReturn.StartTLS -eq $true)
 			{
 				$StartTLSCount = $StartTLSCount + 1
 			}
 
-			#DANE			
+			#DANE
 			Write-Host "Check: DANE" -ForegroundColor Green
 			$TLSAQuery = "_25._tcp.$($MXEntry.NameExchange)"
 			#$URL= "https://dns.google/resolve?name=$TLSAQuery&type=TLSA"
@@ -508,7 +532,7 @@ Function Get-MailProtection
 			Write-Host "MTA STS Found" -ForegroundColor Green
 
 			$URI = "https://mta-sts.$Domain/.well-known/mta-sts.txt"
-			Write-Host "DEBUG: MTA-STS URI: $URI" -ForegroundColor Magenta
+			#Write-Host "DEBUG: MTA-STS URI: $URI" -ForegroundColor Magenta
 			try {
 				$Response = Invoke-WebRequest -URI $URI
 				$MTASTSTXT = ($response.Content).trim().Replace("`r`n","")
@@ -603,9 +627,25 @@ Function Get-MailProtection
 	}
 
 	$MXIPString = $MXIPArray -join " "
+	If ($Null -ne $Nameserver -or $Nameserver -ne "")
+	{
+		$NameserverString = $Nameserver -Join " "
+	}
+
+	[String]$SMTPBanner = ""
+	If ($Null -ne $SMTPBannerArray)
+	{
+		$SMTPBanner = $SMTPBannerArray -join " "
+	}
+
+	[String]$SMTPCertIssuer = ""
+	If ($Null -ne $SMTPCertIssuerArray)
+	{
+		$SMTPCertIssuer = $SMTPCertIssuerArray -join " "
+	}
 
 	Write-Host "SUMMARY: $Domain" -ForegroundColor cyan
-	Write-Host "Nameserver:"$Nameserver.Replace("`r`n"," ") -ForegroundColor cyan
+	Write-Host "Nameserver:" $NameserverString -ForegroundColor cyan
 	Write-Host "Zone DNS Signed: $ZoneDNSSigned" -ForegroundColor cyan
 	Write-Host "Certification Authority Authorization (CAA): $CAA" -ForegroundColor cyan
 	Write-Host "MXCount: $MXCount" -ForegroundColor cyan
@@ -614,6 +654,8 @@ Function Get-MailProtection
 	Write-Host "MXReverseLookup: $MXReverseLookup" -ForegroundColor cyan
 	Write-Host "STARTTLS: $StartTLSCount" -ForegroundColor cyan
 	Write-Host "STARTTLS Support: $StartTLSSupport" -ForegroundColor cyan
+	Write-Host "SMTPBanner: $SMTPBanner" -ForegroundColor cyan
+	Write-Host "SMTPCertIssuer: $SMTPCertIssuer" -ForegroundColor cyan
 	Write-Host "SPF: $SPFAvailable" -ForegroundColor cyan
 	Write-Host "SPFRecord: $SPFRecord" -ForegroundColor cyan
 	Write-Host "DKIM: $DomainKeyAvailable" -ForegroundColor cyan
@@ -647,6 +689,8 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MXReverseLookup' -Value $MXReverseLookup
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'StartTLSCount' -Value $StartTLSCount
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'StartTLSSupport' -Value $StartTLSSupport
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPBanner' -Value $SMTPBannerArray
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPCertIssuer' -Value $SMTPCertIssuerArray
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFAvailable' -Value $SPFAvailable
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFRecord' -Value $SPFRecord
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DomainKeyAvailable' -Value $DomainKeyAvailable
