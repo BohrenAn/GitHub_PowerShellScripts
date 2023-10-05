@@ -72,6 +72,7 @@ Foreach ($Line in $CSV)
 	$UPN = $Line.UserPrincipalName
 	$Password = Get-RandomPassword 14
 	[bool]$RemotePowerShellEnabled = $False
+	[bool]$ResetPasswordOnNextLogon = $True
 	
 	Write-Host "Working on: $UPN" -ForegroundColor Green
 
@@ -84,6 +85,8 @@ Foreach ($Line in $CSV)
 	#Add-MailUser
 	New-MailUser -Name "$DisplayName" -FirstName $FirstName -LastName $LastName -DisplayName "$DisplayName" -Alias $Alias -ExternalEmailAddress $ExternalEmailAddress -MicrosoftOnlineServicesID $UPN -Password $SecurePassword -RemotePowerShellEnabled $RemotePowerShellEnabled #-ResetPasswordOnNextLogon $ResetPasswordOnNextLogon
 	
+	#Set ResetPasswordOnNextLogon
+	New-MailUser -Identity $UPN -ResetPasswordOnNextLogon $ResetPasswordOnNextLogon
 }
 
 Write-Host "Passwords are stored in: $PSScriptRoot\MailuserPwd.csv" -ForegroundColor Cyan
