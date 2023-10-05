@@ -13,8 +13,11 @@ Function Get-RandomPassword {
         [int] $length,
         [int] $amountOfNonAlphanumeric = 1
     )
-    Add-Type -AssemblyName 'System.Web'
-    $PasswordString =  [System.Web.Security.Membership]::GeneratePassword($length, $amountOfNonAlphanumeric)
+    #Add-Type -AssemblyName 'System.Web'
+    #$PasswordString =  [System.Web.Security.Membership]::GeneratePassword($length, $amountOfNonAlphanumeric)
+
+	#Fix so it works also in PowerShell 7
+	$PasswordString = -join ((33..126) * 120 | Get-Random -Count $length | ForEach-Object { [char]$_ })
 	
 	return $PasswordString
 }
