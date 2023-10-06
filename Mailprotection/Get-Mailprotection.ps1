@@ -23,6 +23,7 @@
 # - Addet SMTPBanner
 # - Addet SMTPCertificateIssuer
 # - Fixed Errorhandling in DANE and NS Lookups
+# - Better Errorhandling in SMTPConnect
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
@@ -48,6 +49,7 @@
 	- Addet SMTPBanner
 	- Addet SMTPCertificateIssuer
 	- Fixed Errorhandling in DANE and NS Lookups
+	- Better Errorhandling in SMTPConnect
 
 	Version 1.8 / 30.09.2023
 	- Fixed ReturnObject Nameserver
@@ -313,7 +315,7 @@ Function Get-MailProtection
 
 			#ReverseLookup
 			$MXIP = Resolve-DnsName $MXEntry.NameExchange -ErrorAction SilentlyContinue | Where-Object {$_.Type -eq "A"}
-			Write-Host "MXIP $($MXIP.IPAddress)" -ForegroundColor cyan
+			#Write-Host "MXIP $($MXIP.IPAddress)" -ForegroundColor cyan
 			Foreach ($IP in $MXIP.IPAddress)
 			{
 				[Array]$MXIPArray += $IP
@@ -322,7 +324,7 @@ Function Get-MailProtection
 				#Write-Host "DEBUG: ReverseLookupName $($ReverseLookupName | Out-String)"
 				If ($Null -ne $ReverseLookupName)
 				{
-					Write-Host "MX ReverseLookup $($ReverseLookupName.NameHost)" -ForegroundColor cyan
+					#Write-Host "MX ReverseLookup $($ReverseLookupName.NameHost)" -ForegroundColor cyan
 					[Array]$MXReverseLookup += $ReverseLookupName.NameHost
 				}
 			}
@@ -331,10 +333,15 @@ Function Get-MailProtection
 			#Only Connect if Parameter $SMTPConnect is True (default)
 			If ($SMTPConnect -eq $True)
 			{
-				Write-Host "StartTLS: " $StartTLS	
-				$StartTLSReturn = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
-				[Array]$SMTPBannerArray += $StartTLSReturn.SMTPBanner
-				[Array]$SMTPCertIssuerArray += $StartTLSReturn.SMTPCertIssuer
+				Write-Host "Check: SMTPConnect" -ForegroundColor Green
+				$TestConnection = Test-NetConnection $MXEntry.NameExchange -Port 25
+				If ($TestConnection.TcpTestSucceeded -eq $true)
+				{
+					Write-Host "StartTLS: " $StartTLS	
+					$StartTLSReturn = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
+					[Array]$SMTPBannerArray += $StartTLSReturn.SMTPBanner
+					[Array]$SMTPCertIssuerArray += $StartTLSReturn.SMTPCertIssuer
+				}
 			}
 			If ($StartTLSReturn.StartTLS -eq $true)
 			{
