@@ -22,6 +22,7 @@
 # - Fixed Error in Nameserver Output
 # - Addet SMTPBanner
 # - Addet SMTPCertificateIssuer
+# - Fixed Errorhandling in DANE and NS Lookups
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
@@ -46,6 +47,7 @@
 	- Fixed Error in Nameserver Output
 	- Addet SMTPBanner
 	- Addet SMTPCertificateIssuer
+	- Fixed Errorhandling in DANE and NS Lookups
 
 	Version 1.8 / 30.09.2023
 	- Fixed ReturnObject Nameserver
@@ -260,7 +262,7 @@ Function Get-MailProtection
 
 	## Check if DNS Zone is signed
 	Write-Host "Check: DNS Zone Signed" -ForegroundColor Green
-	$URI = "https://dns.google/resolve?name=$Domain&type=NS"	
+	$URI = "https://dns.google/resolve?name=$Domain&type=NS"
 	$json = Invoke-RestMethod -URI $URI
 	If ($json.ad -eq "True")
 	{
@@ -270,12 +272,12 @@ Function Get-MailProtection
 
 	## Nameserver (NS)
 	$Nameserver = $Null
-	$NS = Resolve-DnsName -Type NS $Domain
+	$NS = Resolve-DnsName -Type NS $Domain -ErrorAction SilentlyContinue
 	If ($null -ne $NS)
 	{
 		#[Array]$Nameserver += ($NS.NameHost | Out-String).Trim()
 		[Array]$Nameserver = $NS.NameHost
-	} 
+	}
 
 	# CAA
 	#https://de.wikipedia.org/wiki/DNS_Certification_Authority_Authorization
@@ -339,6 +341,7 @@ Function Get-MailProtection
 				$StartTLSCount = $StartTLSCount + 1
 			}
 
+			try {
 			#DANE
 			Write-Host "Check: DANE" -ForegroundColor Green
 			$TLSAQuery = "_25._tcp.$($MXEntry.NameExchange)"
@@ -346,7 +349,14 @@ Function Get-MailProtection
 			#Write-Host "DEBUG: TLSAQuery: $TLSAQuery" -ForegroundColor magenta
 			#Write-Host "DEBUG: URI https://dns.google/resolve?name=$TLSAQuery&type=TLSA" -ForegroundColor magenta
 
+			$json = $Null
 			$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$TLSAQuery&type=TLSA"
+
+			} catch {
+				Write-Host "StatusCode:" $_.Exception.Response.StatusCode.value__ -ForegroundColor Yellow
+				Write-Host "StatusDescription:" $_.Exception.Response.StatusDescription -ForegroundColor Yellow
+				Write-Host "Query:" $TLSAQuery -ForegroundColor Yellow
+			} 
 			If ($null -ne $json.Answer.data)
 			{
 				#DANE Found
