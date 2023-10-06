@@ -24,6 +24,7 @@
 # - Addet SMTPCertificateIssuer
 # - Fixed Errorhandling in DANE and NS Lookups
 # - Better Errorhandling in SMTPConnect
+# - Fixed Autodiscover Lookup
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
@@ -50,6 +51,7 @@
 	- Addet SMTPCertificateIssuer
 	- Fixed Errorhandling in DANE and NS Lookups
 	- Better Errorhandling in SMTPConnect
+	- Fixed Autodiscover Lookup
 
 	Version 1.8 / 30.09.2023
 	- Fixed ReturnObject Nameserver
@@ -576,23 +578,26 @@ Function Get-MailProtection
 	#AutodiscoverV2
 	#$URI = "https://autodiscover.icewolf.ch/autodiscover/autodiscover.json/v1.0/info@$domain?Protocol=AutodiscoverV1"
 	Write-Host "Check: Autodiscover" -ForegroundColor Green
-	$Autodiscover = Resolve-DnsName -Name autodiscover.$Domain -ErrorAction SilentlyContinue
-	$AutodiscoverCNAME = $Autodiscover | Where-Object {$_.Type -eq "CNAME"}
-	If ($NULL -ne $AutodiscoverCNAME)
+	[array]$Autodiscover = Resolve-DnsName -Name autodiscover.$Domain -ErrorAction SilentlyContinue
+	If ($Null -ne $Autodiscover)
 	{
-		$Autodiscover = ($AutodiscoverCNAME | Select-Object Name -Unique).name
-	} else {
-		$AutodiscoverA = $Autodiscover | Where-Object {$_.Type -eq "A"}
-		If ($NULL -ne $LyncDiscoverA)
+		$AutodiscoverCNAME = $Autodiscover[0] | Where-Object {$_.Type -eq "CNAME"}
+		If ($NULL -ne $AutodiscoverCNAME)
 		{
-			$Autodiscover = ($AutodiscoverA | Select-Object Name -Unique).name
+			[string]$Autodiscover = ($AutodiscoverCNAME | Select-Object NameHost -Unique).NameHost
+		} else {
+			$AutodiscoverA = $Autodiscover[0] | Where-Object {$_.Type -eq "A"}
+			If ($NULL -ne $AutodiscoverA)
+			{
+				[string]$Autodiscover = ($AutodiscoverA | Select-Object IPAddress -Unique).IPAddress
+			}
 		}
-	}
-	If ($Null -eq $Autodiscover)
-	{
-		$SRV = Resolve-DnsName _autodiscover._tcp.$Domain -Type SRV -ErrorAction SilentlyContinue
-		$Autodiscover = ($SRV.NameTarget | Out-String).Trim()
-	}
+		If ($Null -eq $Autodiscover)
+		{
+			$SRV = Resolve-DnsName _autodiscover._tcp.$Domain -Type SRV -ErrorAction SilentlyContinue
+			$Autodiscover = ($SRV.NameTarget | Out-String).Trim()
+		}
+	} 
 
 
 	##LyncDiscover
