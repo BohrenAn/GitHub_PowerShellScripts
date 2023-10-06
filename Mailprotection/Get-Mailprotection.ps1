@@ -167,7 +167,6 @@ PARAM (
 				#throw "Error connecting to the SMTP Server"
 			} else {
 				$SMTPBanner = $ConnectResponse
-				#Write-Host "DEBUG: SMTPBanner: $SMTPBanner"
 			}
 
 			#Send "EHLO"
@@ -215,13 +214,12 @@ PARAM (
 					Write-Host "Thumbprint: $($sslStream.RemoteCertificate.GetCertHashString())"
 
 					$SMTPCertIssuer = $sslStream.RemoteCertificate.Issuer
-					#Write-Host "DEBUG: CertIssuer: $CertIssuer"
 
 					$stream.Dispose()
 					$sslStream.Dispose()
 
 			} else {
-					Write-Host "ERROR: No <STARTTLS> found" -ForegroundColor Red
+					Write-Host "ERROR: No <STARTTLS> found" -ForegroundColor Yellow
 					[bool]$TLSSupport = $false
 			}
 
@@ -270,7 +268,6 @@ Function Get-MailProtection
 	$json = Invoke-RestMethod -URI $URI
 	If ($json.ad -eq "True")
 	{
-		#Write-Host "DNS Zone signed" -ForegroundColor Green
 		$ZoneDNSSigned = $true
 	}
 
@@ -279,7 +276,6 @@ Function Get-MailProtection
 	$NS = Resolve-DnsName -Type NS $Domain -ErrorAction SilentlyContinue
 	If ($null -ne $NS)
 	{
-		#[Array]$Nameserver += ($NS.NameHost | Out-String).Trim()
 		[Array]$Nameserver = $NS.NameHost
 	}
 
@@ -290,8 +286,6 @@ Function Get-MailProtection
 	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$Domain&type=CAA"
 	If ($Null -ne $json.Answer.Data)
 	{
-		#$json.Answer
-		#$json.Answer.Data
 		[Array]$CAA = $json.Answer.Data # ($json.Answer.Data | Out-String).Trim()
 	}
 	
@@ -313,20 +307,15 @@ Function Get-MailProtection
 			#MX Found
 			$MXAvailable = $true
 			$MXCount = $MXCount + 1
-			#Write-Host "MX Found: " $MXEntry.NameExchange -ForegroundColor Green
 
 			#ReverseLookup
 			$MXIP = Resolve-DnsName $MXEntry.NameExchange -ErrorAction SilentlyContinue | Where-Object {$_.Type -eq "A"}
-			#Write-Host "MXIP $($MXIP.IPAddress)" -ForegroundColor cyan
 			Foreach ($IP in $MXIP.IPAddress)
 			{
 				[Array]$MXIPArray += $IP
-				#Write-Host "DEBUG: IP $IP"
 				$ReverseLookupName = Resolve-DnsName $IP -ErrorAction SilentlyContinue
-				#Write-Host "DEBUG: ReverseLookupName $($ReverseLookupName | Out-String)"
 				If ($Null -ne $ReverseLookupName)
 				{
-					#Write-Host "MX ReverseLookup $($ReverseLookupName.NameHost)" -ForegroundColor cyan
 					[Array]$MXReverseLookup += $ReverseLookupName.NameHost
 				}
 			}
@@ -339,7 +328,7 @@ Function Get-MailProtection
 				$TestConnection = Test-NetConnection $MXEntry.NameExchange -Port 25
 				If ($TestConnection.TcpTestSucceeded -eq $true)
 				{
-					Write-Host "StartTLS: " $StartTLS	
+					Write-Host "Check: StartTLS" -ForegroundColor Green
 					$StartTLSReturn = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
 					[Array]$SMTPBannerArray += $StartTLSReturn.SMTPBanner
 					[Array]$SMTPCertIssuerArray += $StartTLSReturn.SMTPCertIssuer
@@ -423,7 +412,6 @@ Function Get-MailProtection
 			$DANESupport = "None"
 		}
 	}
-	#Write-Host "DANE Support: " $DANESupport
 
 	## SPF
 	Write-Host "Check: SPF" -ForegroundColor Green
@@ -449,7 +437,6 @@ Function Get-MailProtection
 		{
 			#SPF Found
 			$SPFAvailable = $true
-			#Write-Host "SPF Found" -ForegroundColor Green
 		}
 	}
 
@@ -467,7 +454,6 @@ Function Get-MailProtection
 			$DomainKeyAvailable = $true
 			$DomainKeySupport = $True
 			$DomainKeyRecord = $KEY.Strings
-			#Write-Host "DomainKey Found" -ForegroundColor Green
 		}
 	}
 	#Try O365 Selector1 and Selector2
@@ -493,7 +479,6 @@ Function Get-MailProtection
 		If ($Null -ne $DomainkeyNS)
 		{
 			$DomainKeySupport = "maybe"
-			#Write-Host "DomainKey Maybe" -ForegroundColor Green
 		}
 }
 
@@ -511,7 +496,6 @@ Function Get-MailProtection
 			#DMARC Found
 			$DMARCRecord = ($DMARCEntry.Strings).Replace("'","")
 			$DMARCAvailable = $true
-			#Write-Host "DMARC Found" -ForegroundColor Green
 		}
 	}
 
@@ -528,7 +512,6 @@ Function Get-MailProtection
 			#BIMI Found
 			$BIMIAvailable = $true
 			[String]$BIMIRecord = $BIMIEntry.Strings -Join " "
-			#Write-Host "BIMI Found" -ForegroundColor Green
 		}
 	}
 
@@ -539,9 +522,8 @@ Function Get-MailProtection
 	#$Domain = "dmarcian.com"
 	#$Domain = "google.com"
 	#$Domain = "icewolf.ch"
-	$dnshost = "_mta-sts." + $Domain
-	#Write-Host "DEBUG: MTA-STS: $dnshost" -ForegroundColor Magenta
-	$MTASTS = Resolve-DnsName -Name $dnshost -Type TXT -ErrorAction SilentlyContinue
+	$DNSHost = "_mta-sts." + $Domain
+	$MTASTS = Resolve-DnsName -Name $DNSHost -Type TXT -ErrorAction SilentlyContinue
 	Foreach ($MTASTSEntry in $MTASTS)
 	{
 		If ($MTASTSEntry.Strings -match "v=STSv1")
@@ -551,13 +533,12 @@ Function Get-MailProtection
 			Write-Host "MTA STS Found" -ForegroundColor Green
 
 			$URI = "https://mta-sts.$Domain/.well-known/mta-sts.txt"
-			#Write-Host "DEBUG: MTA-STS URI: $URI" -ForegroundColor Magenta
 			try {
 				$Response = Invoke-WebRequest -URI $URI
 				$MTASTSTXT = ($response.Content).trim().Replace("`r`n","")
 			#$MTASTSTXT
 			} catch {
-				Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Red
+				Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
 			}
 		} else {
 			$MTASTSAvailable = $False
@@ -599,7 +580,6 @@ Function Get-MailProtection
 		}
 	} 
 
-
 	##LyncDiscover
 	Write-Host "Check: Lyncdiscover" -ForegroundColor Green
 	$Lyncdiscover = Resolve-DnsName lyncdiscover.$Domain -ErrorAction SilentlyContinue
@@ -637,8 +617,7 @@ Function Get-MailProtection
 		$M365 = $True 
 
 	} catch {
-		Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Red
-		#$_.Exception.Response 
+		Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
 		$TenantID = "NULL"
 		$M365 = $False 
 	}
@@ -666,6 +645,7 @@ Function Get-MailProtection
 		$SMTPCertIssuer = $SMTPCertIssuerArray -join " "
 	}
 
+	#Write Output
 	Write-Host "SUMMARY: $Domain" -ForegroundColor cyan
 	Write-Host "Nameserver:" $NameserverString -ForegroundColor cyan
 	Write-Host "Zone DNS Signed: $ZoneDNSSigned" -ForegroundColor cyan
@@ -735,45 +715,6 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'TenantID' -Value $TenantID
 
 	return $ResultObject
-
-	<#
-	#$Result = $MXAvailable, $SPFAvailable, $DomainKeyAvailable,$DMARCAvailable	
-	#$Result = $Domain, $ZoneDNSSigned, $CAA, $MXCount, $MXRecord, $MXReverseLookup, $StartTLSCount, $StartTLSSupport, $DANECount, $SPFAvailable, $SPFRecord, $DomainKeyAvailable, $DomainKeySupport, $DomainKeyRecord, $DMARCAvailable, $DMARCRecord, $DANECount, $DANESupport, $DANERecord, $BIMIAvailable, $BIMIRecord, $MTASTSAvailable, $MTASTSTXT, $TLSRPTRecord, $Lyncdiscover, $SkypeFederation, $M365, $TenantId
-	#$Result = $Domain, $ZoneDNSSigned, $CAA, $MXCount, $MXRecord, $MXReverseLookup, $StartTLSCount, $StartTLSSupport, $SPFAvailable, $SPFRecord, $DomainKeyAvailable, $DomainKeySupport, $DomainKeyRecord, $DMARCAvailable, $DMARCRecord, $DANECount, $DANESupport, $DANERecord, $BIMIAvailable, $BIMIRecord, $MTASTSAvailable, $MTASTSTXT, $TLSRPTRecord, $Lyncdiscover, $SkypeFederation, $M365, $TenantId
-	$Result = @{}
-	$Result.Add("Domain", $Domain)
-	$Result.Add("NameServer", $Nameserver)
-	$Result.Add("ZoneDNSSigned", $ZoneDNSSigned)
-	$Result.Add("CAA", $CAA)
-	$Result.Add("MXCount", $MXCount)
-	$Result.Add("MXRecord", $MXRecord)
-	$Result.Add("MXIP", $MXIPstr)
-	$Result.Add("MXReverseLookup", $MXReverseLookup)
-	$Result.Add("StartTLSCount", $StartTLSCount)
-	$Result.Add("StartTLSSupport", $StartTLSSupport)
-	$Result.Add("SPFAvailable", $SPFAvailable)
-	$Result.Add("SPFRecord", $SPFRecord)
-	$Result.Add("DomainKeyAvailable", $DomainKeyAvailable)
-	$Result.Add("DomainKeySupport", $DomainKeySupport)
-	$Result.Add("DomainKeyRecord", $DomainKeyRecord)
-	$Result.Add("DMARCAvailable", $DMARCAvailable)
-	$Result.Add("DMARCRecord", $DMARCRecord)	
-	$Result.Add("DANECount",$DANECount)
-	$Result.Add("DANESupport", $DANESupport)
-	$Result.Add("BIMIAvailable", $BIMIAvailable)
-	$Result.Add("BIMIRecord", $BIMIRecord)
-	$Result.Add("MTA-STS", $MTASTSAvailable)
-	$Result.Add("MTS-STS-Web", $MTASTSTXT)
-	$Result.Add("TLS-RPT", $TLSRPTRecord)
-	$Result.Add("Autodiscover", $Autodiscover)
-	$Result.Add("Lyncdiscover", $Lyncdiscover)
-	$Result.Add("SkypeFederation", $SkypeFederation)
-	$Result.Add("M365", $M365)
-	$Result.Add("TenantId", $TenantID)
-
-	#return $Result
-	$Result
-	#>
 }
 
 ###############################################################################
