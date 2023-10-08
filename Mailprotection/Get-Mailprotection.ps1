@@ -25,6 +25,7 @@
 # - Fixed Errorhandling in DANE and NS Lookups
 # - Better Errorhandling in SMTPConnect
 # - Fixed Autodiscover Lookup
+# - General cleanup of Code
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
@@ -32,7 +33,7 @@
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.8
+.VERSION 1.9
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -52,18 +53,7 @@
 	- Fixed Errorhandling in DANE and NS Lookups
 	- Better Errorhandling in SMTPConnect
 	- Fixed Autodiscover Lookup
-
-	Version 1.8 / 30.09.2023
-	- Fixed ReturnObject Nameserver
-	- Changed MTA-STSAvailable to MTA-STSAvailable and MTA-STSWeb to MTASTSWeb in ReturnObject
-	- ReturnObject of MTASTSWeb is now String
-	- ReturnObject of TLSRPT is now String
-	- ReturnObject of BIMIRecord is now String
-	- ReturnObject of MXIP is now Array
-	- ReturnObject of CAA is now Array
-	
-	- Version 1.7 / 16.05.2023 
-	- Fixed Lyncdiscover CNAME
+	- General cleanup of Code
 .PRIVATEDATA
 #>
 
@@ -79,7 +69,7 @@
 	- MX (MailExchanger)
 	- MX IP
 	- MX Reverse Lookup
-	- Connects to the MX Servers and checks for STARTTLS and shows Certificate Information
+	- Connects to the MX Servers and checks for STARTTLS and shows SMTP Banner and Certificate Information
 	- SPF (Sender Policy Framework)
 	- DKIM (DomainKeys Identified Mail)
 	- DMARC (Domain-based Message Authentication, Reporting and Conformance)
@@ -100,25 +90,26 @@
 	Also some WebQuerys are required for MTA-STS / TenantID (OIDC).
 	And connects via SMTP to check if the Server supports STARTTLS.
 .NOTES 
-	Please note, the Script is at an early stage and may still contain several errors.
-
 	Note that DKIM is hard to query, because the Selector can be literally anything.
 .LINK 
 	Script is published here:
-	https://github.com/BohrenAn/GitHub_PowerShellScripts/blob/main/ExchangeOnline/Get-Mailprotection.ps1
+	https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 .EXAMPLE 
-	.\Get-Mailprotection.ps1 -Domain icewolf.ch
-	$Result = .\Get-Mailprotection.ps1 -Domain icewolf.ch
-	$Result = .\Get-Mailprotection.ps1 -Domain icewolf.ch -SMTPConnect $False
+	Get-Mailprotection.ps1 -Domain icewolf.ch
+	$Result = Get-Mailprotection.ps1 -Domain icewolf.ch -ReturnObject $True
+	$Result = Get-Mailprotection.ps1 -Domain icewolf.ch -SMTPConnect $False -ReturnObject $True
 
 .PARAMETER Domain 
-   You need to specify a Domain as a string Value
-   domain.tld or subdomain.domain.tld
+	Mandatory Parameter. You need to specify a Domain as a string Value
+	domain.tld or subdomain.domain.tld
 
 .PARAMETER SMTPConnect
-	You can specify not to connect with SMTP to the Server. Per Default this Setting is on.
-	You need then to add the Parameter
-	-SMTPConnect $False
+	Optional Parameter. You can specify not to connect with SMTP to the Server. Per Default this Setting is TRUE.
+	You add the Parameter -SMTPConnect $False
+
+.PARAMETER ReturnObject
+	Optional Parameter. You can specify if a the Script returns an Object (For Scripting purposes). Per Default this Setting is FALSE.
+	You can add the Parameter -ReturnObject $True
 #>
 
 
@@ -189,7 +180,6 @@ PARAM (
 
 			If ($response -match "STARTTLS")
 			{
-
 					$TLSSupport = $true
 
 					#StartTLS found
@@ -596,7 +586,8 @@ Function Get-MailProtection
 	}
 	If ($Lyncdiscover -eq "" -or $Null -eq $Lyncdiscover)
 	{
-		$Lyncdiscover = "NULL"
+		#$Lyncdiscover = "NULL"
+		$Lyncdiscover = $Null
 	}
 
 	## Skype4B / Teams Federation
@@ -605,7 +596,8 @@ Function Get-MailProtection
 	$SkypeFederation = ($SRV.NameTarget | Out-String).Trim()
 	If ($SkypeFederation -eq "" -or $Null -eq $SkypeFederation)
 	{
-		$SkypeFederation = "NULL"
+		#$SkypeFederation = "NULL"
+		$SkypeFederation = $Null
 	}
 
 	##M365
@@ -618,14 +610,15 @@ Function Get-MailProtection
 
 	} catch {
 		Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
-		$TenantID = "NULL"
+		#$TenantID = "NULL"
+		$TenantID = $Null
 		$M365 = $False 
 	}
 
-	If ($TenantID -eq "")
-	{
-		$TenantID = "NULL"
-	}
+	#If ($TenantID -eq "")
+	#{
+	#	$TenantID = "NULL"
+	#}
 
 	$MXIPString = $MXIPArray -join " "
 	If ($Null -ne $Nameserver -or $Nameserver -ne "")
