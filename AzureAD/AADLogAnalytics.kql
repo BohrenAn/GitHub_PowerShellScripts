@@ -76,6 +76,13 @@ data
     ['User principal name'] = UserPrincipalName
 
 
+//What OS is used for Microsoft Teams
+SigninLogs 
+| where TimeGenerated > ago(30d)
+| where AppDisplayName == "Microsoft Teams"
+| where  ResultType == 0 //Sucessful Login
+| summarize count() by UserPrincipalName, tostring(DeviceDetail.operatingSystem), UserAgent
+
 //Legacy Auth
 let data = SigninLogs
 | extend isLegacyAuth = case(ClientAppUsed contains "Browser", "No", ClientAppUsed contains "Mobile Apps and Desktop clients", "No", ClientAppUsed contains "Exchange ActiveSync", "Yes", ClientAppUsed contains "Unknown", "Unknown", "Yes")
