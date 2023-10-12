@@ -12,7 +12,7 @@
 Function Remove-MAPIPermission {
 <# 
 .SYNOPSIS
-	Simple way of removing MAPI Permissions from a Mailbox for the default Folders (Inbox, Calendar, Notes, Tasks, Contacts)
+	Simple way of removing MAPI Permissions from a Mailbox for the default Folders (Inbox, Calendar, Notes, Tasks, Contacts, SentItems, DeletedItems)
 	Also takes care of the 'FolderVisible' Permission in the Root Folder of the Mailbox.
 	
 .DESCRIPTION
@@ -35,6 +35,8 @@ Function Remove-MAPIPermission {
 	- Notes
 	- Tasks
 	- Contacts
+	- SentItems
+	- DeletedItems
 
 .PARAMETER ExcludeFolders
 	A secific SubFolder to Exclude
@@ -148,9 +150,19 @@ Function Remove-MAPIPermission {
 				$ContactsObject = $folderstats | Where-Object FolderType -eq "Contacts"
 				$CustomFolderName = $ContactsObject.Name
 			}
+			"SentItems"
+			{
+				$ContactsObject = $folderstats | Where-Object FolderType -eq "SentItems"
+				$CustomFolderName = $ContactsObject.Name
+			}
+			"DeletedItems"
+			{
+				$ContactsObject = $folderstats | Where-Object FolderType -eq "DeletedItems"
+				$CustomFolderName = $ContactsObject.Name
+			}
 			default
 			{
-				Write-Host "The Parameter -Folder is incorrect. Accepted Values are: 'Inbox', 'Calendar', 'Notes', 'Tasks', 'Contacts'" -foregroundColor Yellow
+				Write-Host "The Parameter -Folder is incorrect. Accepted Values are: 'Inbox', 'Calendar', 'Notes', 'Tasks', 'Contacts','SentItems','DeletedItems'" -foregroundColor Yellow
 				Write-Host "The script will be ended right now." -ForegroundColor Yellow
 				Break
 			}

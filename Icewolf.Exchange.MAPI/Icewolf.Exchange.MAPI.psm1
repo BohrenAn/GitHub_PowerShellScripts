@@ -6,6 +6,8 @@
 # - Remove-MAPIPermissions
 # V0.1 30.04.2020 - Initial Version - Andres Bohren a.bohren@icewolf.ch
 # V0.2 21.02.2022 - Consolidated Code - Andres Bohren a.bohren@icewolf.ch
+# V0.3 28.12.2022 - Updates and Cleaning Code - Andres Bohren
+# V0.4 12.20.2023 - Added Folders "SentItems" and "DeletedItems" to the Default Folder List - Andres Bohren
 ###############################################################################
 
 #Import Scripts

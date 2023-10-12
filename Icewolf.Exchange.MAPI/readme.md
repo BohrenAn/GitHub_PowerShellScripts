@@ -6,7 +6,7 @@ I am working as a Cloud Architect in the Messaging and Communication Area.
 
 As i have to deal with MAPI Permissions i've published this Module for the Messaging Community to simplify MAPI Permission in Exchange or Exchange Server.
 
-It is capable of Add/Remove MAPI Permissions for all Subfolders in a Well Known Folder (Inbox / Calendar / Notes / Tasks / Contacts).
+It is capable of Add/Remove MAPI Permissions for all Subfolders in a Well Known Folder (Inbox / Calendar / Notes / Tasks / Contacts / SentItems / DeletedItems).
 
 ## Supported
 - Exchange Server (Tested On Exchange 2016)
@@ -41,7 +41,14 @@ Import-Module Icewolf.Exchange.MAPI
 
 ### Export MAPI Permissions into CSV
 ```
-Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.txt
+#Export Permissions of all Folders of a Mailbox
+Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv
+	
+#Export Permissions of a specific FolderScope
+Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv -Folder Calendar
+
+#Export Permissions of a specific FolderScope without Default Permissions
+Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv -Folder Calendar -ExportDefaultPermissions $false
 ```
 
 ![Image](Icewolf.Exchange.MAPI_01.jpg)
@@ -76,6 +83,8 @@ Folder:
 - Notes
 - Tasks
 - Contacts
+- SentItems
+- DeletedItems
 
 AccessRights:		
 - Reviewer
@@ -88,6 +97,11 @@ AccessRights:
 - PublishingAuthor
 
 ## Release Notes
+V0.4.0
+- Added Folders "SentItems" and "DeletedItems" to the Folder List
+- Added Parameter "Folder" in Export-MAPIPermissions
+- Added Parameter "ExportDefaultPermissions" in Export-MAPIPermissions
+
 V0.3.0
 - Changed Parameter -Trustee to -User (with Alias Trustee)
 - Add/Remove-MAPIPermission: Added -ExcludeFolders Parameter to exclude specific Subfolders (String or Array)

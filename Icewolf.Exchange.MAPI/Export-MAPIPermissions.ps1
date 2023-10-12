@@ -12,21 +12,46 @@ Function Export-MAPIPermission
 	
 .DESCRIPTION
 	Export MAPI Permissions
-	Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.txt
+	Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv
 
 .PARAMETER Mailbox
 	The MAPI Permission for all Folders of the Mailbox will be exportet
-	
-.PARAMETER FilePath
-	Full File Path to a File "C:\temp\john.doe.txt"
 
-.EXAMPLE
-	Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.txt
+.PARAMETER Folder
+	A specific default Folder:
+	- Inbox
+	- Calendar
+	- Notes
+	- Tasks
+	- Contacts
+	- SentItems
+	- DeletedItems
+
+.PARAMETER ExportDefaultPermissions
+	By default this Parameter is set to $True. This means that the Default Folders will be exported.
+	If set to $False the Export does not contain "Default" and "Anonymous" User Permissions.
+
+.PARAMETER FilePath
+	Full File Path to a File "C:\temp\john.doe.csv"
+
+.EXAMPLE	
+	Here are some examples:
+
+	#Export Permissions of all Folders of a Mailbox
+	Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv
+	
+	#Export Permissions of a specific FolderScope
+	Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv -Folder Calendar
+
+	#Export Permissions of a specific FolderScope without Default Permissions
+	Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv -Folder Calendar -ExportDefaultPermissions $false
 
 #>
 
 	param(
 	[parameter(mandatory=$true)][string]$Mailbox,
+	[parameter(Mandatory=$false)][string]$Folder,
+	[parameter(Mandatory=$false)][bool]$ExportDefaultPermissions = $true,
 	[parameter(mandatory=$true)][string]$FilePath
 	)
 
@@ -67,9 +92,40 @@ Function Export-MAPIPermission
 		break
 	}
 
+	#Check Foldertype Input and Parse to foldername
+	Write-Host "Checking Parameter Folder: $Folder"
+	If ($Null -ne $Folder)
+	{
+		switch ($Folder) 
+		{
+			"Inbox"	{}
+			"Calendar" {}
+			"Notes" {}
+			"Tasks" {}
+			"Contacts" {}
+			"SentItems" {}
+			"DeletedItems" {}			
+			default
+			{
+				Write-Host "The Parameter -Folder is incorrect. Accepted Values are: 'Inbox', 'Calendar', 'Notes', 'Tasks', 'Contacts','SentItems','DeletedItems'" -foregroundColor Yellow
+				Write-Host "The script will be ended right now." -ForegroundColor Yellow
+				Break
+			}
+		}
+	}
 	#Get the Mailboxfolders
 	Write-Host "Getting folders..."
-	$folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "Audits" -AND $_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*"}
+	If ($Null -ne $Folder)
+	{
+		Write-host "Exporting FolderScope: $Folder"
+		$folderstats = Get-MailboxFolderStatistics -Identity $Mailbox -FolderScope $Folder
+	} else {
+		$folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "Audits" -AND $_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*"}
+	}
+	
+	
+
+
 	#Create file to write in
 	Set-Content -Path $FilePath -Value "Mailbox;User;AccessRights"
 
@@ -109,8 +165,21 @@ Function Export-MAPIPermission
 				$User = $FP.user.adrecipient.userprincipalname
 				$Accessrights = $FP.accessrights
 			}
-			#Write into File			
-			Add-Content -Path $FilePath -Value "$Foldername;$User;$Accessrights"
+			
+			#Write into Export File			
+			#Check if Default Permissions should be exported
+			If ($ExportDefaultPermissions -eq $false)
+			{
+				If ($User -eq "Default" -or $User -eq "Anonymous")
+				{
+					#Do nothing
+				} else {
+					Add-Content -Path $FilePath -Value "$Foldername;$User;$Accessrights"
+				}
+			} else {
+				Add-Content -Path $FilePath -Value "$Foldername;$User;$Accessrights"
+			}
+			
 		}
 	}
 

@@ -4,6 +4,7 @@
 # V0.2 10.03.2022 - Updates and Cleaning Code - Andres Bohren
 # V0.3 28.12.2022 - Updates and Cleaning Code - Andres Bohren
 # V0.3 25.02.2023 - Changed Parameter from Trustee to User - Andres Bohren
+# V0.4 12.20.2023 - Added Folders "SentItems" and "DeletedItems" to the Default Folder List - Andres Bohren
 ##############################################################################
 
 Function Add-MAPIPermission {
@@ -23,16 +24,18 @@ Function Add-MAPIPermission {
 	- Notes
 	- Tasks
 	- Contacts
+	- SentItems
+	- DeletedItems
 
 	AccessRights:
-	-Reviewer
-	-Contributor
-	-Author
-	-Editor
-	-NonEditingAuthor
-	-Owner
-	-PublishingEditor
-	-PublishingAuthor
+	- Reviewer
+	- Contributor
+	- Author
+	- Editor
+	- NonEditingAuthor
+	- Owner
+	- PublishingEditor
+	- PublishingAuthor
 
 .PARAMETER Mailbox
 	The mailbox on which the permission will be set
@@ -50,6 +53,8 @@ Function Add-MAPIPermission {
 	- Notes
 	- Tasks
 	- Contacts
+	- SentItems
+	- DeletedItems
 
 .PARAMETER ExcludeFolders
 	A secific SubFolder to Exclude
@@ -60,14 +65,14 @@ Function Add-MAPIPermission {
 
 .PARAMETER AccessRight
 	AccessRights:
-	-Reviewer
-	-Contributor
-	-Author
-	-Editor
-	-NonEditingAuthor
-	-Owner
-	-PublishingEditor
-	-PublishingAuthor
+	- Reviewer
+	- Contributor
+	- Author
+	- Editor
+	- NonEditingAuthor
+	- Owner
+	- PublishingEditor
+	- PublishingAuthor
 	
 .PARAMETER IncludeSubfolders
 	Boolean Value (True/False) if MAPI Permission is applied on all Subfolders
@@ -161,9 +166,19 @@ Function Add-MAPIPermission {
 				$ContactsObject = $folderstats | Where-Object FolderType -eq "Contacts"
 				$CustomFolderName = $ContactsObject.Name
 			}
+			"SentItems"
+			{
+				$ContactsObject = $folderstats | Where-Object FolderType -eq "SentItems"
+				$CustomFolderName = $ContactsObject.Name
+			}
+			"DeletedItems"
+			{
+				$ContactsObject = $folderstats | Where-Object FolderType -eq "DeletedItems"
+				$CustomFolderName = $ContactsObject.Name
+			}
 			default
 			{
-				Write-Host "The Parameter -Folder is incorrect. Accepted Values are: 'Inbox', 'Calendar', 'Notes', 'Tasks', 'Contacts'" -foregroundColor Yellow
+				Write-Host "The Parameter -Folder is incorrect. Accepted Values are: 'Inbox', 'Calendar', 'Notes', 'Tasks', 'Contacts','SentItems','DeletedItems'" -foregroundColor Yellow
 				Write-Host "The script will be ended right now." -ForegroundColor Yellow
 				Break
 			}

@@ -3,6 +3,7 @@
 # V0.1 04.10.2021 - Initial Version - Andres Bohren
 # V0.2 10.03.2022 - Updates and Cleaning Code - Andres Bohren
 # V0.3 28.12.2022 - Updates and Cleaning Code - Andres Bohren
+# V0.4 12.20.2023 - Added Folders "SentItems" and "DeletedItems" to the Default Folder List - Andres Bohren
 ###############################################################################
 
 @{
@@ -11,7 +12,7 @@
 RootModule = 'Icewolf.Exchange.MAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.3.0'
+ModuleVersion = '0.4.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -112,10 +113,13 @@ PrivateData = @{
 		ReleaseNotes = '
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
+V0.4.0
+- Added Folders "SentItems" and "DeletedItems" to the Default Folder List
+
 V0.3.0
-Changed Parameter -Trustee to -User (with Alias Trustee)
-Add/Remove-MAPIPermission: Added -ExcludeFolders Parameter to exclude specific Subfolders (String or Array)
-Fixed Issue with special Characters on Folder DisplayNames
+- Changed Parameter -Trustee to -User (with Alias Trustee)
+- Add/Remove-MAPIPermission: Added -ExcludeFolders Parameter to exclude specific Subfolders (String or Array)
+- Fixed Issue with special Characters on Folder DisplayNames
 ---------------------------------------------------------------------------------------------		
 '
 
