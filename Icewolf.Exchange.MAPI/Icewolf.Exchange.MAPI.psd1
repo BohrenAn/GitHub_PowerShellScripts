@@ -30,7 +30,7 @@ CompanyName = 'icewolf.ch'
 Copyright = '(c) 2023 Andres Bohren. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'This is a Powershell Module that simplifies the Handling of MAPI Permissions.
+Description = 'This is a Powershell Module that simplifies the Handling of MAPI Permissions for Exchange and Exchange Online.
 	Install-Module Icewolf.Exchange.MAPI'
 
 # Minimum version of the PowerShell engine required by this module

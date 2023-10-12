@@ -50,7 +50,7 @@ Function Export-MAPIPermission
 
 	param(
 	[parameter(mandatory=$true)][string]$Mailbox,
-	[parameter(Mandatory=$false)][string]$Folder,
+	[parameter(Mandatory=$false)][string]$Folder = $Null,
 	[parameter(Mandatory=$false)][bool]$ExportDefaultPermissions = $true,
 	[parameter(mandatory=$true)][string]$FilePath
 	)
@@ -93,9 +93,9 @@ Function Export-MAPIPermission
 	}
 
 	#Check Foldertype Input and Parse to foldername
-	Write-Host "Checking Parameter Folder: $Folder"
-	If ($Null -ne $Folder)
+	If ($Folder -ne "")
 	{
+		Write-Host "Checking Parameter Folder: $Folder"
 		switch ($Folder) 
 		{
 			"Inbox"	{}
@@ -104,7 +104,7 @@ Function Export-MAPIPermission
 			"Tasks" {}
 			"Contacts" {}
 			"SentItems" {}
-			"DeletedItems" {}			
+			"DeletedItems" {}
 			default
 			{
 				Write-Host "The Parameter -Folder is incorrect. Accepted Values are: 'Inbox', 'Calendar', 'Notes', 'Tasks', 'Contacts','SentItems','DeletedItems'" -foregroundColor Yellow
@@ -113,21 +113,19 @@ Function Export-MAPIPermission
 			}
 		}
 	}
+
 	#Get the Mailboxfolders
 	Write-Host "Getting folders..."
-	If ($Null -ne $Folder)
+	If ($Folder -ne "")
 	{
 		Write-host "Exporting FolderScope: $Folder"
 		$folderstats = Get-MailboxFolderStatistics -Identity $Mailbox -FolderScope $Folder
 	} else {
 		$folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "Audits" -AND $_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*"}
 	}
-	
-	
-
 
 	#Create file to write in
-	Set-Content -Path $FilePath -Value "Mailbox;User;AccessRights"
+	Set-Content -Path $FilePath -Value "Mailbox;User;AccessRights" -Encoding utf8
 
 	#Loop through Folders
 	foreach ($Line in $folderstats)
@@ -143,17 +141,13 @@ Function Export-MAPIPermission
 			$Foldername = $Line.Identity.replace($Mailbox,$Mailbox +":")
 			$FolderId = $Mailbox + ":" + $Line.FolderId
 		}
-	
-		
-		#[string]$foldername = $foldername -replace([char]63743,"/")
+
 		Write-Host "Working on Folder: $foldername"
-		#$FolderPermissions = Get-MailboxFolderPermission -Identity "$foldername"
-		#Write-Verbose "FolderID: $FolderID"
+		Write-Verbose "FolderID: $FolderID"
 		$FolderPermissions = Get-MailboxFolderPermission -Identity "$FolderId"
 		
-		
 		foreach ($FP in $FolderPermissions)
-		{	  
+		{
 			#if default user
 			if ($Null -eq $FP.user.adrecipient) 
 			{
@@ -166,7 +160,7 @@ Function Export-MAPIPermission
 				$Accessrights = $FP.accessrights
 			}
 			
-			#Write into Export File			
+			#Write into Export File
 			#Check if Default Permissions should be exported
 			If ($ExportDefaultPermissions -eq $false)
 			{
@@ -174,16 +168,15 @@ Function Export-MAPIPermission
 				{
 					#Do nothing
 				} else {
-					Add-Content -Path $FilePath -Value "$Foldername;$User;$Accessrights"
+					Add-Content -Path $FilePath -Value "$Foldername;$User;$Accessrights" -Encoding utf8
 				}
 			} else {
-				Add-Content -Path $FilePath -Value "$Foldername;$User;$Accessrights"
+				Add-Content -Path $FilePath -Value "$Foldername;$User;$Accessrights" -Encoding utf8
 			}
 			
 		}
 	}
 
-	
 	$readhost = Read-Host "Do you like to open the exported File? (y/n)[n]?"
 	if ($readhost -eq "y")
 	{

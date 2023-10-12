@@ -20,12 +20,12 @@ It is capable of Add/Remove MAPI Permissions for all Subfolders in a Well Known 
 Probably works from Exchange 2013 to 2019
 
 ## How to Install
-```
+```pwsh
 Install-Module Icewolf.Exchange.MAPI -AllowPrerelease
 ```
 
 ## Built in Help
-```
+```pwsh
 Get-Command -Module Icewolf.Exchange.MAPI
 Get-Help Add-MAPIPermission
 Get-Help Remove-MAPIPermission
@@ -35,20 +35,14 @@ Get-Help Export-MAPIPermission
 ## How to use
 Connect to Exchange or Exchange Online
 
-```
+```pwsh
 Import-Module Icewolf.Exchange.MAPI
 ```
 
 ### Export MAPI Permissions into CSV
-```
+```pwsh
 #Export Permissions of all Folders of a Mailbox
 Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv
-	
-#Export Permissions of a specific FolderScope
-Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv -Folder Calendar
-
-#Export Permissions of a specific FolderScope without Default Permissions
-Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv -Folder Calendar -ExportDefaultPermissions $false
 ```
 
 ![Image](Icewolf.Exchange.MAPI_01.jpg)
@@ -57,25 +51,47 @@ That's the generated CSV File
 
 ![Image](Icewolf.Exchange.MAPI_02.jpg)
 
-### Add MAPI Permissions to Mailbox Folders
+```pwsh
+#Export Permissions without Default Permissions (Default and Anonymous)
+Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv -ExportDefaultPermissions $false
 ```
+
+![Image](Icewolf.Exchange.MAPI_03.jpg)
+
+That's the generated CSV File
+
+![Image](Icewolf.Exchange.MAPI_04.jpg)
+
+```pwsh
+#Export Permissions of a specific FolderScope 
+Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv -Folder Calendar
+```
+
+![Image](Icewolf.Exchange.MAPI_05.jpg)
+
+That's the generated CSV File
+
+![Image](Icewolf.Exchange.MAPI_06.jpg)
+
+### Add MAPI Permissions to Mailbox Folders
+```pwsh
 Add-MAPIPermission -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-includeSubfolders $true] [-ExcludeFolders john.doe@yourdomain.com:\Inbox\Subfolder1] [-SendOnBehalf $true]
 
 $ExcludeFolders = @("john.doe@yourdomain.com:\Inbox\Subfolder1","john.doe@yourdomain.com:\Inbox\Subfolder2")
 Add-MAPIPermission -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-includeSubfolders $true] [-ExcludeFolders $ExcludeFolders] [-SendOnBehalf $true]
 ```
 
-![Image](Icewolf.Exchange.MAPI_03.jpg)
+![Image](Icewolf.Exchange.MAPI_07.jpg)
 
 ### Remove MAPI Permissions from Mailbox Folders
-```
+```pwsh
 Remove-MAPIPermission -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -Folder Inbox [-IncludeSubfolders $true] [-ExcludeFolders john.doe@yourdomain.com:\Inbox\Subfolder1] [-RemoveSendOnBehalf $true] [-DeleteRootFolderPermission $true]
 
 $ExcludeFolders = @("john.doe@yourdomain.com:\Inbox\Subfolder1","john.doe@yourdomain.com:\Inbox\Subfolder2")
 Remove-MAPIPermission -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -Folder Calendar [-IncludeSubfolders $true] [-ExcludeFolders $ExcludeFolders] [-RemoveSendOnBehalf $true] [-DeleteRootFolderPermission $true]
 ```
 
-![Image](Icewolf.Exchange.MAPI_04.jpg)
+![Image](Icewolf.Exchange.MAPI_08.jpg)
 
 Folder:
 - Inbox
