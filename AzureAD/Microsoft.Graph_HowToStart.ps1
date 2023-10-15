@@ -128,7 +128,7 @@ $Cert = Get-ChildItem -Path cert:\CurrentUser\my\ | Where-Object {$_.Subject -eq
 Export-PfxCertificate -Cert $cert -FilePath "C:\Git_WorkingDir\$Subject.pfx" -Password $PFXPassword
 
 ###############################################################################
-# Access Token with MSAL.PS
+# Access Token with MSAL.PS has been depreciated 22.09.2023
 ###############################################################################
 #MSAL.PS
 Install-Module MSAL.PS
@@ -165,6 +165,68 @@ Get-MgContext
 #Delegated
 Connect-MgGraph -AppId $AppID -TenantId $TenantId
 Get-MgContext
+
+###############################################################################
+# PSMSALNet as a Replacement of MSAL.PS
+###############################################################################
+#Prerequisit PowerShell 7.2
+Install-Module PSMSALNet
+
+#Setting up the Variables for all Examples
+Import-Module PSMSALNet
+$TenantId = "46bbad84-29f0-4e03-8d34-f6841a5071ad"
+$AppID = "c1a5903b-cd73-48fe-ac1f-e71bde968412" #DelegatedMail
+$RedirectUri = "https://login.microsoftonline.com/common/oauth2/nativeclient"
+
+#Authenticate with ClientSecret
+$ClientSecret = "YourClientSecret"
+$HashArguments = @{
+  ClientId = $AppID
+  ClientSecret = $ClientSecret
+  TenantId = $TenantId
+  Resource = "GraphAPI"
+}
+$Token = Get-EntraToken -ClientCredentialFlowWithSecret @HashArguments
+$AccessToken = $Token.AccessToken
+$AccessToken
+
+#Authenticate with Certificate
+$CertificateThumbprint = "07EFF3918F47995EB53B91848F69B5C0E78622FD" #O365Powershell3.cer
+$Certificate = Get-ChildItem -Path cert:\CurrentUser\my\$CertificateThumbprint
+$HashArguments = @{
+  ClientId = $AppID
+  ClientCertificate = $Certificate
+  TenantId = $TenantId
+  Resource = "GraphAPI"
+}
+$Token = Get-EntraToken -ClientCredentialFlowWithCertificate @HashArguments
+$AccessToken = $Token.AccessToken
+$AccessToken
+
+# DeviceCode
+$HashArguments = @{
+  ClientId = $AppID
+  TenantId = $TenantId
+  Resource = "GraphAPI"
+  Permissions = @("Mail.ReadWrite", "Mail.Send", "Calendars.ReadWrite", "Contacts.ReadWrite", "Tasks.ReadWrite")
+  verbose = $true
+}
+$Token = Get-EntraToken -DeviceCodeFlow @HashArguments
+$AccessToken = $Token.AccessToken
+$AccessToken
+
+# Authorization code with PKCE
+$HashArguments = @{
+  ClientId = $AppID
+  TenantId = $TenantId
+  RedirectUri = $RedirectUri
+  Resource = 'GraphAPI'
+  Permissions =  @("Mail.ReadWrite", "Mail.Send", "Calendars.ReadWrite", "Contacts.ReadWrite", "Tasks.ReadWrite")
+  verbose = $true
+}
+$Token = Get-EntraToken -PublicAuthorizationCodeFlow @HashArguments
+$AccessToken = $Token.AccessToken
+$AccessToken
 
 ###############################################################################
 #JWTDeatils
