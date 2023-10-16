@@ -26,6 +26,7 @@
 # - Better Errorhandling in SMTPConnect
 # - Fixed Autodiscover Lookup
 # - General cleanup of Code
+# - Added Security.txt https://securitytxt.org/
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
@@ -54,6 +55,7 @@
 	- Better Errorhandling in SMTPConnect
 	- Fixed Autodiscover Lookup
 	- General cleanup of Code
+	- Added Security.txt https://securitytxt.org/
 .PRIVATEDATA
 #>
 
@@ -83,6 +85,7 @@
 	- Lync/Skype/Teamsfederation
 	- M365 (Check via Open ID Connect)
 	- M365 TenantID
+	- Security.txt https://securitytxt.org/
 .DESCRIPTION 
 	This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
 	Most of the Querys are simple DNS Querys (NS, MX, SPF, DKIM, DMARC, BIMI, MTA-STS, TLS-RPT).
@@ -615,10 +618,22 @@ Function Get-MailProtection
 		$M365 = $False 
 	}
 
-	#If ($TenantID -eq "")
-	#{
-	#	$TenantID = "NULL"
-	#}
+	## Check for https://securitytxt.org/
+	# Example: https://www.admin.ch/.well-known/security.txt
+	Write-Host "Check: security.txt" -ForegroundColor Green
+
+	$URI = "https://www.$Domain/.well-known/security.txt"
+	[bool]$SecurityTXTAvailable = $false
+	try {
+		$Response = Invoke-WebRequest -URI $URI
+		#$SecurityTXT = ($response.Content).trim().Replace("`r`n","")
+		If ($Null -ne $Response)
+		{
+			[bool]$SecurityTXTAvailable = $true
+		}
+	} catch {
+		Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+	}
 
 	$MXIPString = $MXIPArray -join " "
 	If ($Null -ne $Nameserver -or $Nameserver -ne "")
@@ -671,6 +686,7 @@ Function Get-MailProtection
 	Write-Host "SkypeFederation: $SkypeFederation" -ForegroundColor cyan
 	Write-Host "M365: $M365" -ForegroundColor cyan
 	Write-Host "TenantID: $TenantID" -ForegroundColor cyan
+	Write-Host "SecurityTXT: $SecurityTXTAvailable" -ForegroundColor cyan
 
 	#Better ResponseObject
 	$ResultObject = [PSCustomObject]@{}
@@ -706,6 +722,7 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SkypeFederation' -Value $SkypeFederation
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'M365' -Value $M365
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'TenantID' -Value $TenantID
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SecurityTXT' -Value $SecurityTXTAvailable
 
 	return $ResultObject
 }
