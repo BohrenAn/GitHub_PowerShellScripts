@@ -272,7 +272,8 @@ Function Get-MailProtection
 		[Array]$Nameserver = $NS.NameHost
 	}
 
-	# CAA
+	## CAA
+	Write-Host "Check: CAA" -ForegroundColor Green
 	#https://de.wikipedia.org/wiki/DNS_Certification_Authority_Authorization
 	#$Domain = "iis.se"
 	$CAA = $Null
@@ -284,7 +285,7 @@ Function Get-MailProtection
 	
 
 	##Check for MX Record
-	Write-Host "Check: MX Record" -ForegroundColor Green
+	Write-Host "Check: MX" -ForegroundColor Green
 	$MX = Resolve-DnsName -Name $Domain -Type MX -ErrorAction SilentlyContinue
 	[Array]$MXRecord = $MX.NameExchange #($mx.nameExchange | Out-String).Trim()
 	If ($NULL -eq $MXRecord -or $MXRecord -eq "" -or $MXRecord -eq $False)
