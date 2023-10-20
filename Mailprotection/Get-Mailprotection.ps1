@@ -25,6 +25,7 @@
 # - Fixed Errorhandling in DANE and NS Lookups
 # - Better Errorhandling in SMTPConnect
 # - Fixed Autodiscover Lookup
+# - Fixed Lyncdiscover Lookup
 # - General cleanup of Code
 # - Added Security.txt https://securitytxt.org/
 # Backlog / Whishlist
@@ -39,7 +40,7 @@
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
 .COPYRIGHT Free to copy, inspire, etc...
-.TAGS MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLS-RPT, CAA, M365 TenantID
+.TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLS-RPT, BIMI, CAA, M365, TenantID, Security.txt
 .LICENSEURI
 .PROJECTURI https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 .ICONURI
@@ -54,6 +55,7 @@
 	- Fixed Errorhandling in DANE and NS Lookups
 	- Better Errorhandling in SMTPConnect
 	- Fixed Autodiscover Lookup
+	- Fixed Lyncdiscover Lookup
 	- General cleanup of Code
 	- Added Security.txt https://securitytxt.org/
 .PRIVATEDATA
@@ -154,7 +156,7 @@ PARAM (
 			$sslStream = New-Object System.Net.Security.SslStream($stream, $false, $Callback)
 
 			$sslStream.ReadTimeout = 500
-			$sslStream.WriteTimeout = 500	   
+			$sslStream.WriteTimeout = 500
 			$ConnectResponse = $streamReader.ReadLine();
 			Write-Host($ConnectResponse)
 			if(!$ConnectResponse.StartsWith("220")){
@@ -553,7 +555,7 @@ Function Get-MailProtection
 	#AutodiscoverV2
 	#$URI = "https://autodiscover.icewolf.ch/autodiscover/autodiscover.json/v1.0/info@$domain?Protocol=AutodiscoverV1"
 	Write-Host "Check: Autodiscover" -ForegroundColor Green
-	[array]$Autodiscover = Resolve-DnsName -Name autodiscover.$Domain -ErrorAction SilentlyContinue
+	[array]$Autodiscover = Resolve-DnsName -Name autodiscover.$Domain -ErrorAction SilentlyContinue | Where-Object {$_.Type -eq "CNAME" -or $_.Type -eq "A"}
 	If ($Null -ne $Autodiscover)
 	{
 		$AutodiscoverCNAME = $Autodiscover[0] | Where-Object {$_.Type -eq "CNAME"}
@@ -576,7 +578,7 @@ Function Get-MailProtection
 
 	##LyncDiscover
 	Write-Host "Check: Lyncdiscover" -ForegroundColor Green
-	$Lyncdiscover = Resolve-DnsName lyncdiscover.$Domain -ErrorAction SilentlyContinue
+	$Lyncdiscover = Resolve-DnsName lyncdiscover.$Domain -ErrorAction SilentlyContinue | Where-Object {$_.Type -eq "CNAME" -or $_.Type -eq "A"}
 	$LyncdiscoverCNAME = $Lyncdiscover | Where-Object {$_.Type -eq "CNAME"}
 	If ($NULL -ne $LyncdiscoverCNAME)
 	{
@@ -623,7 +625,7 @@ Function Get-MailProtection
 	# Example: https://www.admin.ch/.well-known/security.txt
 	Write-Host "Check: security.txt" -ForegroundColor Green
 
-	$URI = "https://www.$Domain/.well-known/security.txt"
+	$URI = "https://$Domain/.well-known/security.txt"
 	[bool]$SecurityTXTAvailable = $false
 	try {
 		$Response = Invoke-WebRequest -URI $URI
