@@ -8,8 +8,7 @@
 # Version 1.3 / 26.08.2022 Addet BIMI / DANE / MTA-STS / M365 Checks
 # Version 1.4 / 03.10.2022 Addet Reverse Lookup of MX Records / CAA Lookup / TLS-RPT Lookup
 # Version 1.5 / 13.10.2022 Fixed Lyncdiscover / Added NS Records & Autodiscover / Minor fixes
-# Version 1.6 / 03.04.2023 Addet Parameter -SMTPConnect [true/false] 
-#	 					   and -ReturnObject [false/true] that is now a PSCustomObject
+# Version 1.6 / 03.04.2023 Addet Parameter -SMTPConnect [true/false] and -ReturnObject [false/true] that is now a PSCustomObject
 # Version 1.7 / 16.05.2023 Fixed Lyncdiscover CNAME
 # Version 1.8 / 30.09.2023 - Andres Bohren
 # - Fixed ReturnObject Nameserver
@@ -20,6 +19,7 @@
 # - ReturnObject of CAA is now Array
 # Version 1.9 / xx.xx.2023 - Andres Bohren
 # - Fixed Error in Nameserver Output
+# - Improved SMTP Connect
 # - Addet SMTPBanner
 # - Addet SMTPCertificateIssuer
 # - Fixed Errorhandling in DANE and NS Lookups
@@ -48,8 +48,9 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-	Version 1.9 / xx.xx.2023 - Andres Bohren	
+	Version 1.9 / xx.xx.2023 - Andres Bohren
 	- Fixed Error in Nameserver Output
+	- Improved SMTP Connect
 	- Addet SMTPBanner
 	- Addet SMTPCertificateIssuer
 	- Fixed Errorhandling in DANE and NS Lookups
@@ -321,8 +322,17 @@ Function Get-MailProtection
 			If ($SMTPConnect -eq $True)
 			{
 				Write-Host "Check: SMTPConnect" -ForegroundColor Green
-				$TestConnection = Test-NetConnection $MXEntry.NameExchange -Port 25
-				If ($TestConnection.TcpTestSucceeded -eq $true)
+				#$TestConnection = Test-NetConnection $MXEntry.NameExchange -Port 25
+				#If ($TestConnection.TcpTestSucceeded -eq $true)
+                try {
+                    $tcpClient = New-Object System.Net.Sockets.TcpClient
+                    $portOpened = $tcpClient.ConnectAsync("mail.icewolf.ch", "25").Wait(1000)
+                } catch {
+                    $PortOpened = $false
+                }
+                #$PortOpened 
+
+                If ($PortOpened -eq $true)
 				{
 					Write-Host "Check: StartTLS" -ForegroundColor Green
 					$StartTLSReturn = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
@@ -526,11 +536,11 @@ Function Get-MailProtection
 		{
 			#MTA-STS Found
 			$MTASTSAvailable = $true
-			Write-Host "MTA STS Found" -ForegroundColor Green
+			#Write-Host "MTA STS Found" -ForegroundColor Green
 
 			$URI = "https://mta-sts.$Domain/.well-known/mta-sts.txt"
 			try {
-				$Response = Invoke-WebRequest -URI $URI
+				$Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
 				$MTASTSTXT = ($response.Content).trim().Replace("`r`n","")
 			#$MTASTSTXT
 			} catch {
@@ -610,7 +620,7 @@ Function Get-MailProtection
 	Write-Host "Check: M365 Tenant (OpenIDConnect)" -ForegroundColor Green
 	try {
 		#$TenantID = (Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration|ConvertFrom-Json).token_endpoint.Split('/')[3] 
-		$Response = Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration
+		$Response = Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration -TimeoutSec 1
 		$TenantID = ($Response | ConvertFrom-Json).token_endpoint.Split('/')[3]
 		$M365 = $True 
 
@@ -628,7 +638,7 @@ Function Get-MailProtection
 	$URI = "https://$Domain/.well-known/security.txt"
 	[bool]$SecurityTXTAvailable = $false
 	try {
-		$Response = Invoke-WebRequest -URI $URI
+		$Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
 		#$SecurityTXT = ($response.Content).trim().Replace("`r`n","")
 		If ($Null -ne $Response)
 		{
