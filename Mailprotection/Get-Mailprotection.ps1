@@ -648,6 +648,18 @@ Function Get-MailProtection
 		Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
 	}
 
+	$URI = "https://$Domain/security.txt"
+	try {
+		$Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
+		#$SecurityTXT = ($response.Content).trim().Replace("`r`n","")
+		If ($Null -ne $Response)
+		{
+			[bool]$SecurityTXTAvailable = $true
+		}
+	} catch {
+		Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+	}
+
 	$MXIPString = $MXIPArray -join " "
 	If ($Null -ne $Nameserver -or $Nameserver -ne "")
 	{
