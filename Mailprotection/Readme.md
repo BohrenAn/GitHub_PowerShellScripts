@@ -209,6 +209,40 @@ $Response = Invoke-WebRequest -UseBasicParsing https://login.windows.net/domain.
 $TenantID = ($Response | ConvertFrom-Json).token_endpoint.Split('/')[3]
 ```
 
+## Security.txt
+https://securitytxt.org/
+
+Checks for the presence of the security.txt at these two locations
+
+https://$Domain/.well-known/security.txt
+https://$Domain/security.txt
+
+
+```pwsh
+[bool]$SecurityTXTAvailable = $false
+$URI = "https://$Domain/.well-known/security.txt"
+try {
+	$Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
+	If ($Null -ne $Response)
+	{
+		[bool]$SecurityTXTAvailable = $true
+	}
+} catch {
+	Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+
+$URI = "https://$Domain/security.txt"
+try {
+	$Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
+	If ($Null -ne $Response)
+	{
+		[bool]$SecurityTXTAvailable = $true
+	}
+} catch {
+	Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+$SecurityTXTAvailable
+```
 
 Regards
 Andres Bohren

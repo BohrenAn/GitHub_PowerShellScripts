@@ -635,11 +635,10 @@ Function Get-MailProtection
 	# Example: https://www.admin.ch/.well-known/security.txt
 	Write-Host "Check: security.txt" -ForegroundColor Green
 
-	$URI = "https://$Domain/.well-known/security.txt"
 	[bool]$SecurityTXTAvailable = $false
+	$URI = "https://$Domain/.well-known/security.txt"
 	try {
 		$Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
-		#$SecurityTXT = ($response.Content).trim().Replace("`r`n","")
 		If ($Null -ne $Response)
 		{
 			[bool]$SecurityTXTAvailable = $true
@@ -651,7 +650,6 @@ Function Get-MailProtection
 	$URI = "https://$Domain/security.txt"
 	try {
 		$Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
-		#$SecurityTXT = ($response.Content).trim().Replace("`r`n","")
 		If ($Null -ne $Response)
 		{
 			[bool]$SecurityTXTAvailable = $true
