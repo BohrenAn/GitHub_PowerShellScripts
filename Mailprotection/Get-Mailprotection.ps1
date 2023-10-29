@@ -17,7 +17,7 @@
 # - ReturnObject of TLSRPT is now String
 # - ReturnObject of MXIP is now Array
 # - ReturnObject of CAA is now Array
-# Version 1.9 / xx.xx.2023 - Andres Bohren
+# Version 1.9 / 29.10.2023 - Andres Bohren
 # - Fixed Error in Nameserver Output
 # - Improved SMTP Connect
 # - Addet SMTPBanner
@@ -28,6 +28,7 @@
 # - Fixed Lyncdiscover Lookup
 # - General cleanup of Code
 # - Added Security.txt https://securitytxt.org/
+# - Added -Silent Parameter
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
@@ -48,81 +49,92 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-	Version 1.9 / xx.xx.2023 - Andres Bohren
-	- Fixed Error in Nameserver Output
-	- Improved SMTP Connect
-	- Addet SMTPBanner
-	- Addet SMTPCertificateIssuer
-	- Fixed Errorhandling in DANE and NS Lookups
-	- Better Errorhandling in SMTPConnect
-	- Fixed Autodiscover Lookup
-	- Fixed Lyncdiscover Lookup
-	- General cleanup of Code
-	- Added Security.txt https://securitytxt.org/
+Version 1.9
+- Fixed Error in Nameserver Output
+- Improved SMTP Connect
+- Addet SMTPBanner
+- Addet SMTPCertificateIssuer
+- Fixed Errorhandling in DANE and NS Lookups
+- Better Errorhandling in SMTPConnect
+- Fixed Autodiscover Lookup
+- Fixed Lyncdiscover Lookup
+- General cleanup of Code
+- Added Security.txt https://securitytxt.org/
+- Added -Silent Parameter
 .PRIVATEDATA
 #>
 
 <#
 .SYNOPSIS 
-	Script written by Andres Bohren https://blog.icewolf.ch / a.bohren@icewolf.ch
+Script written by Andres Bohren https://blog.icewolf.ch / a.bohren@icewolf.ch
 
-	This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
-	It checks for the following Information
-	- DNS Zone Signed (DNSSEC)
-	- NS (Nameserver)
-	- CAA (Certification Authority Authorization)
-	- MX (MailExchanger)
-	- MX IP
-	- MX Reverse Lookup
-	- Connects to the MX Servers and checks for STARTTLS and shows SMTP Banner and Certificate Information
-	- SPF (Sender Policy Framework)
-	- DKIM (DomainKeys Identified Mail)
-	- DMARC (Domain-based Message Authentication, Reporting and Conformance)
-	- DANE (DNS-based Authentication of Named Entities)
-	- BIMI (Brand Indicators for Message Identification)
-	- MTA-STS (SMTP MTA Strict Transport Security)
-	- MTA-STS Web (https://mta-sts.domain.tld/.well-known/mta-sts.txt)
-	- TLS-RPT (TLS Reporting)
-	- Autodiscover (Outlook)
-	- Lyncdiscover
-	- Lync/Skype/Teamsfederation
-	- M365 (Check via Open ID Connect)
-	- M365 TenantID
-	- Security.txt https://securitytxt.org/
+This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
+It checks for the following Information
+- DNS Zone Signed (DNSSEC)
+- NS (Nameserver)
+- CAA (Certification Authority Authorization)
+- MX (MailExchanger)
+- MX IP
+- MX Reverse Lookup
+- Connects to the MX Servers and checks for STARTTLS and shows SMTP Banner and Certificate Information
+- SPF (Sender Policy Framework)
+- DKIM (DomainKeys Identified Mail)
+- DMARC (Domain-based Message Authentication, Reporting and Conformance)
+- DANE (DNS-based Authentication of Named Entities)
+- BIMI (Brand Indicators for Message Identification)
+- MTA-STS (SMTP MTA Strict Transport Security)
+- MTA-STS Web (https://mta-sts.domain.tld/.well-known/mta-sts.txt)
+- TLS-RPT (TLS Reporting)
+- Autodiscover (Outlook)
+- Lyncdiscover
+- Lync/Skype/Teamsfederation
+- M365 (Check via Open ID Connect)
+- M365 TenantID
+- Security.txt https://securitytxt.org/
+
 .DESCRIPTION 
-	This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
-	Most of the Querys are simple DNS Querys (NS, MX, SPF, DKIM, DMARC, BIMI, MTA-STS, TLS-RPT).
-	The Script uses also DNS over HTTP for several checks (ZoneSigned, TLSA Record for DANE).
-	Also some WebQuerys are required for MTA-STS / TenantID (OIDC).
-	And connects via SMTP to check if the Server supports STARTTLS.
+This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
+Most of the Querys are simple DNS Querys (NS, MX, SPF, DKIM, DMARC, BIMI, MTA-STS, TLS-RPT).
+The Script uses also DNS over HTTP for several checks (ZoneSigned, TLSA Record for DANE).
+Also some Webrequests are required for MTA-STS, TenantID (OIDC), Security.txt.
+And connects via SMTP to check if the Server supports STARTTLS.
+
 .NOTES 
-	Note that DKIM is hard to query, because the Selector can be literally anything.
+Note that DKIM is hard to query, because the Selector can be literally anything.
+
 .LINK 
-	Script is published here:
-	https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
+Script is published here:
+https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
+
 .EXAMPLE 
-	Get-Mailprotection.ps1 -Domain icewolf.ch
-	$Result = Get-Mailprotection.ps1 -Domain icewolf.ch -ReturnObject $True
-	$Result = Get-Mailprotection.ps1 -Domain icewolf.ch -SMTPConnect $False -ReturnObject $True
+Get-Mailprotection.ps1 -Domain icewolf.ch
+$Result = Get-Mailprotection.ps1 -Domain icewolf.ch -ReturnObject $True
+$Result = Get-Mailprotection.ps1 -Domain icewolf.ch -SMTPConnect $False -ReturnObject $True
 
 .PARAMETER Domain 
-	Mandatory Parameter. You need to specify a Domain as a string Value
-	domain.tld or subdomain.domain.tld
+Mandatory Parameter. You need to specify a Domain as a string Value
+domain.tld or subdomain.domain.tld
 
 .PARAMETER SMTPConnect
-	Optional Parameter. You can specify not to connect with SMTP to the Server. Per Default this Setting is TRUE.
-	You add the Parameter -SMTPConnect $False
+Optional Parameter. You can specify not to connect with SMTP to the Server. Per Default this Setting is TRUE.
+You add the Parameter -SMTPConnect $False
 
 .PARAMETER ReturnObject
-	Optional Parameter. You can specify if a the Script returns an Object (For Scripting purposes). Per Default this Setting is FALSE.
-	You can add the Parameter -ReturnObject $True
+Optional Parameter. You can specify if a the Script returns an Object (For Scripting purposes). Per Default this Setting is FALSE.
+You can add the Parameter -ReturnObject $True
+
+.PARAMETER Silent
+Optional Parameter. You can specify to not get an Output to the Console. Per Default this Setting is FALSE.
+You can add the Parameter -Silent $True. 
+Can be helpful if you use it with the -ReturnObject $True
 #>
 
 
 PARAM (
 	[Parameter(Mandatory=$true)][String]$Domain,
 	[Parameter(Mandatory=$false)][bool]$SMTPConnect = $True,
-	[Parameter(Mandatory=$false)][bool]$ReturnObject = $false
+	[Parameter(Mandatory=$false)][bool]$ReturnObject = $false,
+	[Parameter(Mandatory=$false)][bool]$Silent = $false
 	)
 
 	###############################################################################
@@ -137,14 +149,19 @@ PARAM (
 	###############################################################################
 	Function Invoke-STARTTLS
 	{
-		PARAM ($SMTPServer)
+		PARAM (
+			[Parameter(Mandatory=$true)][String]$SMTPServer
+			)
 
 		[bool]$TLSSupport = $false
 		$Port = "25"
 		#$Sendingdomain = "mail.icewolf.ch"
 		$Sendingdomain = "$env:computername.$env:userdnsdomain"
 	try {
-			Write-Host("Connect $SMTPServer $Port") -ForegroundColor Magenta
+			If ($Silent -ne $True)
+			{
+				Write-Host("Connect $SMTPServer $Port") -ForegroundColor Magenta
+			}
 			$socket = new-object System.Net.Sockets.TcpClient($SMTPServer, $Port)
 			$stream = $socket.GetStream()
 			$streamWriter = new-object System.IO.StreamWriter($stream)
@@ -159,7 +176,10 @@ PARAM (
 			$sslStream.ReadTimeout = 500
 			$sslStream.WriteTimeout = 500
 			$ConnectResponse = $streamReader.ReadLine();
-			Write-Host($ConnectResponse)
+			If ($Silent -ne $True)
+			{
+				Write-Host($ConnectResponse)
+			}
 			if(!$ConnectResponse.StartsWith("220")){
 				#throw "Error connecting to the SMTP Server"
 			} else {
@@ -167,11 +187,17 @@ PARAM (
 			}
 
 			#Send "EHLO"
-			Write-Host(("EHLO " + $Sendingdomain)) -ForegroundColor Magenta
+			If ($Silent -ne $True)
+			{
+				Write-Host(("EHLO " + $Sendingdomain)) -ForegroundColor Magenta
+			}
 			$streamWriter.WriteLine(("EHLO " + $Sendingdomain));
 
 		} catch {
-			Write-Host "ERROR $_"
+			If ($Silent -ne $True)
+			{
+				Write-Host "ERROR $_"
+			}
 		}
 
 		$response = @()
@@ -179,7 +205,10 @@ PARAM (
 			while($streamReader.EndOfStream -ne $true)
 			{
 					$ehloResponse = $streamReader.ReadLine();
-					Write-Host($ehloResponse)
+					If ($Silent -ne $True)
+					{
+						Write-Host($ehloResponse)
+					}
 					$response += $ehloResponse
 			}
 		} catch {
@@ -189,11 +218,17 @@ PARAM (
 					$TLSSupport = $true
 
 					#StartTLS found
-					Write-Host("STARTTLS") -ForegroundColor Magenta	
+					If ($Silent -ne $True)
+					{
+						Write-Host("STARTTLS") -ForegroundColor Magenta
+					}
 
 					$streamWriter.WriteLine("STARTTLS");
 					$startTLSResponse = $streamReader.ReadLine();
-					Write-Host($startTLSResponse)
+					If ($Silent -ne $True)
+					{
+						Write-Host($startTLSResponse)
+					}
 
 					#Get Certificate
 					$ccCol = New-Object System.Security.Cryptography.X509Certificates.X509CertificateCollection
@@ -201,13 +236,16 @@ PARAM (
 					$Cert = $sslStream.RemoteCertificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
 
 					#Show Certificate Details
-					Write-Host "Certificate Details:" -ForegroundColor Green
-					Write-Host "Issuer: $($sslStream.RemoteCertificate.Issuer)"
-					Write-Host "Subject: $($sslStream.RemoteCertificate.Subject)"
-					Write-Host "ValidFrom: $($sslStream.RemoteCertificate.GetEffectiveDateString())"
-					Write-Host "ValidTo: $($sslStream.RemoteCertificate.GetExpirationDateString())"
-					Write-Host "SerialNumber: $($sslStream.RemoteCertificate.GetSerialNumberString())"
-					Write-Host "Thumbprint: $($sslStream.RemoteCertificate.GetCertHashString())"
+					If ($Silent -ne $True)
+					{
+						Write-Host "Certificate Details:" -ForegroundColor Green
+						Write-Host "Issuer: $($sslStream.RemoteCertificate.Issuer)"
+						Write-Host "Subject: $($sslStream.RemoteCertificate.Subject)"
+						Write-Host "ValidFrom: $($sslStream.RemoteCertificate.GetEffectiveDateString())"
+						Write-Host "ValidTo: $($sslStream.RemoteCertificate.GetExpirationDateString())"
+						Write-Host "SerialNumber: $($sslStream.RemoteCertificate.GetSerialNumberString())"
+						Write-Host "Thumbprint: $($sslStream.RemoteCertificate.GetCertHashString())"
+					}
 
 					$SMTPCertIssuer = $sslStream.RemoteCertificate.Issuer
 
@@ -215,10 +253,12 @@ PARAM (
 					$sslStream.Dispose()
 
 			} else {
+				If ($Silent -ne $True)
+				{
 					Write-Host "ERROR: No <STARTTLS> found" -ForegroundColor Yellow
-					[bool]$TLSSupport = $false
+				}
+				[bool]$TLSSupport = $false
 			}
-
 		}
 
 		$ResultObject = [PSCustomObject]@{}
@@ -259,7 +299,10 @@ Function Get-MailProtection
 	[bool]$MTASTSAvailable = $false
 
 	## Check if DNS Zone is signed
-	Write-Host "Check: DNS Zone Signed" -ForegroundColor Green
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: DNS Zone Signed" -ForegroundColor Green
+	}
 	$URI = "https://dns.google/resolve?name=$Domain&type=NS"
 	$json = Invoke-RestMethod -URI $URI
 	If ($json.ad -eq "True")
@@ -276,7 +319,10 @@ Function Get-MailProtection
 	}
 
 	## CAA
-	Write-Host "Check: CAA" -ForegroundColor Green
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: CAA" -ForegroundColor Green
+	}
 	#https://de.wikipedia.org/wiki/DNS_Certification_Authority_Authorization
 	#$Domain = "iis.se"
 	$CAA = $Null
@@ -285,10 +331,12 @@ Function Get-MailProtection
 	{
 		[Array]$CAA = $json.Answer.Data # ($json.Answer.Data | Out-String).Trim()
 	}
-	
 
 	##Check for MX Record
-	Write-Host "Check: MX" -ForegroundColor Green
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: MX" -ForegroundColor Green
+	}
 	$MX = Resolve-DnsName -Name $Domain -Type MX -ErrorAction SilentlyContinue
 	[Array]$MXRecord = $MX.NameExchange #($mx.nameExchange | Out-String).Trim()
 	If ($NULL -eq $MXRecord -or $MXRecord -eq "" -or $MXRecord -eq $False)
@@ -321,7 +369,10 @@ Function Get-MailProtection
 			#Only Connect if Parameter $SMTPConnect is True (default)
 			If ($SMTPConnect -eq $True)
 			{
-				Write-Host "Check: SMTPConnect" -ForegroundColor Green
+				If ($Silent -ne $True)
+				{
+					Write-Host "Check: SMTPConnect" -ForegroundColor Green
+				}
 				#$TestConnection = Test-NetConnection $MXEntry.NameExchange -Port 25
 				#If ($TestConnection.TcpTestSucceeded -eq $true)
                 try {
@@ -334,7 +385,10 @@ Function Get-MailProtection
 
                 If ($PortOpened -eq $true)
 				{
-					Write-Host "Check: StartTLS" -ForegroundColor Green
+					If ($Silent -ne $True)
+					{
+						Write-Host "Check: StartTLS" -ForegroundColor Green
+					}
 					$StartTLSReturn = Invoke-STARTTLS -SMTPServer $MXEntry.NameExchange
 					[Array]$SMTPBannerArray += $StartTLSReturn.SMTPBanner
 					[Array]$SMTPCertIssuerArray += $StartTLSReturn.SMTPCertIssuer
@@ -346,8 +400,12 @@ Function Get-MailProtection
 			}
 
 			try {
+
 			#DANE
-			Write-Host "Check: DANE" -ForegroundColor Green
+			If ($Silent -ne $True)
+			{
+				Write-Host "Check: DANE" -ForegroundColor Green
+			}
 			$TLSAQuery = "_25._tcp.$($MXEntry.NameExchange)"
 			#$URL= "https://dns.google/resolve?name=$TLSAQuery&type=TLSA"
 			#Write-Host "DEBUG: TLSAQuery: $TLSAQuery" -ForegroundColor magenta
@@ -357,9 +415,12 @@ Function Get-MailProtection
 			$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$TLSAQuery&type=TLSA"
 
 			} catch {
-				Write-Host "StatusCode:" $_.Exception.Response.StatusCode.value__ -ForegroundColor Yellow
-				Write-Host "StatusDescription:" $_.Exception.Response.StatusDescription -ForegroundColor Yellow
-				Write-Host "Query:" $TLSAQuery -ForegroundColor Yellow
+				If ($Silent -ne $True)
+				{
+					Write-Host "StatusCode:" $_.Exception.Response.StatusCode.value__ -ForegroundColor Yellow
+					Write-Host "StatusDescription:" $_.Exception.Response.StatusDescription -ForegroundColor Yellow
+					Write-Host "Query:" $TLSAQuery -ForegroundColor Yellow
+				}
 			} 
 			If ($null -ne $json.Answer.data)
 			{
@@ -373,8 +434,12 @@ Function Get-MailProtection
 			
 		}
 	}
+
 	#Check if all MX support StartTLS
-	Write-Host "Check: StartTLS Support" -ForegroundColor Green
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: StartTLS Support" -ForegroundColor Green
+	}
 	If ($MXCount -gt 0)
 	{
 		If ($MXCount -eq $StartTLSCount)
@@ -420,7 +485,10 @@ Function Get-MailProtection
 	}
 
 	## SPF
-	Write-Host "Check: SPF" -ForegroundColor Green
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: SPF" -ForegroundColor Green
+	}
 	$SPFRecord = $Null
 	$TXT = Resolve-DnsName -Name $Domain -Type TXT -ErrorAction SilentlyContinue
 	$SPFRecord = $TXT.strings -match "v=spf"
@@ -447,7 +515,10 @@ Function Get-MailProtection
 	}
 
 	## Check for DomainKey / DKIM
-	Write-Host "Check: DKIM" -ForegroundColor Green
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: DKIM" -ForegroundColor Green
+	}
 	$DomainKeyRecord = $Null
 	$DomainKeySupport = $False
 	$dnshost = "_domainkey." + $Domain
@@ -489,7 +560,10 @@ Function Get-MailProtection
 }
 
 	## Check for DMARC
-	Write-Host "Check: DMARC" -ForegroundColor Green
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: DMARC" -ForegroundColor Green
+	}
 	$DMARCRecord = $Null 
 	$dnshost = "_dmarc." + $Domain
 	#Write-Host "DNSHOST: " $dnshost
@@ -497,7 +571,7 @@ Function Get-MailProtection
 	Foreach ($DMARCEntry in $DMARC)
 	{
 		#If ($DMARCEntry.Strings -match "v=DMARC1")
-		If ($DMARC.Strings -like "v=DMARC1*" -or $DMARC.Strings -like "'v=DMARC1*")
+		If ($DMARCEntry.Strings -like "v=DMARC1*")
 		{
 			#DMARC Found
 			$DMARCRecord = ($DMARCEntry.Strings).Replace("'","")
@@ -506,7 +580,10 @@ Function Get-MailProtection
 	}
 
 	## BIMI
-	Write-Host "Check: BIMI" -ForegroundColor Green	
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: BIMI" -ForegroundColor Green
+	}
 	#default._bimi.example.com in txt
 	#"v=BIMI1; l=https://www.example.com/path/to/logo/example.svg; a=https://www.example.com/path/to/vmc/VMC.pem;"
 	$dnshost = "default._bimi." + $Domain
@@ -522,7 +599,10 @@ Function Get-MailProtection
 	}
 
 	## MTA STS
-	Write-Host "Check: MTA-STS" -ForegroundColor Green 
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: MTA-STS" -ForegroundColor Green
+	}
 	#mta-sts.domain.de/.well-known/mta-sts.txt	
 	#https://mta-sts.dmarcian.com/.well-known/mta-sts.txt
 	#$Domain = "dmarcian.com"
@@ -544,7 +624,10 @@ Function Get-MailProtection
 				$MTASTSTXT = ($response.Content).trim().Replace("`r`n","")
 			#$MTASTSTXT
 			} catch {
-				Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+				If ($Silent -ne $True)
+				{
+					Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+				}
 			}
 		} else {
 			$MTASTSAvailable = $False
@@ -553,7 +636,10 @@ Function Get-MailProtection
 
 	## TLS-RPT
 	#_smtp._tls.google.com IN TXT "{v=TLSRPTv1;rua=mailto:sts-reports@google.com}"
-	Write-Host "Check: TLS-RPT" -ForegroundColor Green
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: TLS-RPT" -ForegroundColor Green
+	}
 	$TLSRPTQuery = "_smtp._tls.$Domain"
 	$TLSRPT = Resolve-DnsName -Name $TLSRPTQuery -Type TXT -ErrorAction SilentlyContinue
 	If ($Null -ne $TLSRPT)
@@ -561,10 +647,13 @@ Function Get-MailProtection
 		[String]$TLSRPTRecord = $TLSRPT.Strings
 	}
 
-	##Autodiscover
+	## Autodiscover
 	#AutodiscoverV2
 	#$URI = "https://autodiscover.icewolf.ch/autodiscover/autodiscover.json/v1.0/info@$domain?Protocol=AutodiscoverV1"
-	Write-Host "Check: Autodiscover" -ForegroundColor Green
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: Autodiscover" -ForegroundColor Green
+	}
 	[array]$Autodiscover = Resolve-DnsName -Name autodiscover.$Domain -ErrorAction SilentlyContinue | Where-Object {$_.Type -eq "CNAME" -or $_.Type -eq "A"}
 	If ($Null -ne $Autodiscover)
 	{
@@ -586,8 +675,11 @@ Function Get-MailProtection
 		}
 	} 
 
-	##LyncDiscover
-	Write-Host "Check: Lyncdiscover" -ForegroundColor Green
+	## LyncDiscover
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: Lyncdiscover" -ForegroundColor Green
+	}
 	$Lyncdiscover = Resolve-DnsName lyncdiscover.$Domain -ErrorAction SilentlyContinue | Where-Object {$_.Type -eq "CNAME" -or $_.Type -eq "A"}
 	$LyncdiscoverCNAME = $Lyncdiscover | Where-Object {$_.Type -eq "CNAME"}
 	If ($NULL -ne $LyncdiscoverCNAME)
@@ -607,7 +699,10 @@ Function Get-MailProtection
 	}
 
 	## Skype4B / Teams Federation
-	Write-Host "Check: Skype4B / Teams Federation" -ForegroundColor Green
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: Skype4B / Teams Federation" -ForegroundColor Green
+	}
 	$SRV = Resolve-DnsName _sipfederationtls._tcp.$Domain -Type SRV -ErrorAction SilentlyContinue
 	$SkypeFederation = ($SRV.NameTarget | Out-String).Trim()
 	If ($SkypeFederation -eq "" -or $Null -eq $SkypeFederation)
@@ -616,8 +711,11 @@ Function Get-MailProtection
 		$SkypeFederation = $Null
 	}
 
-	##M365
-	Write-Host "Check: M365 Tenant (OpenIDConnect)" -ForegroundColor Green
+	## M365
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: M365 Tenant (OpenIDConnect)" -ForegroundColor Green
+	}
 	try {
 		#$TenantID = (Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration|ConvertFrom-Json).token_endpoint.Split('/')[3] 
 		$Response = Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration -TimeoutSec 1
@@ -625,7 +723,10 @@ Function Get-MailProtection
 		$M365 = $True 
 
 	} catch {
-		Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+		If ($Silent -ne $True)
+		{
+			Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+		}
 		#$TenantID = "NULL"
 		$TenantID = $Null
 		$M365 = $False 
@@ -633,7 +734,10 @@ Function Get-MailProtection
 
 	## Check for https://securitytxt.org/
 	# Example: https://www.admin.ch/.well-known/security.txt
-	Write-Host "Check: security.txt" -ForegroundColor Green
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: security.txt" -ForegroundColor Green
+	}
 
 	[bool]$SecurityTXTAvailable = $false
 	$URI = "https://$Domain/.well-known/security.txt"
@@ -644,7 +748,10 @@ Function Get-MailProtection
 			[bool]$SecurityTXTAvailable = $true
 		}
 	} catch {
-		Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+		If ($Silent -ne $True)
+		{
+			Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+		}
 	}
 
 	$URI = "https://$Domain/security.txt"
@@ -655,9 +762,13 @@ Function Get-MailProtection
 			[bool]$SecurityTXTAvailable = $true
 		}
 	} catch {
-		Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+		If ($Silent -ne $True)
+		{
+			Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+		}
 	}
 
+	# Convert Arrays to String
 	$MXIPString = $MXIPArray -join " "
 	If ($Null -ne $Nameserver -or $Nameserver -ne "")
 	{
@@ -677,39 +788,42 @@ Function Get-MailProtection
 	}
 
 	#Write Output
-	Write-Host "SUMMARY: $Domain" -ForegroundColor cyan
-	Write-Host "Nameserver:" $NameserverString -ForegroundColor cyan
-	Write-Host "Zone DNS Signed: $ZoneDNSSigned" -ForegroundColor cyan
-	Write-Host "Certification Authority Authorization (CAA): $CAA" -ForegroundColor cyan
-	Write-Host "MXCount: $MXCount" -ForegroundColor cyan
-	Write-Host "MXRecord: $MXRecord" -ForegroundColor cyan
-	Write-Host "MXIP: $MXIPString" -ForegroundColor cyan
-	Write-Host "MXReverseLookup: $MXReverseLookup" -ForegroundColor cyan
-	Write-Host "STARTTLS: $StartTLSCount" -ForegroundColor cyan
-	Write-Host "STARTTLS Support: $StartTLSSupport" -ForegroundColor cyan
-	Write-Host "SMTPBanner: $SMTPBanner" -ForegroundColor cyan
-	Write-Host "SMTPCertIssuer: $SMTPCertIssuer" -ForegroundColor cyan
-	Write-Host "SPF: $SPFAvailable" -ForegroundColor cyan
-	Write-Host "SPFRecord: $SPFRecord" -ForegroundColor cyan
-	Write-Host "DKIM: $DomainKeyAvailable" -ForegroundColor cyan
-	Write-Host "DKIM Support: $DomainKeySupport" -ForegroundColor cyan
-	Write-Host "DKIM Record: $DomainKeyRecord" -ForegroundColor cyan
-	Write-Host "DMARC: $DMARCAvailable " -ForegroundColor cyan
-	Write-Host "DMARCRecord: $DMARCRecord" -ForegroundColor cyan
-	Write-Host "DANECount: $DANECount" -ForegroundColor cyan
-	Write-Host "DANESupport: $DANESupport" -ForegroundColor cyan
-	Write-Host "DANERecord: $DANERecord" -ForegroundColor cyan
-	Write-Host "BIMI: $BIMIAvailable" -ForegroundColor cyan
-	Write-Host "BIMI Record: $BIMIRecord" -ForegroundColor cyan
-	Write-Host "MTA-STS: $MTASTSAvailable" -ForegroundColor cyan
-	Write-Host "MTA-STS-Web: $MTASTSTXT" -ForegroundColor cyan
-	Write-Host "TLS-RPT: $TLSRPTRecord" -ForegroundColor cyan
-	Write-Host "Autodiscover: $Autodiscover" -ForegroundColor cyan
-	Write-Host "Lyncdiscover: $Lyncdiscover" -ForegroundColor cyan
-	Write-Host "SkypeFederation: $SkypeFederation" -ForegroundColor cyan
-	Write-Host "M365: $M365" -ForegroundColor cyan
-	Write-Host "TenantID: $TenantID" -ForegroundColor cyan
-	Write-Host "SecurityTXT: $SecurityTXTAvailable" -ForegroundColor cyan
+	If ($Silent -ne $True)
+	{
+		Write-Host "SUMMARY: $Domain" -ForegroundColor cyan
+		Write-Host "Nameserver:" $NameserverString -ForegroundColor cyan
+		Write-Host "Zone DNS Signed: $ZoneDNSSigned" -ForegroundColor cyan
+		Write-Host "Certification Authority Authorization (CAA): $CAA" -ForegroundColor cyan
+		Write-Host "MXCount: $MXCount" -ForegroundColor cyan
+		Write-Host "MXRecord: $MXRecord" -ForegroundColor cyan
+		Write-Host "MXIP: $MXIPString" -ForegroundColor cyan
+		Write-Host "MXReverseLookup: $MXReverseLookup" -ForegroundColor cyan
+		Write-Host "STARTTLS: $StartTLSCount" -ForegroundColor cyan
+		Write-Host "STARTTLS Support: $StartTLSSupport" -ForegroundColor cyan
+		Write-Host "SMTPBanner: $SMTPBanner" -ForegroundColor cyan
+		Write-Host "SMTPCertIssuer: $SMTPCertIssuer" -ForegroundColor cyan
+		Write-Host "SPF: $SPFAvailable" -ForegroundColor cyan
+		Write-Host "SPFRecord: $SPFRecord" -ForegroundColor cyan
+		Write-Host "DKIM: $DomainKeyAvailable" -ForegroundColor cyan
+		Write-Host "DKIM Support: $DomainKeySupport" -ForegroundColor cyan
+		Write-Host "DKIM Record: $DomainKeyRecord" -ForegroundColor cyan
+		Write-Host "DMARC: $DMARCAvailable " -ForegroundColor cyan
+		Write-Host "DMARCRecord: $DMARCRecord" -ForegroundColor cyan
+		Write-Host "DANECount: $DANECount" -ForegroundColor cyan
+		Write-Host "DANESupport: $DANESupport" -ForegroundColor cyan
+		Write-Host "DANERecord: $DANERecord" -ForegroundColor cyan
+		Write-Host "BIMI: $BIMIAvailable" -ForegroundColor cyan
+		Write-Host "BIMI Record: $BIMIRecord" -ForegroundColor cyan
+		Write-Host "MTA-STS: $MTASTSAvailable" -ForegroundColor cyan
+		Write-Host "MTA-STS-Web: $MTASTSTXT" -ForegroundColor cyan
+		Write-Host "TLS-RPT: $TLSRPTRecord" -ForegroundColor cyan
+		Write-Host "Autodiscover: $Autodiscover" -ForegroundColor cyan
+		Write-Host "Lyncdiscover: $Lyncdiscover" -ForegroundColor cyan
+		Write-Host "SkypeFederation: $SkypeFederation" -ForegroundColor cyan
+		Write-Host "M365: $M365" -ForegroundColor cyan
+		Write-Host "TenantID: $TenantID" -ForegroundColor cyan
+		Write-Host "SecurityTXT: $SecurityTXTAvailable" -ForegroundColor cyan
+	}
 
 	#Better ResponseObject
 	$ResultObject = [PSCustomObject]@{}
