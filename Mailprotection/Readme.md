@@ -308,7 +308,7 @@ $SecurityTXTAvailable
   - ReturnObject of TLSRPT is now String
   - ReturnObject of MXIP is now Array
   - ReturnObject of CAA is now Array
-- Version 1.9 / 29.20.2023 - Andres Bohren
+- Version 1.9 / 29.10.2023 - Andres Bohren
   - Fixed Error in Nameserver Output
   - Improved SMTP Connect
   - Addet SMTPBanner
