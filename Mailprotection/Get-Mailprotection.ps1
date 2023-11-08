@@ -29,6 +29,8 @@
 # - General cleanup of Code
 # - Added Security.txt https://securitytxt.org/
 # - Added -Silent Parameter
+# Version 1.10
+# - Fixed STARTTLS and STARTTLS Support in Output and ReturnValue
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
@@ -49,19 +51,8 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.9
-- Fixed Error in Nameserver Output
-- Improved SMTP Connect
-- Addet SMTPBanner
-- Addet SMTPCertificateIssuer
-- Fixed Errorhandling in DANE and NS Lookups
-- Better Errorhandling in SMTPConnect
-- Fixed Autodiscover Lookup
-- Fixed Lyncdiscover Lookup
-- General cleanup of Code
-- Added Security.txt https://securitytxt.org/
-- Added -Silent Parameter
-.PRIVATEDATA
+Version 1.10
+- Fixed STARTTLS and STARTTLS Support in Output and ReturnValue
 #>
 
 <#
@@ -394,7 +385,7 @@ Function Get-MailProtection
 					[Array]$SMTPCertIssuerArray += $StartTLSReturn.SMTPCertIssuer
 				}
 			}
-			If ($StartTLSReturn.StartTLS -eq $true)
+			If ($StartTLSReturn.TLSSupport -eq $true)
 			{
 				$StartTLSCount = $StartTLSCount + 1
 			}

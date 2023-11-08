@@ -320,6 +320,8 @@ $SecurityTXTAvailable
   - General cleanup of Code
   - Added Security.txt https://securitytxt.org/
   - Added -Silent Parameter
+- Version 1.10 / 08.11.2023 - Andres Bohren
+  - Fixed STARTTLS and STARTTLS Support in Output and ReturnValue
 
 Kind Regards\
 Andres Bohren
