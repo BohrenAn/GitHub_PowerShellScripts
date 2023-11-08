@@ -38,7 +38,7 @@
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.9
+.VERSION 1.10
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
