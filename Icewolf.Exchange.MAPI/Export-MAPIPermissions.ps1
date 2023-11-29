@@ -50,7 +50,7 @@ Function Export-MAPIPermission
 
 	param(
 	[parameter(mandatory=$true)][string]$Mailbox,
-	[parameter(Mandatory=$false)][string]$Folder = $Null,
+	[parameter(Mandatory=$true)][ValidateSet("Inbox", "Calendar", "Notes", "Tasks", "Contacts", "SentItems", "DeletedItems")][String]$Folder,
 	[parameter(Mandatory=$false)][bool]$ExportDefaultPermissions = $true,
 	[parameter(mandatory=$true)][string]$FilePath
 	)

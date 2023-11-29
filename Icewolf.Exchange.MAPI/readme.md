@@ -113,6 +113,9 @@ AccessRights:
 - PublishingAuthor
 
 ## Release Notes
+V0.5.0
+- Added ValidateSet to Folder Parameter
+
 V0.4.0
 - Added Folders "SentItems" and "DeletedItems" to the Folder List
 - Added Parameter "Folder" in Export-MAPIPermissions

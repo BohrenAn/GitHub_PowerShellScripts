@@ -92,7 +92,7 @@ Function Add-MAPIPermission {
 	Param(
 		[parameter(Mandatory=$true)][String]$Mailbox,
 		[parameter(Mandatory=$true)][Alias("Trustee")][String]$User,
-		[parameter(Mandatory=$true)][String]$Folder,
+		[parameter(Mandatory=$true)][ValidateSet("Inbox", "Calendar", "Notes", "Tasks", "Contacts", "SentItems", "DeletedItems")][String]$Folder,
 		[parameter(Mandatory=$false)][Array]$ExcludeFolders,
 		[Parameter(Mandatory=$true)][String]$AccessRight,
 		[bool]$IncludeSubfolders = $false,

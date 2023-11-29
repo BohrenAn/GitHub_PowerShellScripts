@@ -3,7 +3,8 @@
 # V0.1 04.10.2021 - Initial Version - Andres Bohren
 # V0.2 10.03.2022 - Updates and Cleaning Code - Andres Bohren
 # V0.3 28.12.2022 - Updates and Cleaning Code - Andres Bohren
-# V0.4 12.20.2023 - Added Folders "SentItems" and "DeletedItems" to the Default Folder List - Andres Bohren
+# V0.4 12.10.2023 - Added Folders "SentItems" and "DeletedItems" to the Default Folder List - Andres Bohren
+# V0.5 29.11.2023 - - Added ValidateSet to Folder Parameter - Andres Bohren
 ###############################################################################
 
 @{
@@ -12,7 +13,7 @@
 RootModule = 'Icewolf.Exchange.MAPI.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.4.0'
+ModuleVersion = '0.5.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -34,7 +35,7 @@ Description = 'This is a Powershell Module that simplifies the Handling of MAPI 
 	Install-Module Icewolf.Exchange.MAPI'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '5.0'
+PowerShellVersion = '5.1'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -98,7 +99,7 @@ PrivateData = @{
 	PSData = @{
 
 		# Tags applied to this module. These help with module discovery in online galleries.
-		Tags = @('Exchange', 'ExchangeOnline', 'MAPI', 'FolderPermission')
+		Tags = @('Exchange', 'ExchangeOnline', 'EXO', 'MAPI', 'FolderPermission')
 
 		# A URL to the license for this module.
 		# LicenseUri = ''
@@ -113,13 +114,8 @@ PrivateData = @{
 		ReleaseNotes = '
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
-V0.4.0
-- Added Folders "SentItems" and "DeletedItems" to the Default Folder List
-
-V0.3.0
-- Changed Parameter -Trustee to -User (with Alias Trustee)
-- Add/Remove-MAPIPermission: Added -ExcludeFolders Parameter to exclude specific Subfolders (String or Array)
-- Fixed Issue with special Characters on Folder DisplayNames
+V0.5.0
+- Added ValidateSet to Folder Parameter
 ---------------------------------------------------------------------------------------------		
 '
 
