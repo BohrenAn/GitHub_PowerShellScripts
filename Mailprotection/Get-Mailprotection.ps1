@@ -31,6 +31,8 @@
 # - Added -Silent Parameter
 # Version 1.10
 # - Fixed STARTTLS and STARTTLS Support in Output and ReturnValue
+# Version 1.11
+# - Fixed Issue when testing SMTP Connectivity
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
@@ -38,7 +40,7 @@
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.10
+.VERSION 1.11
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -51,8 +53,8 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.10
-- Fixed STARTTLS and STARTTLS Support in Output and ReturnValue
+Version 1.11
+- Fixed Issue when testing SMTP Connectivity
 #>
 
 <#
@@ -368,7 +370,7 @@ Function Get-MailProtection
 				#If ($TestConnection.TcpTestSucceeded -eq $true)
                 try {
                     $tcpClient = New-Object System.Net.Sockets.TcpClient
-                    $portOpened = $tcpClient.ConnectAsync("mail.icewolf.ch", "25").Wait(1000)
+                    $portOpened = $tcpClient.ConnectAsync($MXEntry.NameExchange, "25").Wait(1000)
                 } catch {
                     $PortOpened = $false
                 }
