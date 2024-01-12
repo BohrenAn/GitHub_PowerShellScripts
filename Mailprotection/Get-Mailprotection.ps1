@@ -33,6 +33,8 @@
 # - Fixed STARTTLS and STARTTLS Support in Output and ReturnValue
 # Version 1.11
 # - Fixed Issue when testing SMTP Connectivity
+# Version 1.12
+# - Fixed Bug in Detection of Multiple SPF Records
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
@@ -40,12 +42,12 @@
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.11
+.VERSION 1.12
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
 .COPYRIGHT Free to copy, inspire, etc...
-.TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLS-RPT, BIMI, CAA, M365, TenantID, Security.txt
+.TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLSRPT, BIMI, CAA, M365, TenantID, Security.txt
 .LICENSEURI
 .PROJECTURI https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 .ICONURI
@@ -53,8 +55,8 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.11
-- Fixed Issue when testing SMTP Connectivity
+Version 1.12
+- Fixed Bug in Detection of Multiple SPF Records
 #>
 
 <#
@@ -77,7 +79,7 @@ It checks for the following Information
 - BIMI (Brand Indicators for Message Identification)
 - MTA-STS (SMTP MTA Strict Transport Security)
 - MTA-STS Web (https://mta-sts.domain.tld/.well-known/mta-sts.txt)
-- TLS-RPT (TLS Reporting)
+- TLSRPT (TLS Reporting)
 - Autodiscover (Outlook)
 - Lyncdiscover
 - Lync/Skype/Teamsfederation
@@ -87,7 +89,7 @@ It checks for the following Information
 
 .DESCRIPTION 
 This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
-Most of the Querys are simple DNS Querys (NS, MX, SPF, DKIM, DMARC, BIMI, MTA-STS, TLS-RPT).
+Most of the Querys are simple DNS Querys (NS, MX, SPF, DKIM, DMARC, BIMI, MTA-STS, TLSRPT).
 The Script uses also DNS over HTTP for several checks (ZoneSigned, TLSA Record for DANE).
 Also some Webrequests are required for MTA-STS, TenantID (OIDC), Security.txt.
 And connects via SMTP to check if the Server supports STARTTLS.
