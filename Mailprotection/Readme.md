@@ -18,7 +18,7 @@ It checks for the following Information
 - BIMI (Brand Indicators for Message Identification)
 - MTA-STS (SMTP MTA Strict Transport Security)
 - MTA-STS Web (https://mta-sts.domain.tld/.well-known/mta-sts.txt)
-- TLS-RPT (TLS Reporting)
+- TLSRPT (TLS Reporting)
 - Autodiscover
 - Lyncdiscover
 - Lync/Skype/Teamsfederation
@@ -219,7 +219,7 @@ $Response = Invoke-WebRequest -URI https://mta-sts.$Domain/.well-known/mta-sts.t
 $Response.Content
 ```
 
-## TLS-RPT (TLS Reporting)
+## TLSRPT (TLS Reporting)
 Exists since 2018 [rfc8461](https://datatracker.ietf.org/doc/html/rfc8461)
 
 ```pwsh
@@ -322,6 +322,8 @@ $SecurityTXTAvailable
   - Added -Silent Parameter
 - Version 1.10 / 08.11.2023 - Andres Bohren
   - Fixed STARTTLS and STARTTLS Support in Output and ReturnValue
+- Version 1.12
+  - Fixed Bug in Detection of Multiple SPF Records
 
 Kind Regards\
 Andres Bohren
