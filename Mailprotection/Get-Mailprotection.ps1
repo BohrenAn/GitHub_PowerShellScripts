@@ -487,14 +487,14 @@ Function Get-MailProtection
 	$SPFRecord = $Null
 	$TXT = Resolve-DnsName -Name $Domain -Type TXT -ErrorAction SilentlyContinue
 	$SPFRecord = $TXT.strings -match "v=spf"
-	If ($SPFRecord -eq $false -or $NULL -eq $SPFRecord) 
+	If ($SPFRecord.Count -eq 0) 
 	{
 		$SPFRecord = $NULL
 	} else {
 		#SPF Record Presend
 		If ($SPFRecord.Count -eq 1)
 		{
-			[string]$SPFRecord = ($SPFRecord | Out-String).Replace("'","").Trim()			
+			[string]$SPFRecord = ($SPFRecord | Out-String).Replace("'","").Trim()
 		} else {
 			$SPFRecord = "MULTIPLE SPF RECORDS"
 		}
@@ -502,7 +502,7 @@ Function Get-MailProtection
 
 	Foreach ($TXTEntry in $TXT)
 	{
-		If ($TXTEntry.Strings -match "v=spf" -or $TXTEntry.Strings-match "spf2.0")
+		If ($TXTEntry.Strings -match "v=spf" -or $TXTEntry.Strings -match "spf2.0")
 		{
 			#SPF Found
 			$SPFAvailable = $true
