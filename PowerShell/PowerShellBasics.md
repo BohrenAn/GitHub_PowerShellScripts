@@ -368,6 +368,26 @@ $ageList = @{
 }
 ```
 
+# PSCustomObject
+```pwsh
+$myObject = [PSCustomObject]@{
+    Name     = 'Kevin'
+    Language = 'PowerShell'
+    State    = 'Texas'
+}
+```
+
+Converting Hashtable to PSCustomObject
+
+```pwsh
+$myHashtable = @{
+    Name     = 'Kevin'
+    Language = 'PowerShell'
+    State    = 'Texas'
+}
+$myObject = [pscustomobject]$myHashtable
+```
+
 # Powershell Snapin
 ```pwsh
 #Check if Forefront Snapin is already loaded
