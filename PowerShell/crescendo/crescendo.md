@@ -16,14 +16,14 @@ $parameters = @{
 New-CrescendoCommand @parameters | Format-List *
 
 
+New-Item -Path "c:\temp" -Name "Ipconfig" -ItemType "directory"
+$CrescendoCommands = New-CrescendoCommand @parameters
+Export-CrescendoCommand -command $CrescendoCommands -targetDirectory C:\Temp\Ipconfig
+Get-ChildItem -Path C:\Temp\Ipconfig
 
-$CrescendoCommands += New-CrescendoCommand @parameters
-Export-CrescendoCommand -command $CrescendoCommands -targetDirectory .\
 
-
-
-Export-CrescendoModule -ConfigurationFile Get-Ipconfig.crescendo.json -ModuleName Ipconfig.psm1 -Force
-
+Export-CrescendoModule -ConfigurationFile C:\Temp\Ipconfig\Get-Ipconfig.crescendo.json -ModuleName C:\Temp\Ipconfig\Ipconfig.psm1 -Force
+Get-ChildItem -Path C:\Temp\Ipconfig
 
 New-CrescendoCommand -Verb Get -Noun Ipconfig -OriginalName "ipconfig.exe" | ConvertTo-Json
 
