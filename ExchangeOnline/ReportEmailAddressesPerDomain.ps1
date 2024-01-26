@@ -6,6 +6,7 @@
 #Connect-ExchangeOnline
 If ($Null -eq $(Get-ConnectionInformation))
 {
+	Write-Host "Connect-ExchangeOnline" -ForegroundColor Green
 	Connect-ExchangeOnline -ShowBanner:$false
 }
 
@@ -46,4 +47,6 @@ Foreach ($AcceptedDomain in $AcceptedDomains)
 	$Results += $myObject
 }
 $Results
+$CSVPath = "$PSScriptRoot\EmailAddressesPerDomain.csv"
+Write-Host "Exported to $CSVPath"
 $Results | Export-Csv -Path "$PSScriptRoot\EmailAddressesPerDomain.csv" -NoTypeInformation
