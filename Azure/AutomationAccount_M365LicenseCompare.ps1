@@ -2,6 +2,7 @@
 # M365 License Compare
 # Compares the Licenses in a M365 Tenant with an exported Object stored on Azure FileShare
 # 03.12.2023 - Initial Version - Andres Bohren https://blog.icewolf.ch
+# 24.02.2024 - Fix when multipe ServicePlans are added or removed - Andres Bohren
 ###############################################################################
 # Required Infrastructure
 # - Azure Automation Account with System Assigned Managed Identity
@@ -39,37 +40,37 @@ Function Send-AdminMail
 	param (
 		[Parameter(Mandatory = $true)][string]$Subject,
 		[parameter(mandatory = $true)][string]$MessageBody,
-        [parameter(mandatory = $true)][string]$Recipient,
-        [parameter(mandatory = $true)][string]$Sender
+		[parameter(mandatory = $true)][string]$Recipient,
+		[parameter(mandatory = $true)][string]$Sender
 	)
 
-    ### Getting Variables ###
-    #App
-    $AppID = Get-AutomationVariable -Name "DelegatedMailAppID"
-    Write-Output "AppID --> $AppID"
+	### Getting Variables ###
+	#App
+	$AppID = Get-AutomationVariable -Name "DelegatedMailAppID"
+	Write-Output "AppID --> $AppID"
 
-    #TenantID
-    $TenantID = Get-AutomationVariable -Name "TenantGuId"
-    Write-Output "TenantId --> $TenantID"
+	#TenantID
+	$TenantID = Get-AutomationVariable -Name "TenantGuId"
+	Write-Output "TenantId --> $TenantID"
 
-    #Certificate
-    $Certificate = Get-AutomationCertificate -name "O365Powershell3"
-    $CertificateThumbprint = $Certificate.ThumbPrint
-    Write-Output "CertificateThumbprint --> $CertificateThumbprint"
+	#Certificate
+	$Certificate = Get-AutomationCertificate -name "O365Powershell3"
+	$CertificateThumbprint = $Certificate.ThumbPrint
+	Write-Output "CertificateThumbprint --> $CertificateThumbprint"
 
-    ### Authenticate with Certificate ### 
-    Import-Module PSMSALNet
-    $HashArguments = @{
-    ClientId = $AppID
-    ClientCertificate = $Certificate
-    TenantId = $TenantId
-    Resource = "GraphAPI"
-    }
-    $Token = Get-EntraToken -ClientCredentialFlowWithCertificate @HashArguments
-    $AccessToken = $Token.AccessToken
+	### Authenticate with Certificate ### 
+	Import-Module PSMSALNet
+	$HashArguments = @{
+	ClientId = $AppID
+	ClientCertificate = $Certificate
+	TenantId = $TenantId
+	Resource = "GraphAPI"
+	}
+	$Token = Get-EntraToken -ClientCredentialFlowWithCertificate @HashArguments
+	$AccessToken = $Token.AccessToken
 
-    #DEBUG
-    #Write-Output "AccessToken $AccessToken"
+	#DEBUG
+	#Write-Output "AccessToken $AccessToken"
 
 ### Send Email ###
 $URI = "https://graph.microsoft.com/v1.0/users/$Sender/sendMail"
@@ -77,25 +78,25 @@ $ContentType = "application/json"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 $Body = @"
 {
-    "message": {
-        "subject": "$Subject",
-        "body": {
-            "contentType": "HTML",
-            "content": '$MessageBody'
-        },
-        "toRecipients": [
-            {
-                "emailAddress": {
-                    "address": "$Recipient"
-                }
-            }
-        ]
-    }
+	"message": {
+		"subject": "$Subject",
+		"body": {
+			"contentType": "HTML",
+			"content": '$MessageBody'
+		},
+		"toRecipients": [
+			{
+				"emailAddress": {
+					"address": "$Recipient"
+				}
+			}
+		]
+	}
 }
 "@
 
-    #Invoke-RestMethod To send the Mail
-    $Result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
+	#Invoke-RestMethod To send the Mail
+	$Result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
 }
 
 
@@ -147,74 +148,84 @@ $ArraySKUS = @()
 $SKUS = Get-MgSubscribedSku
 Foreach ($SKU in $SKUS)
 {
-    #$ArraySKU = @()
-    $AppliesTo = $SKU.AppliesTo
-    $CapabilityStatus = $SKU.CapabilityStatus
-    $SkuId = $SKU.SkuId
-    $SkuPartNumber = $SKU.SkuPartNumber
-    Write-Output "Working on SKUPartNumber: $SkuPartNumber"
+	#$ArraySKU = @()
+	$AppliesTo = $SKU.AppliesTo
+	$CapabilityStatus = $SKU.CapabilityStatus
+	$SkuId = $SKU.SkuId
+	$SkuPartNumber = $SKU.SkuPartNumber
+	Write-Output "Working on SKUPartNumber: $SkuPartNumber"
 	[array]$ServicePlans = $SKU.ServicePlans.ServicePlanName
-    $ConsumedUnits = $SKU.ConsumedUnits
-    $Enabled = $SKU.PrepaidUnits.Enabled
-    $Suspended = $SKU.PrepaidUnits.Suspended
-    $Warning = $SKU.PrepaidUnits.Warning
-    $SKUObject = [PSCustomObject]@{
-        AppliesTo             = $AppliesTo
-        CapabilityStatus     = $CapabilityStatus
-        SkuId                = $SkuId
-        SkuPartNumber        = $SkuPartNumber
+	$ConsumedUnits = $SKU.ConsumedUnits
+	$Enabled = $SKU.PrepaidUnits.Enabled
+	$Suspended = $SKU.PrepaidUnits.Suspended
+	$Warning = $SKU.PrepaidUnits.Warning
+	$SKUObject = [PSCustomObject]@{
+		AppliesTo			 = $AppliesTo
+		CapabilityStatus	 = $CapabilityStatus
+		SkuId				= $SkuId
+		SkuPartNumber		= $SkuPartNumber
 		ServicePlans		 = $ServicePlans
-        ConsumedUnits        = $ConsumedUnits
-        Enabled                = $Enabled
-        Suspended            = $Suspended
-        Warning                = $Warning
-    }
-    $ArraySKUS += $SKUObject
+		ConsumedUnits		= $ConsumedUnits
+		Enabled				= $Enabled
+		Suspended			= $Suspended
+		Warning				= $Warning
+	}
+	$ArraySKUS += $SKUObject
 }
 #$ArraySKUS | FT
 
 #Import Object
 If ((Test-Path $DestinationFile) -eq $False)
 {
-    Write-Output "Downloaded File for Compare NOT found"
-    $MessageBody = "Initial Run of License Compare"
+	Write-Output "Downloaded File for Compare NOT found"
+	$MessageBody = "Initial Run of License Compare"
 } else {
 
-    Write-Output "Import saved Object"
-    $SavedObject = Import-Clixml -Path $DestinationFile
+	Write-Output "Import saved Object"
+	$SavedObject = Import-Clixml -Path $DestinationFile
 
-    #Compare Objects
-    Write-Output "Compare Objects"
-    $Output = @()
-    $INT = 0
-    Foreach ($Line in $ArraySKUs)
-    {
-        $SkuPartNumber = $Line.SkuPartNumber
-        Write-Output "Working on: $SkuPartNumber" #-ForegroundColor Green
-        $DifferenceObject = $SavedObject[$INT].ServicePlans
-        $CompareResult = Compare-Object -ReferenceObject $Line.ServicePlans -DifferenceObject $DifferenceObject #-PassThru
-        If ($CompareResult -ne $Null)
-        {
-            #$CompareResult
-            $Diff = $CompareResult
-            Write-Output "Diffrence found: $($Diff.InputObject) $($Diff.SideIndicator)" #-ForegroundColor Yellow
-            $OutputObject = [PSCustomObject]@{
-                SkuPartNumber = $SkuPartNumber 
-                ServicePlan =  $($Diff.InputObject)
-                SideIndicator = $($Diff.SideIndicator)
-            }
-            $Output += $OutputObject 
-        }
+	#Compare Objects
+	Write-Output "Compare Objects"
+	$Output = @()
+	$INT = 0
+	Foreach ($Line in $ArraySKUs)
+	{
+		$SkuPartNumber = $Line.SkuPartNumber
+		Write-Output "Working on: $SkuPartNumber" #-ForegroundColor Green
+		$DifferenceObject = $SavedObject[$INT].ServicePlans
+		$CompareResult = Compare-Object -ReferenceObject $Line.ServicePlans -DifferenceObject $DifferenceObject #-PassThru
+		If ($Null -ne $CompareResult)
+		{
+			#$CompareResult
+			Foreach ($Item in $CompareResult)
+			{
+				Write-Output "Diffrence found: $($Item.InputObject) $($Item.SideIndicator)" #-ForegroundColor Yellow
+				switch ($Item.SideIndicator)
+				{
+					"<=" {$Description = "Add"}
+					"=>" {$Description = "Remove"}
+					Default {$Description = ""}
+				}
 
-        $INT = $Int + 1
-    }
+				$OutputObject = [PSCustomObject]@{
+					SkuPartNumber = $SkuPartNumber 
+					ServicePlan =  $($Item.InputObject)
+					SideIndicator = $($Item.SideIndicator)
+					Description = $Description
+				}
+				$Output += $OutputObject 
+			}
+		}
 
-    If ($Output.Count -ne 0)
-    {
-        [string]$MessageBody = $Output | ConvertTo-Html
-    } else {
-        $MessageBody = "No Changes found"
-    }
+		$INT = $Int + 1
+	}
+
+	If ($Output.Count -ne 0)
+	{
+		[string]$MessageBody = $Output | ConvertTo-Html
+	} else {
+		$MessageBody = "No Changes found"
+	}
 
 }
 
