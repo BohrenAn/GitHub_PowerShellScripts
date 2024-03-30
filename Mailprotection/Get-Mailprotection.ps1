@@ -35,6 +35,8 @@
 # - Fixed Issue when testing SMTP Connectivity
 # Version 1.12
 # - Fixed Bug in Detection of Multiple SPF Records
+# Version 1.13 30.03.2024
+# - Fixed Bug in DANESupport when -SMTPConnect was set to $false
 # Backlog / Whishlist
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
@@ -42,7 +44,7 @@
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.12
+.VERSION 1.13
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -55,8 +57,8 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.12
-- Fixed Bug in Detection of Multiple SPF Records
+Version 1.13
+- Fixed Bug in DANESupport when -SMTPConnect was set to $false
 #>
 
 <#
@@ -472,10 +474,13 @@ Function Get-MailProtection
 				$DANESupport = "None"
 			}
 		}
-		If ($StartTLSCount -eq 0)
+		If ($SMTPConnect -ne $false)
 		{
-			#None Mailserver in MX Records support DANE
-			$DANESupport = "None"
+			If ($StartTLSCount -eq 0)
+			{
+				#None Mailserver in MX Records support DANE
+				$DANESupport = "None"
+			}
 		}
 	}
 
