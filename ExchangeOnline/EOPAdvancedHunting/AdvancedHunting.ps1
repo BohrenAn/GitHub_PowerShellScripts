@@ -43,4 +43,5 @@ Remove-ComplianceSearchAction
 # Hash mit PowerShell
 ###############################################################################
 #FileHash
-Get-FileHash C:\GIT_WorkingDir\GitHub_PowerShellScripts\ExchangeOnline\EOP_Unsigned.zip -Algorithm SHA256
+$CurrentLocation = (Get-Location).path
+Get-FileHash "$CurrentLocation\EOP_Unsigned.zip" -Algorithm SHA256
