@@ -173,6 +173,9 @@ data
 AuditLogs | summarize count () by OperationName
 | order by count_
 
+AuditLogs | where TimeGenerated > ago(30d)
+| summarize count() by Category, Resource, LoggedByService
+
 
 //Usage Avg. Latency
 Usage | project TimeGenerated, AvgLatencyInSeconds
