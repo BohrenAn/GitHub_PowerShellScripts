@@ -66,8 +66,9 @@ Disconnect-MgGraph
 $AppID = "c1a5903b-cd73-48fe-ac1f-e71bde968412" #DelegatedMail
 $TenantId = "icewolfch.onmicrosoft.com"
 #Make sure the PFXPassword is securely Stored and not in Code like here
-$PFXPassword = ConvertTo-SecureString -String "SecretPa$$word!" -Force -AsPlainText
-$PFX = Get-PfxData -FilePath "C:\GIT_WorkingDir\O365Powershell3.pfx" -Password $PFXPassword
+$PFXPassword = ConvertTo-SecureString -String 'SecretPa$$word!' -Force -AsPlainText
+$CurrentLocation = (Get-Location).path
+$PFX = Get-PfxData -FilePath "$CurrentLocation\O365Powershell3.pfx" -Password $PFXPassword
 $Certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
 $Certificate = $PFX.EndEntityCertificates[0]
 Connect-MgGraph -AppId $AppID -Certificate $Certificate -TenantId $TenantId
@@ -91,9 +92,10 @@ $ThumbPrint = $Cert.ThumbPrint
 #Export DER Certificate
 ###############################################################################
 $Subject = "DemoCert"
-Export-Certificate -Filepath "C:\Git_WorkingDir\$Subject-DER.cer" -cert $Cert -type CERT -NoClobber 
-Get-ChildItem -Path cert:\CurrentUser\my\$ThumbPrint | Export-Certificate -FilePath "C:\Git_WorkingDir\$Subject-DER.cer"
-Get-ChildItem -Path cert:\CurrentUser\my\ | Where-Object {$_.Subject -eq "CN=$Subject"} | Export-Certificate -FilePath "C:\Git_WorkingDir\$Subject-DER.cer"
+$CurrentLocation = (Get-Location).path
+Export-Certificate -Filepath "$CurrentLocation\$Subject-DER.cer" -cert $Cert -type CERT -NoClobber 
+Get-ChildItem -Path cert:\CurrentUser\my\$ThumbPrint | Export-Certificate -FilePath "$CurrentLocation\$Subject-DER.cer"
+Get-ChildItem -Path cert:\CurrentUser\my\ | Where-Object {$_.Subject -eq "CN=$Subject"} | Export-Certificate -FilePath "$CurrentLocation\$Subject-DER.cer"
 
 ###############################################################################
 #Export Base64 Certificate
@@ -116,7 +118,8 @@ $Value = "-----BEGIN CERTIFICATE-----`r`n"
 $Value += "$Base64Block2"
 $Value += "-----END CERTIFICATE-----"
 $Value
-Set-Content -Path "C:\Git_WorkingDir\$Subject-BASE64.cer" -Value $Value
+$CurrentLocation = (Get-Location).path
+Set-Content -Path "$CurrentLocation\$Subject-BASE64.cer" -Value $Value
 
 ###############################################################################
 #Export PFX Certificate

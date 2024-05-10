@@ -212,8 +212,9 @@ Update-MgUserMessage -UserId $Mailbox -MessageId $MessageID -BodyParameter $para
 #Application	Mail.ReadWrite
 
 Import-Module Microsoft.Graph.Mail
-$ContentByte = Get-Content -Path "C:\GIT_WorkingDir\GitHub_PowerShellScripts\ExchangeOnline\GraphAPI\DemoAttachment.docx" -Encoding Byte
-$ContentByte = [System.IO.File]::ReadAllBytes('C:\GIT_WorkingDir\GitHub_PowerShellScripts\ExchangeOnline\GraphAPI\DemoAttachment.docx')
+$CurrentLocation = (Get-Location).path
+$ContentByte = Get-Content -Path "$CurrentLocation\DemoAttachment.docx" -Encoding Byte
+$ContentByte = [System.IO.File]::ReadAllBytes("$CurrentLocation\DemoAttachment.docx")
 
 $params = @{
 	"@odata.type" = "#microsoft.graph.fileAttachment"

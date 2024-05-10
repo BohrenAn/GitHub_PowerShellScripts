@@ -244,7 +244,8 @@ $MessageID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQBGAAAAAADI11
 $URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/messages/$MessageID/attachments"
 $URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/messages/$FolderID/messages/$MessageID/attachments"
 
-$ContentByte = Get-Content -Path "C:\GIT_WorkingDir\GitHub_PowerShellScripts\ExchangeOnline\GraphAPI\DemoAttachment.docx" -Encoding Byte
+$CurrentLocation = (Get-Location).path
+$ContentByte = Get-Content -Path "$CurrentLocation\DemoAttachment.docx" -Encoding Byte
 
 $ContentType = "application/json"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}

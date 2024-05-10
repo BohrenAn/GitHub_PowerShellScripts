@@ -46,7 +46,8 @@ Connect-MicrosoftTeams -ApplicationId $AppID -TenantId $TenantId -CertificateThu
 $AppID = "93b64305-ea5b-41f2-be0f-a2235fb91480" #DemoTeamsPS
 $TenantId = "icewolfch.onmicrosoft.com"
 $PFXPassword = ConvertTo-SecureString -String "YourPFXPassword" -Force -AsPlainText
-$PFX = Get-PfxData -FilePath "C:\GIT_WorkingDir\O365Powershell3.pfx" -Password $PFXPassword
+$CurrentLocation = (Get-Location).path
+$PFX = Get-PfxData -FilePath "$CurrentLocation\O365Powershell3.pfx" -Password $PFXPassword
 $Certificate = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
 $Certificate = $PFX.EndEntityCertificates[0]
 
