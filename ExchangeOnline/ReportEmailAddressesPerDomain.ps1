@@ -27,12 +27,12 @@ Foreach ($AcceptedDomain in $AcceptedDomains)
 	Write-Host "Working on Domain: $Domain [$INT]" -ForegroundColor Green 
 
 	#Additional EmailAddresses
-	[Array]$RecipientAddress = $Mailboxes| where {$_.EmailAddresses -like "*@$Domain"}
+	[Array]$RecipientAddress = $Mailboxes| Where-Object {$_.EmailAddresses -like "*@$Domain"}
 	$RecipientCount = $RecipientAddress.Count 
 	Write-Host "EmailAddressesCount: $RecipientCount" 
 
 	#PrimaryEmailaddress
-	[Array]$PrimaryRecipients = $Mailboxes| where {$_.PrimarySMTPAddress -like "*@$Domain"}
+	[Array]$PrimaryRecipients = $Mailboxes| Where-Object {$_.PrimarySMTPAddress -like "*@$Domain"}
 	$PrimaryRecipientCount = $PrimaryRecipients.Count 
 	Write-Host "PrimaryAddressCount: $PrimaryRecipientCount" 
 
