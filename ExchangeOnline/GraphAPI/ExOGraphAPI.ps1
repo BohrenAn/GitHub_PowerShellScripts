@@ -10,9 +10,13 @@
 # Limit Microsoft Graph Access to specific Exchange Mailboxes
 #https://blog.icewolf.ch/archive/2021/02/06/limit-microsoft-graph-access-to-specific-exchange-mailboxes.aspx
 ###############################################################################
-Get-AzureADGroup -SearchString PostmasterGraphRestriction | Format-Table DisplayName, ObjectId, SecurityEnabled, MailEnabled, Mail
-#App: DelegatedMail c1a5903b-cd73-48fe-ac1f-e71bde968412
-New-ApplicationAccessPolicy -AccessRight RestrictAccess -AppId c1a5903b-cd73-48fe-ac1f-e71bde968412 -PolicyScopeGroupId "PostmasterGraphRestriction@icewolf.ch" -Description "Restrict this app to members of this Group"
+Connect-ExchangeOnline -ShowBanner:$false
+$GroupName = "PostmasterGraphRestriction"
+$MailEnabledSecurityGroup = New-DistributionGroup -Name $GroupName -Members "postmaster@icewolf.ch" -Type "Security" -PrimarySmtpAddress "$GroupName@icewolf.ch"
+$GroupPrimarySMTPAddress =  $MailEnabledSecurityGroup.PrimarySmtpAddress
+
+$AppID = "c1a5903b-cd73-48fe-ac1f-e71bde968412" #DelegatedMail
+New-ApplicationAccessPolicy -AccessRight RestrictAccess -AppId "AppID" -PolicyScopeGroupId "$GroupPrimarySMTPAddress" -Description "Restrict this app to members of this Group"
 Get-ApplicationAccessPolicy
 Get-ApplicationAccessPolicy | Where-Object {$_.Appid -eq "c1a5903b-cd73-48fe-ac1f-e71bde968412"}
 Test-ApplicationAccessPolicy -AppId c1a5903b-cd73-48fe-ac1f-e71bde968412 -Identity postmaster@icewolf.ch
