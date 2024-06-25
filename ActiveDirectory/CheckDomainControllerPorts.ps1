@@ -38,6 +38,7 @@ $Result.TraceRoute
 ###############################################################################
 Write-Host "Checking TCP Ports..." -ForegroundColor Green
 $ArrayPorts = @()
+$ArrayPorts+= "88"
 $ArrayPorts+= "135"
 $ArrayPorts+= "389"
 $ArrayPorts+= "636"
