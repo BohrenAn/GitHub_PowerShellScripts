@@ -44,7 +44,7 @@
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.13
+.VERSION 1.14
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -57,8 +57,8 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.13
-- Fixed Bug in DANESupport when -SMTPConnect was set to $false
+Version 1.14
+- Moved from Resolve-DNS to DNS Over Https (https://dns.google/resolve)
 #>
 
 <#
@@ -279,6 +279,10 @@ Function Get-MailProtection
 	)
 
 	[bool]$ZoneDNSSigned = $false
+	[Array]$Nameserver = @()
+	[Array]$MXRecord = @()
+	[Array]$MXReverseLookup = @()
+	[String]$DANERecord = $Null
 	[bool]$MXAvailable = $False
 	[int]$MXCount = 0
 	$MXReverseLookup = $Null
@@ -308,11 +312,17 @@ Function Get-MailProtection
 	}
 
 	## Nameserver (NS)
+	<#
 	$Nameserver = $Null
 	$NS = Resolve-DnsName -Type NS $Domain -ErrorAction SilentlyContinue
 	If ($null -ne $NS)
 	{
 		[Array]$Nameserver = $NS.NameHost
+	}
+	#>
+	Foreach ($Entry in $json.Answer.data)
+	{
+		$Nameserver += $Entry.Substring(0,$Entry.Length-1)
 	}
 
 	## CAA
@@ -334,31 +344,52 @@ Function Get-MailProtection
 	{
 		Write-Host "Check: MX" -ForegroundColor Green
 	}
+	<#
 	$MX = Resolve-DnsName -Name $Domain -Type MX -ErrorAction SilentlyContinue
 	[Array]$MXRecord = $MX.NameExchange #($mx.nameExchange | Out-String).Trim()
 	If ($NULL -eq $MXRecord -or $MXRecord -eq "" -or $MXRecord -eq $False)
 	{
 		$MXRecord = $NULL
 	}
-
-	$DANERecord = $NULL
-	Foreach ($MXEntry in $MX)
+	#>
+	$URI = "https://dns.google/resolve?name=$Domain&type=MX"
+	$json = Invoke-RestMethod -URI $URI
+	Foreach ($Entry in $json.Answer.data)
 	{
-		If ($Null -ne $MXEntry.NameExchange)
+		$MXRecordData = $Entry.Substring(0,$Entry.Length-1)
+		$MXRecord += $MXRecordData.split(" ")[1]
+	}
+
+	Foreach ($MXEntry in $MXRecord)
+	{
+		#If ($Null -ne $MXEntry.NameExchange)
+		If ($Null -ne $MXEntry)
 		{
 			#MX Found
 			$MXAvailable = $true
 			$MXCount = $MXCount + 1
 
 			#ReverseLookup
-			$MXIP = Resolve-DnsName $MXEntry.NameExchange -ErrorAction SilentlyContinue | Where-Object {$_.Type -eq "A"}
-			Foreach ($IP in $MXIP.IPAddress)
+			#$MXIP = Resolve-DnsName $MXEntry.NameExchange -ErrorAction SilentlyContinue | Where-Object {$_.Type -eq "A"}
+			$URI = "https://dns.google/resolve?name=$MXEntry&type=A"
+			$json = Invoke-RestMethod -URI $URI
+			$MXIP = $json.Answer.Data
+			
+			#Foreach ($IP in $MXIP.IPAddress)
+			Foreach ($IP in $MXIP)
 			{
 				[Array]$MXIPArray += $IP
-				$ReverseLookupName = Resolve-DnsName $IP -ErrorAction SilentlyContinue
+				#$ReverseLookupName = Resolve-DnsName $IP -ErrorAction SilentlyContinue
+				$SplitIP = $ip1.split(".")
+				$ReverseLookupIP = $SplitIP[3] + "." + $SplitIP[2] + "." + $SplitIP[1] + "." + $SplitIP[0] + ".in-addr.arpa."
+				$URI = "https://dns.google/resolve?name=$ReverseLookupIP&type=PTR"
+				$json = Invoke-RestMethod -URI $URI
+				$ReverseLookupName = $json.Answer.Data
+				$ReverseLookupName = $ReverseLookupName.Substring(0,$ReverseLookupName.Length-1)
+
 				If ($Null -ne $ReverseLookupName)
 				{
-					[Array]$MXReverseLookup += $ReverseLookupName.NameHost
+					[Array]$MXReverseLookup += $ReverseLookupName
 				}
 			}
 
@@ -374,7 +405,8 @@ Function Get-MailProtection
 				#If ($TestConnection.TcpTestSucceeded -eq $true)
                 try {
                     $tcpClient = New-Object System.Net.Sockets.TcpClient
-                    $portOpened = $tcpClient.ConnectAsync($MXEntry.NameExchange, "25").Wait(1000)
+                    #$portOpened = $tcpClient.ConnectAsync($MXEntry.NameExchange, "25").Wait(1000)
+					$portOpened = $tcpClient.ConnectAsync($MXEntry, "25").Wait(1000)
                 } catch {
                     $PortOpened = $false
                 }
@@ -490,8 +522,10 @@ Function Get-MailProtection
 		Write-Host "Check: SPF" -ForegroundColor Green
 	}
 	$SPFRecord = $Null
-	$TXT = Resolve-DnsName -Name $Domain -Type TXT -ErrorAction SilentlyContinue
-	$SPFRecord = $TXT.strings -match "v=spf"
+	#$TXT = Resolve-DnsName -Name $Domain -Type TXT -ErrorAction SilentlyContinue
+	#$SPFRecord = $TXT.strings -match "v=spf"
+	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$Domain&type=TXT" 
+	$SPFRecord = $json.Answer.data | Where-Object {$_ -like "V=SPF1*"}
 	If ($SPFRecord.Count -eq 0) 
 	{
 		$SPFRecord = $NULL
@@ -505,9 +539,11 @@ Function Get-MailProtection
 		}
 	}
 
-	Foreach ($TXTEntry in $TXT)
+	#Foreach ($TXTEntry in $TXT)
+	Foreach ($TXTEntry in $json.Answer.data)
 	{
-		If ($TXTEntry.Strings -match "v=spf" -or $TXTEntry.Strings -match "spf2.0")
+		#If ($TXTEntry.Strings -match "v=spf" -or $TXTEntry.Strings -match "spf2.0")
+		If ($TXTEntry -match "v=spf" -or $TXTEntry -match "spf2.0")
 		{
 			#SPF Found
 			$SPFAvailable = $true
