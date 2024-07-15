@@ -12,6 +12,7 @@ Connect-AzAccount -TenantId 46bbad84-29f0-4e03-8d34-f6841a5071ad -Subscription 4
 
 #Get Storage Queue
 $Storagequeue = Get-AzStorageAccount -Name devicewolf -ResourceGroupName RG_DEV | Get-AzStorageQueue -Name demoqueue
+$Storagequeue
 
 
 #Add Message to Queue
@@ -25,10 +26,13 @@ $Storagequeue.QueueClient.SendMessageAsync($MessageBase64)
 # Set the amount of time you want to entry to be invisible after read from the queue
 # If it is not deleted by the end of this time, it will show up in the queue again
 $visibilityTimeout = [System.TimeSpan]::FromSeconds(10)
-
-# Read the message from the queue, then show the contents of the message. 
-# Read the next message, too.
 $queueMessage = $Storagequeue.QueueClient.ReceiveMessage($visibilityTimeout)
-$EncodedMessage = $queueMessage.Value
+$EncodedMessage = $queueMessage.Value.MessageText
 $Message = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($EncodedMessage))
-Wirte-Host "Message: $Message"
+Write-Host "Message: $Message"
+
+
+# Receive one message from the queue, then delete the message.
+$visibilityTimeout = [System.TimeSpan]::FromSeconds(10)
+$queueMessage = $Storagequeue.QueueClient.ReceiveMessage($visibilityTimeout)
+$Storagequeue.QueueClient.DeleteMessage($queueMessage.Value.MessageId, $queueMessage.Value.PopReceipt)
