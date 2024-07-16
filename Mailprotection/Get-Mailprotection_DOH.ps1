@@ -40,6 +40,8 @@
 # Version 1.14
 # - Moved from Resolve-DNS to DNS Over Https DoH (https://dns.google/resolve)
 # Backlog / Whishlist
+# - External Domain Validation DMARC Authorisation Record
+#   - txt domain.tld._report._dmarc.ag.us.dmarcian.com
 # - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
@@ -710,7 +712,7 @@ Function Get-MailProtection
 	$Autodiscover = $Null
 	$AutodiscoverCNAME = $Null
 	$AutodiscoverA = $Null
-	
+
 	If ($Silent -ne $True)
 	{
 		Write-Host "Check: Autodiscover" -ForegroundColor Green
@@ -731,8 +733,15 @@ Function Get-MailProtection
 		}
 		If ($Null -ne $AutodiscoverA)
 		{
-			$AutodiscoverA = $AutodiscoverA.Substring(0,$AutodiscoverA.Length-1)
-			[string]$Autodiscover = $AutodiscoverA
+			Try {
+				#Check if IPv4
+				$IP = [system.net.ipaddress]$AutodiscoverA
+				$Autodiscover = $AutodiscoverA
+			} catch {
+				#Then it must be a DNS Name
+				$AutodiscoverA = $AutodiscoverA.Substring(0,$AutodiscoverA.Length-1)
+				[string]$Autodiscover = $AutodiscoverA
+			}
 		} else {
 			#Autodiscover SRV
 			$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=_autodiscover._tcp.$Domain&type=SRV"
