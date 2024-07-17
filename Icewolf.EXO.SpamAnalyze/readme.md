@@ -33,6 +33,10 @@ Then select and paste the MessageTraceID
  
 
  ## Release Notes
+V2.0.11 17.07.2024
+- Added Try Catch for Get-EOPIPs
+- Fixed an Error with DKIM Checks
+
 V2.0.10 13.07.2023
 - Added Check for EOP Relay Pool 40.95.0.0/16
 - Fixes some Issues with DKIM and DMARC Checks
