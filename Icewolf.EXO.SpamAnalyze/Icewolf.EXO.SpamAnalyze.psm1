@@ -30,6 +30,9 @@
 # - Added Check for EOP Relay Pool 40.95.0.0/16
 # - Fixes some Issues with DKIM and DMARC Checks
 # - General Cleanup of Module
+# V2.0.11 17.07.2024
+# - Added Try Catch for Get-EOPIPs
+# - Fixed an Error with DKIM Checks
 ##############################################################################
 #Requires -Modules ExchangeOnlineManagement
 
@@ -70,10 +73,18 @@ Function Get-EOPIPs {
 	#Create GUID
 	$ClientRequestId = ([guid]::NewGuid()).Guid
 	
-	#Get Exchange Endpoints
-	$uri = "https://endpoints.office.com/endpoints/worldwide?ServiceAreas=Exchange&NoIPv6=true&ClientRequestId=$ClientRequestId"
-	#"DEBUG: URL $uri"
-	$Result = Invoke-RestMethod -Method GET -uri $uri
+	Try {
+		#Get Exchange Endpoints
+		$uri = "https://endpoints.office.com/endpoints/worldwide?ServiceAreas=Exchange&NoIPv6=true&ClientRequestId=$ClientRequestId"
+		#"DEBUG: URL $uri"
+		$Result = Invoke-RestMethod -Method GET -uri $uri
+	} catch {
+		if($_.ErrorDetails.Message) {
+			Write-Host $_.ErrorDetails.Message
+		} else {
+			Write-Host $_
+		}
+	}
 
 	#EOP IP's
 	$EOPAddresses = ($Result | Where-Object {$_.urls -match "mail.protection.outlook.com"}).ips | Sort-Object -Unique
@@ -625,8 +636,7 @@ Process {
 						try {
 							$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$SenderDomain&type=TXT"
 							$TXT = $json.Answer.data
-							$TXT = $TXT | Where-Object {$_ -match "v=spf1"}
-							$SPF = $TXT
+							$SPF = $TXT | Where-Object {$_ -match "v=spf1"}
 							If ($Null -eq $SPF)
 							{
 								Write-Host "NO SPF Record found" -ForegroundColor Yellow
@@ -646,13 +656,20 @@ Process {
 						try {
 							$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=Selector1._domainkey.$SenderDomain&type=CNAME"
 							$DKIM1 = $json.Answer.data
-							$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$DKIM1&type=TXT"
-							$DKIM1 = $json.Answer.data | Where-Object {$_ -match "v=DKIM1"}
+							If ($Null -ne $DKIM1)
+							{
+								$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$DKIM1&type=TXT"
+								$DKIM1 = $json.Answer.data | Where-Object {$_ -match "v=DKIM1"}
+							}
+
 							
 							$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=Selector2._domainkey.$SenderDomain&type=CNAME"
 							$DKIM2 = $json.Answer.data
-							$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$DKIM2&type=TXT"
-							$DKIM2 = $json.Answer.data | Where-Object {$_ -match "v=DKIM1"}
+							If ($Null -ne $DKIM1)
+							{
+								$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$DKIM2&type=TXT"
+								$DKIM2 = $json.Answer.data | Where-Object {$_ -match "v=DKIM1"}
+							}
 							[string]$DKIM = "$DKIM1 $DKIM2"					
 							If ($DKIM -eq " ")
 							{

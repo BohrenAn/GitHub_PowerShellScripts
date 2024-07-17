@@ -8,7 +8,7 @@
 RootModule = 'Icewolf.EXO.SpamAnalyze.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.0.10'
+ModuleVersion = '2.0.11'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -107,18 +107,9 @@ PrivateData = @{
         ReleaseNotes = '
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
-V2.0.10 13.07.2023
-- Added Check for EOP Relay Pool 40.95.0.0/16
-- Fixes some Issues with DKIM and DMARC Checks
-- General Cleanup of Module
-
-V2.0.9 09.02.2022
-- Addet Reverse Lookup and EOP IP Checks (Special thanks to @SchaedlerDaniel)
-- Checks for Transport Rule with SCL-1
-
-V2.0.8
-- Requires now ExchangeOnlineManagement 3.0.0
-- Addet TentantAllowBlockList checks
+V2.0.11 17.07.2024
+- Added Try Catch for Get-EOPIPs
+- Fixed an Error with DKIM Checks
 ---------------------------------------------------------------------------------------------		
 '
 
