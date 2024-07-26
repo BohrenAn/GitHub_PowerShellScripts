@@ -57,7 +57,7 @@
 .LICENSEURI
 .PROJECTURI https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 .ICONURI
-.EXTERNALMODULEDEPENDENCIES 
+.EXTERNALMODULEDEPENDENCIES
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
@@ -66,7 +66,7 @@ Version 1.14
 #>
 
 <#
-.SYNOPSIS 
+.SYNOPSIS
 Script written by Andres Bohren https://blog.icewolf.ch / a.bohren@icewolf.ch
 
 This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
@@ -93,26 +93,26 @@ It checks for the following Information
 - M365 TenantID
 - Security.txt https://securitytxt.org/
 
-.DESCRIPTION 
+.DESCRIPTION
 This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
 Most of the Querys are simple DNS Querys (NS, MX, SPF, DKIM, DMARC, BIMI, MTA-STS, TLSRPT).
 The Script uses also DNS over HTTP for several checks (ZoneSigned, TLSA Record for DANE).
 Also some Webrequests are required for MTA-STS, TenantID (OIDC), Security.txt.
 And connects via SMTP to check if the Server supports STARTTLS.
 
-.NOTES 
+.NOTES
 Note that DKIM is hard to query, because the Selector can be literally anything.
 
-.LINK 
+.LINK
 Script is published here:
 https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 
-.EXAMPLE 
+.EXAMPLE
 Get-Mailprotection.ps1 -Domain icewolf.ch
 $Result = Get-Mailprotection.ps1 -Domain icewolf.ch -ReturnObject $True
 $Result = Get-Mailprotection.ps1 -Domain icewolf.ch -SMTPConnect $False -ReturnObject $True
 
-.PARAMETER Domain 
+.PARAMETER Domain
 Mandatory Parameter. You need to specify a Domain as a string Value
 domain.tld or subdomain.domain.tld
 
@@ -126,7 +126,7 @@ You can add the Parameter -ReturnObject $True
 
 .PARAMETER Silent
 Optional Parameter. You can specify to not get an Output to the Console. Per Default this Setting is FALSE.
-You can add the Parameter -Silent $True. 
+You can add the Parameter -Silent $True.
 Can be helpful if you use it with the -ReturnObject $True
 #>
 
@@ -142,8 +142,8 @@ PARAM (
 	# Function Invoke-STARTTLS
 	###############################################################################
 	# Connect to SMTP Server, check for STARTTLS and then get the Certificate
-	# Based on Code from Glen Scales 
-	#	  https://github.com/gscales/Powershell-Scripts/blob/master/TLS-SMTPMod.ps1
+	# Based on Code from Glen Scales
+	# https://github.com/gscales/Powershell-Scripts/blob/master/TLS-SMTPMod.ps1
 	# 29.06.2021 V1.0 Andres Bohren - Initial Version
 	# 02.08.2022 V1.1 Thomas Nolte - Add optonal ignoring of certifcation errors
 	# 01.10.2022 V1.2 Andres Bohren - Fixed an error when connection was not sucessful
@@ -171,7 +171,7 @@ PARAM (
 			$stream.WriteTimeout = 500
 			$streamWriter.AutoFlush = $true
 
-			$Callback = {param($sender,$cert,$chain,$errors) return $true}
+			$Callback = {param($objsender,$cert,$chain,$errors) return $true}
 			$sslStream = New-Object System.Net.Security.SslStream($stream, $false, $Callback)
 
 			$sslStream.ReadTimeout = 500
@@ -382,7 +382,7 @@ Function Get-MailProtection
 			$URI = "https://dns.google/resolve?name=$MXEntry&type=A"
 			$json = Invoke-RestMethod -URI $URI
 			$MXIP = $json.Answer.Data
-			
+
 			#Foreach ($IP in $MXIP.IPAddress)
 			Foreach ($IP in $MXIP)
 			{
@@ -418,7 +418,7 @@ Function Get-MailProtection
 				} catch {
 					$PortOpened = $false
 				}
-				#$PortOpened 
+				#$PortOpened
 
 				If ($PortOpened -eq $true)
 				{
@@ -458,7 +458,7 @@ Function Get-MailProtection
 					Write-Host "StatusDescription:" $_.Exception.Response.StatusDescription -ForegroundColor Yellow
 					Write-Host "Query:" $TLSAQuery -ForegroundColor Yellow
 				}
-			} 
+			}
 			If ($null -ne $json.Answer.data)
 			{
 				#DANE Found
@@ -468,7 +468,6 @@ Function Get-MailProtection
 				$DANECount = $DANECount + 1
 				$DANERecord = $DANERecord + $TLSA
 			}
-			
 		}
 	}
 
@@ -532,9 +531,9 @@ Function Get-MailProtection
 
 	#$TXT = Resolve-DnsName -Name $Domain -Type TXT -ErrorAction SilentlyContinue
 	#$SPFRecord = $TXT.strings -match "v=spf"
-	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$Domain&type=TXT" 
+	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$Domain&type=TXT"
 	$SPFRecord = $json.Answer.data | Where-Object {$_ -like "V=SPF1*"}
-	If ($SPFRecord.Count -eq 0) 
+	If ($SPFRecord.Count -eq 0)
 	{
 		$SPFRecord = $NULL
 	} else {
@@ -568,7 +567,7 @@ Function Get-MailProtection
 	$DomainKeySupport = $False
 	<#
 	#$Domainkey = Resolve-DnsName -Name $dnshost -Type TXT -ErrorAction SilentlyContinue
-	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$dnshost&type=TXT" 
+	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$dnshost&type=TXT"
 	$SPFRecord = $json.Answer.data | Where-Object {$_ -like "V=SPF1*"}
 	Foreach ($Key in $DomainKey)
 	{
@@ -627,7 +626,7 @@ Function Get-MailProtection
 	{
 		Write-Host "Check: DMARC" -ForegroundColor Green
 	}
-	
+
 	$dnshost = "_dmarc." + $Domain
 	#Write-Host "DNSHOST: " $dnshost
 	#$DMARC = Resolve-DnsName -Name $dnshost -Type TXT -ErrorAction SilentlyContinue
@@ -662,7 +661,7 @@ Function Get-MailProtection
 	{
 		Write-Host "Check: MTA-STS" -ForegroundColor Green
 	}
-	#mta-sts.domain.de/.well-known/mta-sts.txt	
+	#mta-sts.domain.de/.well-known/mta-sts.txt
 	#https://mta-sts.dmarcian.com/.well-known/mta-sts.txt
 	#$Domain = "dmarcian.com"
 	#$Domain = "google.com"
@@ -775,7 +774,7 @@ Function Get-MailProtection
 		{
 			$LyncDiscoverA = $json.answer.Data[0]
 		}
-		
+
 		If ($Null -ne $LyncDiscoverA)
 		{
 			$LyncDiscoverA = $LyncDiscoverA.Substring(0,$LyncDiscoverA.Length-1)
@@ -808,10 +807,10 @@ Function Get-MailProtection
 		Write-Host "Check: M365 Tenant (OpenIDConnect)" -ForegroundColor Green
 	}
 	try {
-		#$TenantID = (Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration|ConvertFrom-Json).token_endpoint.Split('/')[3] 
+		#$TenantID = (Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration|ConvertFrom-Json).token_endpoint.Split('/')[3]
 		$Response = Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration -TimeoutSec 1
 		$TenantID = ($Response | ConvertFrom-Json).token_endpoint.Split('/')[3]
-		$M365 = $True 
+		$M365 = $True
 
 	} catch {
 		#If ($Silent -ne $True)
@@ -820,7 +819,7 @@ Function Get-MailProtection
 		#}
 		#$TenantID = "NULL"
 		$TenantID = $Null
-		$M365 = $False 
+		$M365 = $False
 	}
 
 	## Check for https://securitytxt.org/
