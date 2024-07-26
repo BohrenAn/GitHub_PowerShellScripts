@@ -10,18 +10,18 @@
 # Remove-MAPIPermission
 ##############################################################################
 Function Remove-MAPIPermission {
-<# 
+<#
 .SYNOPSIS
 	Simple way of removing MAPI Permissions from a Mailbox for the default Folders (Inbox, Calendar, Notes, Tasks, Contacts, SentItems, DeletedItems)
 	Also takes care of the 'FolderVisible' Permission in the Root Folder of the Mailbox.
-	
+
 .DESCRIPTION
 	Remove MAPI Permission from a specific User
 	Remove-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.ch -User erika.mustermann@yourdomain.com -Folder Inbox -RemoveSendOnBehalf $true
 
 .PARAMETER Mailbox
 	The mailbox on which the permission will be removed
-	
+
 .PARAMETER User
 	The User which permissions will be removed
 
@@ -55,7 +55,6 @@ Function Remove-MAPIPermission {
 	Boolean Value (True/False) if the User will also be removed from the "SendOnBehalf" Permission
 	Only works if the User is directly assigned. Will not work if he is in Member of an assigned Group.
 
-	
 .EXAMPLE
 	Remove-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -Folder Inbox
 	Remove-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -Folder Calendar [-IncludeSubfolders $true] [-ExcludeFolders john.doe@yourdomain.com:\Inbox\Subfolder1] [-RemoveSendOnBehalf $true] [-DeleteRootFolderPermission $true]
@@ -97,7 +96,7 @@ Function Remove-MAPIPermission {
 	$FunctionResult = Get-RecipientType -Emailaddress $User
 	If ($FunctionResult[0] -eq $false)
 	{
-		Write-Host "User Recipient not found. Please Enter a valid User Emailaddress ($User)" -ForegroundColor Yellow		
+		Write-Host "User Recipient not found. Please Enter a valid User Emailaddress ($User)" -ForegroundColor Yellow
 		$readhost = Read-Host "Maybe it's a deleted Mailbox. Do you want to continue? (y/n)[n]?"
 		if ($readhost -eq "y")
 		{
@@ -105,7 +104,7 @@ Function Remove-MAPIPermission {
 			$TrusteePrimarySMTPAddress = $User
 			$TrusteeDisplayName = $User
 			$TrusteeAlias = $User
-		} Else {		
+		} Else {
 			Write-Host "The script will be ended right now." -ForegroundColor Yellow
 			Break
 		}
@@ -116,14 +115,14 @@ Function Remove-MAPIPermission {
 		$TrusteeDisplayName = $FunctionResult[3]
 		$TrusteeAlias = $FunctionResult[4]
 	}
-	
+
 	#Check Foldertype Input and Parse to foldername
 	Write-Host "Checking Parameter Folder: $Folder"
 	If ($Folder -ne $null)
 	{
-		$Folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*" -AND $_.FolderType -NotLike "Yammer*" -AND $_.FolderType -NotLike "BirthdayCalendar"}		
+		$Folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*" -AND $_.FolderType -NotLike "Yammer*" -AND $_.FolderType -NotLike "BirthdayCalendar"}
 
-		switch ($Folder) 
+		switch ($Folder)
 		{
 			"Inbox"
 			{
@@ -192,7 +191,7 @@ Function Remove-MAPIPermission {
 		Write-Host "Configure RootFolder Permission"
 
 		$FolderPermissions = Get-MailboxFolderPermission $Mailbox":\"
-	
+
 		[bool]$RootPermissionFound = $false
 		Foreach ($Line in $FolderPermissions)
 		{
@@ -234,7 +233,7 @@ Function Remove-MAPIPermission {
 			$AccessRight = $Line.AccessRights
 			Write-Host "REMOVE: "$Mailbox":\$CustomFolderName > $AccessRight > $TrusteePrimarySMTPAddress" -ForegroundColor Green
 			Remove-MailboxFolderPermission -Identity $Mailbox":\$CustomFolderName" -User $User -Confirm:$false | Out-Null
-			
+
 			#Exit Foreach
 			Break
 		}
@@ -265,7 +264,6 @@ Function Remove-MAPIPermission {
 					{
 						$ExcludeFolderMatch = $True
 					}
-					
 				}
 
 				If ($ExcludeFolderMatch -eq $true)
@@ -283,7 +281,6 @@ Function Remove-MAPIPermission {
 							$AccessRight = $Line.AccessRights
 							Write-Host "REMOVE: $FolderName > $AccessRight > $User" -ForegroundColor Green
 							Remove-MailboxFolderPermission -Identity $FolderID -User $TrusteePrimarySMTPAddress -Confirm:$false
-							
 						}
 					}
 				}
@@ -298,9 +295,9 @@ Function Remove-MAPIPermission {
 	{
 		Write-Host "Configure SendOnBehalf"
 
-		#Get Users in Send On Behalf and Add to Array	
+		#Get Users in Send On Behalf and Add to Array
 		$SOB = Get-Mailbox $Mailbox | Select-Object GrantSendOnBehalfTo
-		
+
 		[System.Collections.ArrayList]$SendOnBehalfArr = @()
 		Foreach ($Entry in $SOB.GrantSendOnBehalfTo)
 		{
@@ -310,7 +307,7 @@ Function Remove-MAPIPermission {
 			{
 				#Add to Array
 				$SendOnBehalfArr.Add($PrimarySMTPAddress) | Out-Null
-			} 
+			}
 		}
 
 		Write-Host "REMOVE Send on Behalf to $Mailbox for $TrusteePrimarySMTPAddress" -ForegroundColor Green

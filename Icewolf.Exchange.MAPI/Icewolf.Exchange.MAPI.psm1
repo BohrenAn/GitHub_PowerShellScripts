@@ -34,7 +34,7 @@ Function Get-RecipientType {
 	Param(
 	[parameter(Mandatory=$true)][String]$Emailaddress
 	)
-	
+
 	Try {
 		#Define Return Array with 4 values
 		$returnArray = @()
@@ -51,7 +51,6 @@ Function Get-RecipientType {
 			#No Object found
 			#Write-Host "no object found"
 			$returnArray[0] = $false
-		
 		} else {
 			#Object found - check if it is User Mailbox or Mail Enabled Security Group (Universal)
 			if ($result.RecipientTypeDetails -eq "UserMailbox" -or $result.RecipientTypeDetails -eq "MailUniversalSecurityGroup")
@@ -69,7 +68,6 @@ Function Get-RecipientType {
 	} catch {
 		write-host "ERROR: An error has occurred: `r`n $_.Exception.Message" -ForegroundColor Red
 	}
-	
 	return $returnarray
 }
 
@@ -81,7 +79,7 @@ Function Get-EmailaddressFromAlias {
 	Param(
 	[parameter(Mandatory=$true)][String]$Alias
 	)
-	
+
 	$Recipient = Get-Recipient $Alias
 	$PrimarySmtpAddress = ($Recipient.PrimarySmtpAddress).ToString()
 	Return $PrimarySmtpAddress
@@ -102,7 +100,7 @@ Function Test-ExchangeConnection {
 			} else {
 				Write-Verbose "Connected with Exchange OnPrem"
 			}
-			
+
 			#Exchange Connection found
 			return $true
 		} else {

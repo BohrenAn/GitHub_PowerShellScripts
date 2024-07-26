@@ -9,11 +9,11 @@
 
 Function Add-MAPIPermission {
 
-<# 
+<#
 .SYNOPSIS
 	Simple way of adding MAPI Permissions to a Mailbox for the default Folders (Inbox, Calendar, Notes, Tasks, Contacts)
 	Also takes care of the 'FolderVisible' Permission in the Root Folder of the Mailbox.
-	
+
 .DESCRIPTION
 	Adding Exchange MAPI Folderpermissions
 	Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-IncludeSubfolders $false] [-SendOnBehalf $true]
@@ -73,20 +73,20 @@ Function Add-MAPIPermission {
 	- Owner
 	- PublishingEditor
 	- PublishingAuthor
-	
+
 .PARAMETER IncludeSubfolders
 	Boolean Value (True/False) if MAPI Permission is applied on all Subfolders
-	
+
 .PARAMETER SendOnBehalf
 	Boolean Value (True/False) if the User is also granted the "SendOnBehalf" Permission
-	
+
 .EXAMPLE
 	Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Calendar [-includeSubfolders $true]
 	Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-includeSubfolders $true] [-ExcludeFolders john.doe@yourdomain.com:\Inbox\Subfolder1] [-SendOnBehalf $true]
 
 	$ExcludeFolders = @("john.doe@yourdomain.com:\Inbox\Subfolder1","john.doe@yourdomain.com:\Inbox\Subfolder2")
 	Add-MAPIPermission.ps1 -Mailbox john.doe@yourdomain.com -User erika.mustermann@yourdomain.com -AccessRight Reviewer -Folder Inbox [-includeSubfolders $true] [-ExcludeFolders $ExcludeFolders] [-SendOnBehalf $true]
-	
+
 #>
 
 	Param(
@@ -125,7 +125,7 @@ Function Add-MAPIPermission {
 		Write-Host "User Recipient not found. Please Enter a valid User Emailaddress ($User)" -ForegroundColor Yellow
 		Write-Host "The Script will be ended right now." -ForegroundColor Yellow
 		Break
-	} else {		
+	} else {
 		$TrusteeRecipientType = $FunctionResult[1]
 		$TrusteePrimarySMTPAddress = $FunctionResult[2]
 		$TrusteeDisplayName = $FunctionResult[3]
@@ -138,9 +138,9 @@ Function Add-MAPIPermission {
 	{
 		$Folderstats = Get-MailboxFolderStatistics -Identity $Mailbox | Where-Object {$_.FolderType -ne "CalendarLogging" -AND $_.FolderType -NotLike "Recoverable*" -AND $_.FolderType -NotLike "Yammer*" -AND $_.FolderType -NotLike "BirthdayCalendar"}
 
-		switch ($Folder) 
+		switch ($Folder)
 		{
-			"Inbox" 
+			"Inbox"
 			{
 				$InboxObject = $folderstats | Where-Object FolderType -eq "Inbox"
 				$CustomFolderName = $InboxObject.Name
@@ -159,7 +159,6 @@ Function Add-MAPIPermission {
 			{
 				$TaskObject = $folderstats | Where-Object FolderType -eq "Tasks"
 				$CustomFolderName = $TaskObject.Name
-		   
 			}
 			"Contacts"
 			{
@@ -202,8 +201,8 @@ Function Add-MAPIPermission {
 	#Check Access Right Parameter
 	Write-Host "Checking Parameter AccessRight: $AccessRight"
 	switch ($AccessRight)
-	{ 
-		"Reviewer" {} 
+	{
+		"Reviewer" {}
 		"Contributor" {}
 		"Author" {}
 		"Editor" {}
@@ -217,13 +216,13 @@ Function Add-MAPIPermission {
 			Break
 		}
 	}
- 
+
 	###########################################################################
 	#Root Folder Permission
 	###########################################################################
 	Write-Host "Configure RootFolder Permission"
 	$FolderPermissions = Get-MailboxFolderPermission $Mailbox":\"
-	
+
 	[bool]$RootPermissionFound = $false
 	Foreach ($Line in $FolderPermissions)
 	{
@@ -239,10 +238,9 @@ Function Add-MAPIPermission {
 				$RootPermissionFound = $true
 				#AccessRight
 			}
-			
 		}
 	}
-	
+
 	If ($RootPermissionFound -eq $false)
 	{
 		#Add Prmission
@@ -256,7 +254,7 @@ Function Add-MAPIPermission {
 	Write-Host "Configure Folder <$Folder> Permission"
 	$FolderPermissions = Get-MailboxFolderPermission $Mailbox":\$CustomFolderName"
 	$UserMBXFolderIsNotSet=$true
-		
+
 	#Check if User is already in the User Array for that Folder
 	Foreach ($Line in $FolderPermissions)
 	{
@@ -264,13 +262,13 @@ Function Add-MAPIPermission {
 		{
 			Write-Host "SET: "$Mailbox":\$CustomFolderName > $AccessRight > $User" -ForegroundColor Green
 			Set-MailboxFolderPermission -Identity $Mailbox":\$CustomFolderName" -User $User -AccessRights $AccessRight -WarningAction SilentlyContinue | Out-Null
-			
+
 			#Exit Foreach
 			$UserMBXFolderIsNotSet=$false
 			Break
 		}
 	}
-	
+
 	#User is not in the User List Array for that Folder
 	if ($UserMBXFolderIsNotSet)
 	{
@@ -287,7 +285,7 @@ Function Add-MAPIPermission {
 		foreach ($SubFolder in $folderstats)
 		{
 			$SubFolderIdentity = $SubFolder.identity
-			if ($SubFolderIdentity -match "$Mailbox\\$CustomFolderName\\")			
+			if ($SubFolderIdentity -match "$Mailbox\\$CustomFolderName\\")
 			{
 				#Check for Exclude Folder
 				$ExcludeFolderMatch = $False
@@ -302,7 +300,6 @@ Function Add-MAPIPermission {
 					{
 						$ExcludeFolderMatch = $True
 					}
-					
 				}
 
 				If ($ExcludeFolderMatch -eq $true)
@@ -328,8 +325,8 @@ Function Add-MAPIPermission {
 					if ($UserMBXSubFolderIsNotSet)
 					{
 						#Folder should not be a Holiday-Calendar/Logging
-						switch ($Foldername) 
-						{ 
+						switch ($Foldername)
+						{
 							{$_ -match " holidays "} {Write-Verbose "Holiday Calendar ENG"} #ENG
 							{$_ -match "Feiertage "} {Write-Verbose "Holiday Calendar GER"} #GER
 							{$_ -match " fériés "} {Write-Verbose "Holiday Calendar FRA"} #FRA
@@ -367,7 +364,7 @@ Function Add-MAPIPermission {
 
 		#Get Users in Send On Behalf and Add to Array
 		$SOB = Get-Mailbox $Mailbox | Select-Object GrantSendOnBehalfTo
-		
+
 		#Check if User is already on the List
 		[Bool]$SOBAlreadyMember = $False
 		[System.Collections.ArrayList]$SendOnBehalfArr = @()

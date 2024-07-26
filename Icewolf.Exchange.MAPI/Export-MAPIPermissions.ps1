@@ -6,10 +6,10 @@
 ##############################################################################
 Function Export-MAPIPermission
 {
-<# 
+<#
 .SYNOPSIS
 	Simple way for Exporting MAPI Permissions to a CSV File (with ";" separator)
-	
+
 .DESCRIPTION
 	Export MAPI Permissions
 	Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv
@@ -34,12 +34,12 @@ Function Export-MAPIPermission
 .PARAMETER FilePath
 	Full File Path to a File "C:\temp\john.doe.csv"
 
-.EXAMPLE	
+.EXAMPLE
 	Here are some examples:
 
 	#Export Permissions of all Folders of a Mailbox
 	Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv
-	
+
 	#Export Permissions of a specific FolderScope
 	Export-MAPIPermission -Mailbox john.doe@yourdomain.com -FilePath C:\temp\john.doe.csv -Folder Calendar
 
@@ -55,9 +55,9 @@ Function Export-MAPIPermission
 	[parameter(mandatory=$true)][string]$FilePath
 	)
 
-	#Check Exchange Online Connection	
+	#Check Exchange Online Connection
 	$Return = Test-ExchangeConnection
-	If ($Return -eq $false) 
+	If ($Return -eq $false)
 	{
 		Write-host "Not connected to Exchange or Exchange Online. Please connect first to Exchange or Exchange Online." -ForegroundColor Red
 		Break
@@ -96,7 +96,7 @@ Function Export-MAPIPermission
 	If ($Folder -ne "")
 	{
 		Write-Host "Checking Parameter Folder: $Folder"
-		switch ($Folder) 
+		switch ($Folder)
 		{
 			"Inbox"	{}
 			"Calendar" {}
@@ -136,7 +136,7 @@ Function Export-MAPIPermission
 			$Foldername = $Line.Identity.replace($Line.Identity, $Mailbox + ":\")
 			$FolderId = $Mailbox + ":" + $Line.FolderId
 		}
-		else 
+		else
 		{
 			$Foldername = $Line.Identity.replace($Mailbox,$Mailbox +":")
 			$FolderId = $Mailbox + ":" + $Line.FolderId
@@ -145,21 +145,21 @@ Function Export-MAPIPermission
 		Write-Host "Working on Folder: $foldername"
 		Write-Verbose "FolderID: $FolderID"
 		$FolderPermissions = Get-MailboxFolderPermission -Identity "$FolderId"
-		
+
 		foreach ($FP in $FolderPermissions)
 		{
 			#if default user
-			if ($Null -eq $FP.user.adrecipient) 
+			if ($Null -eq $FP.user.adrecipient)
 			{
 				$User = $FP.user.DisplayName
 				$Accessrights = $FP.accessrights
 			}
-			else 
+			else
 			{
 				$User = $FP.user.adrecipient.userprincipalname
 				$Accessrights = $FP.accessrights
 			}
-			
+
 			#Write into Export File
 			#Check if Default Permissions should be exported
 			If ($ExportDefaultPermissions -eq $false)
@@ -173,7 +173,6 @@ Function Export-MAPIPermission
 			} else {
 				Add-Content -Path $FilePath -Value "$Foldername;$User;$Accessrights" -Encoding utf8
 			}
-			
 		}
 	}
 

@@ -116,7 +116,7 @@ PrivateData = @{
 Whats new in this release:
 V0.5.0
 - Added ValidateSet to Folder Parameter
----------------------------------------------------------------------------------------------		
+---------------------------------------------------------------------------------------------
 '
 
 		# Prerelease string of this module
