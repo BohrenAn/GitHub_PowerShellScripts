@@ -1,5 +1,5 @@
 ##############################################################################
-# Invoke-SpamAnalyze.ps1 
+# Invoke-SpamAnalyze.ps1
 # Get SPAM Detail Info for Specific MessageTraceID in MessageTrace
 # V2.0.0 04.05.2021 - Andres Bohren / Initial Version
 # V2.0.1 07.05.2021 - Andres Bohren / Bugfixes
@@ -9,7 +9,7 @@
 # V2.0.5 23.12.2021 - Andres Bohren / Bugfixes Improvements
 # V2.0.6 01.03.2022 - Andres Bohren / Added dependency Module ExchangeOnlineManagement
 # V2.0.7-Alpha 10.03.2022 - Andres Bohren / Added Error Handling (Try / Catch) for DNS over HTTPS Querys
-# - DNS Query changed from Cloudflare to Google 
+# - DNS Query changed from Cloudflare to Google
 #   https://developers.google.com/speed/public-dns/docs/doh
 #   https://developers.google.com/speed/public-dns/docs/doh/json
 # - Subject is Limited to 20 Characters, so the MessageTraceId is still visible at long Subjects
@@ -31,7 +31,7 @@
 # - Fixes some Issues with DKIM and DMARC Checks
 # - General Cleanup of Module
 # V2.0.11 17.07.2024
-# - Added Try Catch for Get-EOPIPs
+# - Added Try Catch for Get-EOPIP
 # - Fixed an Error with DKIM Checks
 ##############################################################################
 #Requires -Modules ExchangeOnlineManagement
@@ -69,10 +69,10 @@ Function Test-IPv4InCIDRRange {
 	return ($f -le $tg) -and ($t -ge $tg)
 }
 
-Function Get-EOPIPs {
+Function Get-EOPIP {
 	#Create GUID
 	$ClientRequestId = ([guid]::NewGuid()).Guid
-	
+
 	Try {
 		#Get Exchange Endpoints
 		$uri = "https://endpoints.office.com/endpoints/worldwide?ServiceAreas=Exchange&NoIPv6=true&ClientRequestId=$ClientRequestId"
@@ -94,20 +94,21 @@ Function Get-EOPIPs {
 Function Invoke-SpamAnalyze
 {
 
-<# 
+<#
 .SYNOPSIS
-		
+	Get SPAM Detail Info for Specific MessageTraceID in MessageTrace
+
 .DESCRIPTION
 	Get SPAM Detail Info for Specific MessageTraceID in MessageTrace. Searches automatically in the last 10 Days.
 
-.PARAMETER Recipientaddress 
+.PARAMETER Recipientaddress
 	The Emailaddress of the Recipient
 
-.PARAMETER SenderAddress 
+.PARAMETER SenderAddress
 	The Emailadress of the Sender
 
 	.EXAMPLE
-.\Invoke-SpamAnalyze -SenderAddress SenderAddress@domain.tld -RecipientAddress RecipientAddress@domain.tld 
+.\Invoke-SpamAnalyze -SenderAddress SenderAddress@domain.tld -RecipientAddress RecipientAddress@domain.tld
 
 .LINK
 #>
@@ -116,7 +117,7 @@ Param(
 	[parameter(Mandatory=$true)][String]$RecipientAddress,
 	[parameter(Mandatory=$true)][String]$SenderAddress
 	)
-	
+
 Begin {
 	##############################################################################
 	# Connect to Exchange Online
@@ -136,13 +137,11 @@ Begin {
 	##############################################################################
 	# Disconnect from Exchange Online
 	##############################################################################
-	Function Disconnect-EXO 
+	Function Disconnect-EXO
 	{
 				Write-Host "Disconnect from Exchange Online" -ForegroundColor Gray
 				Disconnect-ExchangeOnline -Confirm:$false
-				
 	}
-	
 
 	##############################################################################
 	# Check MessageTraceDetail
@@ -153,8 +152,8 @@ Begin {
 			[parameter(Mandatory=$false)][String]$SenderAddress,
 			[parameter(Mandatory=$true)][String]$MessageTraceId
 			)
-		
-		$Start = (Get-Date).AddDays(-10) 
+
+		$Start = (Get-Date).AddDays(-10)
 		$End = (Get-Date)
 
 		Write-Host "Message events:" -ForegroundColor Magenta
@@ -165,24 +164,24 @@ Begin {
 			Write-Host "Failed-Event: " -ForegroundColor Magenta
 			Write-Host (" Action:			" +$MTEventFail.action )
 			Write-Host
-		}		
+		}
 		$MTEventMal = $MTDetail | Where-Object {$_.event -eq "Malware"}
 		If ($Null -ne $MTEventMal) {
 			Write-Host "Malware-Event: " -ForegroundColor Magenta
 			Write-Host (" Action:			" +$MTEventMal.action )
 			Write-Host
 		}
-		
+
 		#Send External / Extern senden
-		$MTEventExternal = $MTDetail | Where-Object {$_.event -match "Extern"} 
-		If ($Null -ne $MTEventExternal) 
+		$MTEventExternal = $MTDetail | Where-Object {$_.event -match "Extern"}
+		If ($Null -ne $MTEventExternal)
 		{
 			Foreach ($SendExternal in $MTEventExternal)
 			{
 				Write-Host "Send External: " -ForegroundColor Magenta
 				[xml]$xmlE =$MTEventExternal.Data
 				#$xmlE.root.MEP
-			
+
 				$Items = $xmle.root.MEP.Count -1
 				for ($i=0; $i -lt$Items; $i++)
 				{
@@ -197,17 +196,16 @@ Begin {
 						foreach ($Line in $blob)
 						{
 							Write-Host " $Line"
-						}						
+						}
 					} else {
 						Write-Host " $ItemName : $ItemValue"
 					}
-					
 				}
 			}
 		}
 
 		$MTEventSPM = $MTDetail | Where-Object {$_.event -eq "Spam"} | Select-Object -uniq
-		# SPAM Detail		
+		# SPAM Detail
 		If ($Null -ne $MTEventSPM) {
 			Write-Host "SPAM-Event: " -ForegroundColor Magenta
 			Write-Host (" Action:			" +$MTEventSPM.action )
@@ -252,7 +250,7 @@ Begin {
 			}
 			Write-Host (" SpamConfidenceLevel (SCL):	"+$SCL.Integer +"	Deliver to: " +$Folder +")") -ForegroundColor $cSCL
 			Write-Host (" SpamScoreLevel (Score):	"+$Score.Integer )
-			switch ($SFV.String) 
+			switch ($SFV.String)
 			{
 				"BLK" { $SFV = "(BLK)	Filtering was skipped and the message was blocked because it originated from a blocked sender" }
 				"NSPM" { $SFV = "(NSPM)	The message was marked as non-spam and was sent to the intended recipients" }
@@ -264,10 +262,9 @@ Begin {
 				"SKQ" { $SFV = "(SKQ) The message was released from the quarantine and was sent to the intended recipients"}
 				"SKS" { $SFV = "(SKS)	The message was marked as spam prior to being processed by the content filter" }
 				"SPM" { $SFV = "(SPM)	The message was marked as spam by spam filtering" }
-							
 			}
 
-			Write-Host (" SpamFilterVerdikt (SFV):	" +$SFV)			
+			Write-Host (" SpamFilterVerdikt (SFV):	" +$SFV)
 			#EOP
 			#"40.92.0.0/15" --> 40.92.0.1 - 40.93.255.254
 			#"40.107.0.0/16" --> 40.107.0.1 - 40.107.255.254
@@ -277,7 +274,7 @@ Begin {
 			{
 				$IP = [IPAddress] $($ClientIP.String)
 				#Check if IP is in EOP CIDR Range
-				$EOPIPArray = Get-EOPIPs
+				$EOPIPArray = Get-EOPIP
 				foreach ($CIDR in $EOPIPArray)
 				{
 					If ((Test-IPv4InCIDRRange -TargetIP $IP -CIDRNetwork $CIDR) -eq $True)
@@ -293,12 +290,12 @@ Begin {
 				Write-Host (" SenderClientIP (CIP):		" +$ClientIP.String + " --> EOP Relay Pool") -ForegroundColor Yellow
 			} else {
 				Write-Host (" SenderClientIP (CIP):		" +$ClientIP.String)
-			}			
+			}
 			Write-Host (" Country (CTRY):		" +$Country.String)
 			Write-Host (" HeloString (H):		" +$HeloString.String)
 			Write-Host (" ReturnPath:			" +$ReturnPath.String)
 			Write-Host (" Language:			" +$Language.String)
-			
+
 			$ReverseDNSLookup = Resolve-DnsName $($ClientIP.String)
 			If ($Null -ne $ReverseDNSLookup)
 			{
@@ -306,7 +303,7 @@ Begin {
 			} else {
 				Write-Host (" ReverseLookup:			 N/A") -ForegroundColor Yellow
 			}
-			Write-Host	
+			Write-Host
 
 		} Else {
 			Write-Host "SPAM-Event: " -ForegroundColor Magenta
@@ -340,7 +337,7 @@ Process {
 	#Check if Messagetrace is available
 	Try {
 		Get-Command Get-MessageTrace -ErrorAction Stop | Out-Null
-	} catch { 
+	} catch {
 		Write-Host "No Permission for the Command: Get-MessageTrace. Stopping script."
 		#exit
 		Break
@@ -349,19 +346,19 @@ Process {
 	#Set Start- and Enddate for Messagetrace
 	$Start = ((Get-Date).AddDays(-10))
 	$End = Get-Date
-	
+
 	#Messagetrace depending on Parameters
 	If ($SenderAddress -ne $Null)
 	{
 		If ($RecipientAddress -ne $Null)
 		{
-			$MT = Get-MessageTrace -StartDate (get-date).AddDays(-10) -EndDate (get-date) -SenderAddress $SenderAddress -RecipientAddress $RecipientAddress 
+			$MT = Get-MessageTrace -StartDate (get-date).AddDays(-10) -EndDate (get-date) -SenderAddress $SenderAddress -RecipientAddress $RecipientAddress
 		} else {
-			$MT = Get-MessageTrace -StartDate (get-date).AddDays(-10) -EndDate (get-date) -SenderAddress $SenderAddress 
+			$MT = Get-MessageTrace -StartDate (get-date).AddDays(-10) -EndDate (get-date) -SenderAddress $SenderAddress
 		}
 	} else {
 		#SenderAddress = $Null / RecipientAddress populated
-		$MT = Get-MessageTrace -StartDate (get-date).AddDays(-10) -EndDate (get-date) -RecipientAddress $RecipientAddress  
+		$MT = Get-MessageTrace -StartDate (get-date).AddDays(-10) -EndDate (get-date) -RecipientAddress $RecipientAddress
 	}
 	#$MT | Format-Table Received, SenderAddress, RecipientAddress, Subject, Status, MessageTraceID
 	$MT | Select-Object Received, SenderAddress, RecipientAddress, @{label='Subject';expression={$_.Subject.Substring(0,20)}}, Status, MessageTraceID  | Format-Table
@@ -383,7 +380,6 @@ Process {
 			{
 				If ($readhost -eq $Line.MessageTraceId)
 				{
-					
 					#Write-Host "DEBUG: MessageTraceID: $($Line.MessageTraceId)"
 					#Write-Host "DEBUG: Sender: $($Line.Senderaddress)"
 					#Write-Host "DEBUG: Recipient: $($Line.RecipientAddress)"
@@ -406,7 +402,7 @@ Process {
 					Write-Host " Status:			$MTStatus"
 					Write-Host
 
-					#Check Recipient				
+					#Check Recipient
 					$ExoRecipient = Get-Recipient -Identity $MTRecipientAddress
 					#$ExoRecipient
 					$RecipientTypeDetails = $ExoRecipient.RecipientTypeDetails
@@ -444,14 +440,14 @@ Process {
 							Write-Host " ContactsTrusted:		$($JMC.ContactsTrusted)"
 							Write-Host
 
-							Write-Host "Check if $MTSenderAddress exists in MAILBOX ($MTRecipientAddress) Trusted-/BlockedSenders list: " -ForegroundColor Magenta		
+							Write-Host "Check if $MTSenderAddress exists in MAILBOX ($MTRecipientAddress) Trusted-/BlockedSenders list: " -ForegroundColor Magenta
 							If ($JMC.TrustedSendersAndDomains -contains $MTSenderAddress)
 							{
 								Write-Host " USER Junk-E-Mail Config:	Found in 'TrustedSendersAndDomains'" -ForegroundColor Green
 							} Else {
 								Write-Host " USER Junk-E-Mail Config:	Not found in 'TrustedSendersAndDomains'" -ForegroundColor White
 							}
-							
+
 							If ($JMC.BlockedSendersAndDomains -contains $MTSenderAddress)
 							{
 								Write-Host " USER Junk-E-Mail Config:	Found in 'BlockedSendersAndDomains'" -ForegroundColor Red
@@ -459,15 +455,15 @@ Process {
 								Write-Host " USER Junk-E-Mail Config:	Not found in 'BlockedSendersAndDomains'" -ForegroundColor White
 							}
 							Write-Host
-							
-							Write-Host "Check if $SenderDomain exists in MAILBOX ($MTRecipientAddress) Trusted-/BlockedSenders list: " -ForegroundColor Magenta	
+
+							Write-Host "Check if $SenderDomain exists in MAILBOX ($MTRecipientAddress) Trusted-/BlockedSenders list: " -ForegroundColor Magenta
 							If ($JMC.TrustedSendersAndDomains -contains $SenderDomain)
 							{
 								Write-Host " USER Junk-E-Mail Config:	Found in 'TrustedSendersAndDomains'" -ForegroundColor Green
 							} Else {
 								Write-Host " USER Junk-E-Mail Config:	Not found in 'TrustedSendersAndDomains'" -ForegroundColor White
 							}
-							
+
 							If ($JMC.BlockedSendersAndDomains -contains $SenderDomain)
 							{
 								Write-Host " USER Junk-E-Mail Config:	Found in 'BlockedSendersAndDomains'" -ForegroundColor Red
@@ -662,7 +658,6 @@ Process {
 								$DKIM1 = $json.Answer.data | Where-Object {$_ -match "v=DKIM1"}
 							}
 
-							
 							$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=Selector2._domainkey.$SenderDomain&type=CNAME"
 							$DKIM2 = $json.Answer.data
 							If ($Null -ne $DKIM1)
@@ -670,7 +665,7 @@ Process {
 								$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$DKIM2&type=TXT"
 								$DKIM2 = $json.Answer.data | Where-Object {$_ -match "v=DKIM1"}
 							}
-							[string]$DKIM = "$DKIM1 $DKIM2"					
+							[string]$DKIM = "$DKIM1 $DKIM2"
 							If ($DKIM -eq " ")
 							{
 								Write-Host "NO DKIM Record found" -ForegroundColor Yellow
