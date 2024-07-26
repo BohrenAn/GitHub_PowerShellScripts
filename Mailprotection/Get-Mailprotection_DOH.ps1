@@ -39,10 +39,10 @@
 # - Fixed Bug in DANESupport when -SMTPConnect was set to $false
 # Version 1.14
 # - Moved from Resolve-DNS to DNS Over Https DoH (https://dns.google/resolve)
+# - Addet Property DMARCAuthorisationRecord
+# - Addet Property SPFLookupCount - SPF Record Lookup check if max 10 records are used
+# - Fixed some Autodiscover / Lyncdiscover Bugs
 # Backlog / Whishlist
-# - External Domain Validation DMARC Authorisation Record
-#   - txt domain.tld._report._dmarc.ag.us.dmarcian.com
-# - SPF Record Lookup check if max 10 records are used
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
 ###############################################################################
@@ -137,6 +137,82 @@ PARAM (
 	[Parameter(Mandatory=$false)][bool]$ReturnObject = $false,
 	[Parameter(Mandatory=$false)][bool]$Silent = $false
 	)
+
+	###############################################################################
+	# Function Get-SPFLookupCount
+	# Inspired by https://cloudbrothers.info/en/powershell-tip-resolve-spf
+	###############################################################################
+	function Get-SPFLookupCount {
+	[CmdletBinding()]
+	param (
+		# Domain Name
+		[Parameter(Mandatory = $true,
+			ValueFromPipeline = $true,
+			ValueFromPipelineByPropertyName = $true,
+			Position = 1)]
+		[string]$Domain,
+
+		# If called nested provide a referrer to build valid objects
+		[Parameter(Mandatory = $false)]
+		[int]$DNSQueryCount = 0
+	)
+
+		$DNSQueryCount = $DNSQueryCount + 1
+		$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$Domain&type=TXT"
+		$SPFRecord = $json.Answer.data | Where-Object {$_ -like "V=SPF1*"}
+		If ($SPFRecord.Count -eq 0)
+		{
+			$SPFRecord = $NULL
+		} else {
+			#SPF Record Presend
+			If ($SPFRecord.Count -eq 1)
+			{
+				[string]$SPFRecord = ($SPFRecord | Out-String).Replace("'","").Trim()
+			} 
+		}
+
+		$SPFRecord = $SPFRecord.Replace("v=spf1 ","")
+		$SPFRecord = $SPFRecord.Replace(" -all","")
+		$SPFRecord = $SPFRecord.Replace(" ~all","")
+		$SPFRecord = $SPFRecord.Replace(" +all","")
+		$SPFRecord = $SPFRecord.Replace(" ?all","")
+		$SPFDetails = $SPFRecord.Split(" ")
+
+		Foreach ($Entry in $SPFDetails)
+		{
+			$Entry = $Entry.Trim()
+			If ($Entry -like "include:*")
+			{
+				Write-Host "Include Record: $Entry"
+				$Include = $Entry.Replace("include:","")
+				$Count = Get-SPFLookupCount -Domain "$Include"
+				$DNSQueryCount = $DNSQueryCount + $Count
+				
+			}
+
+			If ($Entry -like "redirect=*")
+			{
+				Write-Host "Redirect Record: $Entry"
+				$Redirect = $Entry.Replace("redirect=","")
+				$Count = Get-SPFLookupCount -Domain "$Redirect"
+				$DNSQueryCount = $DNSQueryCount + $Count
+				
+			}
+
+			If ($Entry -like "A:*")
+			{
+				Write-Host "A Record: $Entry"
+				#$Include = $Entry.Replace("include:","")
+				#$Count =  = Resolve-SPFRecord -Name "$Include" -Referrer $Name
+				$DNSQueryCount = $DNSQueryCount + 1
+				
+			}
+		}
+
+	return $DNSQueryCount
+	}
+	
+	
 
 	###############################################################################
 	# Function Invoke-STARTTLS
@@ -293,17 +369,19 @@ Function Get-MailProtection
 	[int]$StartTLSCount = 0
 	[bool]$SPFAvailable = $False
 	[string]$SPFRecord = $Null
+	[int]$SPFLookupCount = 0
 	[bool]$DomainKeyAvailable = $False
 	[String]$DomainKeySupport = "None"
 	[bool]$DMARCAvailable = $False
 	[string]$DMARCRecord = $Null
+	[bool]$DMARCAuthorisationRecord = $False
 	[int]$DANECount = 0
-	[bool]$DANEAvailable = $false
+	[bool]$DANEAvailable = $False
 	[string]$DANESupport = "None"
 	[bool]$M365 = $False
 	[bool]$BIMIAvailable = $False
 	[string]$BIMIRecord = $Null
-	[bool]$MTASTSAvailable = $false
+	[bool]$MTASTSAvailable = $False
 	[string]$Autodiscover = $Null
 	[string]$LyncDiscover = $Null
 
@@ -443,7 +521,7 @@ Function Get-MailProtection
 			{
 				Write-Host "Check: DANE" -ForegroundColor Green
 			}
-			$TLSAQuery = "_25._tcp.$($MXEntry.NameExchange)"
+			$TLSAQuery = "_25._tcp.$($MXEntry)"
 			#$URL= "https://dns.google/resolve?name=$TLSAQuery&type=TLSA"
 			#Write-Host "DEBUG: TLSAQuery: $TLSAQuery" -ForegroundColor magenta
 			#Write-Host "DEBUG: URI https://dns.google/resolve?name=$TLSAQuery&type=TLSA" -ForegroundColor magenta
@@ -541,6 +619,7 @@ Function Get-MailProtection
 		If ($SPFRecord.Count -eq 1)
 		{
 			[string]$SPFRecord = ($SPFRecord | Out-String).Replace("'","").Trim()
+			$SPFLookupCount = Get-SPFLookupCount -Domain $Domain
 		} else {
 			$SPFRecord = "MULTIPLE SPF RECORDS"
 		}
@@ -637,6 +716,39 @@ Function Get-MailProtection
 		$DMARCRecord = $DMARCEntry.Replace("'","")
 		$DMARCAvailable = $true
 	}
+
+	## DMARC Authorisation Record
+	#rua=mailto:skmtvc6p@ag.eu.dmarcadvisor.com
+	#icewolf.ch._report._dmarc.ag.eu.dmarcadvisor.com TXT v=DMARC1;
+
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: DMARC Authorization" -ForegroundColor Green
+	}
+
+	If ($Null -ne $DMARC)
+	{
+		$RUA = ($DMARC.Split(";") | Where-Object {$_ -match "rua="}).Trim()
+		If ($Null -ne $RUA)
+		{
+			[Array]$RUAArray = $RUA.Split(",")
+			Foreach ($RUAEntry in $RUAArray)
+			{
+				#$RUAEntry = $RUAEntry.replace("mailto:","")
+				$RUARecipientDomain = $RUAEntry.replace("mailto:","").split("@")[1]
+				
+				$dnshost = "$domain._report._dmarc." + $RUARecipientDomain
+				Write-Verbose "DMARC Authorisation Record: $dnshost"
+				$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$dnshost&type=TXT"
+				If ($json.Answer.data -match "v=DMARC1")
+				{
+					$DMARCAuthorisationRecord = $True
+				}
+			}
+		}
+	}
+
+
 
 	## BIMI
 	If ($Silent -ne $True)
@@ -735,7 +847,7 @@ Function Get-MailProtection
 			Try {
 				#Check if IPv4
 				$IP = [system.net.ipaddress]$AutodiscoverA
-				$Autodiscover = $AutodiscoverA
+				$Autodiscover = $AutodiscoverA.tostring()
 			} catch {
 				#Then it must be a DNS Name
 				$AutodiscoverA = $AutodiscoverA.Substring(0,$AutodiscoverA.Length-1)
@@ -743,12 +855,14 @@ Function Get-MailProtection
 			}
 		} else {
 			#Autodiscover SRV
+			#Write-Host "DEBUG: Autodiscover SRV" -ForegroundColor Yellow
 			$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=_autodiscover._tcp.$Domain&type=SRV"
 			$AutodiscoverSRV = $json.Answer.data
-			If ($Null -ne $AutodiscoverSRV)
+			If ($Null -ne $json.Answer.data)
 			{
+				#Write-Host "DEBUG: Autodiscover SRV SUBSRING" -ForegroundColor Yellow
 				$AutodiscoverSRV = $AutodiscoverSRV.Substring(0,$AutodiscoverSRV.Length-1)
-				[string]$Autodiscover = $AutodiscoverSRV
+				[string]$Autodiscover = $AutodiscoverSRV.Split(" ")[3]
 			} else {
 				$Autodiscover = $Null
 			}
@@ -757,13 +871,15 @@ Function Get-MailProtection
 
 
 	## LyncDiscover
+	$LyncDiscoverCNAME = $Null
+	$LyncDiscoverA = $Null
 	If ($Silent -ne $True)
 	{
 		Write-Host "Check: Lyncdiscover" -ForegroundColor Green
 	}
 	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=Lyncdiscover.$Domain&type=CNAME"
 	$LyncDiscoverCNAME = $json.Answer.data
-	If ($Null -ne $LyncDiscoverCNAME)
+	If ($Null -ne $json.Answer.data)
 	{
 		$LyncDiscoverCNAME = $LyncDiscoverCNAME.Substring(0,$LyncDiscoverCNAME.Length-1)
 		[string]$Lyncdiscover = $LyncDiscoverCNAME
@@ -772,13 +888,20 @@ Function Get-MailProtection
 		$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=Lyncdiscover.$Domain&type=A"
 		If ($Null -ne $json.Answer.data)
 		{
-			$LyncDiscoverA = $json.answer.Data[0]
+			$LyncDiscoverA = $json.answer.Data
 		}
 
 		If ($Null -ne $LyncDiscoverA)
 		{
-			$LyncDiscoverA = $LyncDiscoverA.Substring(0,$LyncDiscoverA.Length-1)
-			[string]$Lyncdiscover = $LyncDiscoverA
+			Try {
+				#Check if IPv4
+				$IP = [system.net.ipaddress]$LyncDiscoverA
+				$Lyncdiscover = $LyncdiscoverA.tostring()
+			} catch {
+				#Then it must be a DNS Name
+				$LyncDiscoverA = $LyncDiscoverA.Substring(0,$LyncDiscoverA.Length-1)
+				[string]$Lyncdiscover = $LyncDiscoverA
+			}
 		} else {
 			$Lyncdiscover = $Null
 		}
@@ -894,11 +1017,13 @@ Function Get-MailProtection
 		Write-Host "SMTPCertIssuer: $SMTPCertIssuer" -ForegroundColor cyan
 		Write-Host "SPF: $SPFAvailable" -ForegroundColor cyan
 		Write-Host "SPFRecord: $SPFRecord" -ForegroundColor cyan
+		Write-host "SPFLookupCount: $SPFLookupCount" -ForegroundColor cyan
 		Write-Host "DKIM: $DomainKeyAvailable" -ForegroundColor cyan
 		Write-Host "DKIM Support: $DomainKeySupport" -ForegroundColor cyan
 		Write-Host "DKIM Record: $DomainKeyRecord" -ForegroundColor cyan
 		Write-Host "DMARC: $DMARCAvailable " -ForegroundColor cyan
 		Write-Host "DMARCRecord: $DMARCRecord" -ForegroundColor cyan
+		Write-Host "DMARC Authorisation Record: $DMARCAuthorisationRecord" -ForegroundColor cyan
 		Write-Host "DANECount: $DANECount" -ForegroundColor cyan
 		Write-Host "DANESupport: $DANESupport" -ForegroundColor cyan
 		Write-Host "DANERecord: $DANERecord" -ForegroundColor cyan
@@ -931,11 +1056,13 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPCertIssuer' -Value $SMTPCertIssuerArray
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFAvailable' -Value $SPFAvailable
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFRecord' -Value $SPFRecord
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFLookupCount' -Value $SPFLookupCount
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DomainKeyAvailable' -Value $DomainKeyAvailable
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DomainKeySupport' -Value $DomainKeySupport
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DomainKeyRecord' -Value $DomainKeyRecord
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DMARCAvailable' -Value $DMARCAvailable
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DMARCRecord' -Value $DMARCRecord
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DMARCAuthorisationRecord' -Value $DMARCAuthorisationRecord
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DANECount' -Value $DANECount
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DANESupport' -Value $DANESupport
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DANERecord' -Value $DANERecord
