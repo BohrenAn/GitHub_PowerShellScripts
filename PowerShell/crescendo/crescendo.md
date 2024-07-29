@@ -6,7 +6,7 @@ https://learn.microsoft.com/en-us/powershell/utility-modules/crescendo/get-start
 
 Install-Module Microsoft.PowerShell.Crescendo -AllowPreview
 
-
+Import-Module Microsoft.PowerShell.Crescendo
 
 $parameters = @{
     Verb = 'Get'
