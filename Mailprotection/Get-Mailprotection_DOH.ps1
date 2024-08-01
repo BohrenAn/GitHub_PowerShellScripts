@@ -160,7 +160,6 @@ PARAM (
 		[Parameter(Mandatory = $false)]$DNSQueryCount = 0
 	)
 
-		$DNSQueryCount = $DNSQueryCount + 1
 		$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$Domain&type=TXT"
 		$SPFRecord = $json.Answer.data | Where-Object {$_ -like "V=SPF1*"}
 		If ($SPFRecord.Count -eq 0)
@@ -186,7 +185,7 @@ PARAM (
 						Write-Verbose "Include Record: $Entry"
 						$Include = $Entry.Replace("include:","")
 						$Count = Get-SPFLookupCount -Domain "$Include"
-						$DNSQueryCount = $DNSQueryCount + $Count
+						$DNSQueryCount = $DNSQueryCount + $Count + 1
 						
 					}
 		
@@ -195,7 +194,7 @@ PARAM (
 						Write-Verbose "Redirect Record: $Entry"
 						$Redirect = $Entry.Replace("redirect=","")
 						$Count = Get-SPFLookupCount -Domain "$Redirect"
-						$DNSQueryCount = $DNSQueryCount + $Count
+						$DNSQueryCount = $DNSQueryCount + $Count + 1
 						
 					}
 		
