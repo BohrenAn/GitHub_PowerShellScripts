@@ -155,11 +155,9 @@ PARAM (
 			ValueFromPipeline = $true,
 			ValueFromPipelineByPropertyName = $true,
 			Position = 1)]
-		[string]$Domain,
-
-		[Parameter(Mandatory = $false)]$DNSQueryCount = 0
+		[string]$Domain
 	)
-
+		$DNSQueryCount = 0
 		$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$Domain&type=TXT"
 		$SPFRecord = $json.Answer.data | Where-Object {$_ -like "V=SPF1*"}
 		If ($SPFRecord.Count -eq 0)
