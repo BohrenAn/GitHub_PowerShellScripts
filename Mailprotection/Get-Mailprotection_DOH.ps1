@@ -174,7 +174,7 @@ PARAM (
 				$SPFRecord = $SPFRecord.Replace(" +all","")
 				$SPFRecord = $SPFRecord.Replace(" ?all","")
 				$SPFDetails = $SPFRecord.Split(" ")
-		
+
 				Foreach ($Entry in $SPFDetails)
 				{
 					$Entry = $Entry.Trim()
@@ -186,7 +186,7 @@ PARAM (
 						$DNSQueryCount = $DNSQueryCount + $Count + 1
 						
 					}
-		
+
 					If ($Entry -like "redirect=*")
 					{
 						Write-Verbose "Redirect Record: $Entry"
@@ -195,7 +195,7 @@ PARAM (
 						$DNSQueryCount = $DNSQueryCount + $Count + 1
 						
 					}
-		
+
 					If ($Entry -like "A:*")
 					{
 						Write-Verbose "A Record: $Entry"
