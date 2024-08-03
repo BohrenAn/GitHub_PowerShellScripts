@@ -184,7 +184,6 @@ PARAM (
 						$Include = $Entry.Replace("include:","")
 						$Count = Get-SPFLookupCount -Domain "$Include"
 						$DNSQueryCount = $DNSQueryCount + $Count + 1
-						
 					}
 
 					If ($Entry -like "redirect=*")
@@ -193,14 +192,30 @@ PARAM (
 						$Redirect = $Entry.Replace("redirect=","")
 						$Count = Get-SPFLookupCount -Domain "$Redirect"
 						$DNSQueryCount = $DNSQueryCount + $Count + 1
-						
 					}
 
 					If ($Entry -like "A:*")
 					{
 						Write-Verbose "A Record: $Entry"
 						$DNSQueryCount = $DNSQueryCount + 1
-						
+					}
+
+					If ($Entry -like "MX:*")
+					{
+						Write-Verbose "MX Record: $Entry"
+						$DNSQueryCount = $DNSQueryCount + 1
+					}
+
+					If ($Entry -like "PTR:*")
+					{
+						Write-Verbose "PTR Record: $Entry"
+						$DNSQueryCount = $DNSQueryCount + 1
+					}
+
+					If ($Entry -like "EXISTS:*")
+					{
+						Write-Verbose "EXISTS Record: $Entry"
+						$DNSQueryCount = $DNSQueryCount + 1
 					}
 				}
 			} 
