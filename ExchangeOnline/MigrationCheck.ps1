@@ -29,7 +29,7 @@ $DistributionGroup = Get-DistributionGroup -resultsize Unlimited
 Foreach ($Group in $DistributionGroup)
 {
     $Members = Get-DistributionGroupMember -Identity $Group
-    If ($Members -eq $null)
+    If ($null -eq $Members)
     {
         Write-Host "$($Group.DisplayName) has no Members" -ForegroundColor Yellow
     }
@@ -43,5 +43,5 @@ Get-ADUser -ldapquery "(objectclass=User)(mail=*)(!Proxyaddresses=*)"
 #Check UPN for unsupported Characters (space / ' / umlaute)
 
 #AD User PasswordNotRequired
-Get-ADUser -Filter {PasswordNotRequired -eq $true} | ft name, UserPrincipalName
+Get-ADUser -Filter {PasswordNotRequired -eq $true} | Format-Table name, UserPrincipalName
 
