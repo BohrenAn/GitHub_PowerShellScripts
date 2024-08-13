@@ -787,7 +787,12 @@ Function Get-MailProtection
 		$URI = "https://mta-sts.$Domain/.well-known/mta-sts.txt"
 		try {
 			$Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
-			$MTASTSTXT = ($response.Content).trim().Replace("`r`n","")
+			If ($response.Content -is [byte[]]) 
+			{
+				$MTASTSTXT = [System.Text.Encoding]::UTF8.GetString($response.Content) #.trim().Replace("`r`n","")
+			} else {
+				$MTASTSTXT = ($response.Content).trim().Replace("`r`n","")
+			}
 		#$MTASTSTXT
 		} catch {
 				Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
