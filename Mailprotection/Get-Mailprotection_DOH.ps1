@@ -374,7 +374,7 @@ Function Get-MailProtection
 	[String]$DANERecord = $Null
 	[bool]$MXAvailable = $False
 	[int]$MXCount = 0
-	$MXReverseLookup = $Null
+	[string]$MXReverseLookup = $Null
 	[int]$StartTLSCount = 0
 	[bool]$SPFAvailable = $False
 	[string]$SPFRecord = $Null
@@ -444,8 +444,6 @@ Function Get-MailProtection
 		} else {
 			$MXRecord += $MXRecordData.Substring(0,$MXRecordData.Length-1)
 		}
-		#$MXRecordData = $Entry.Substring(0,$Entry.Length-1)
-		#$MXRecord += $MXRecordData.split(" ")[1]
 	}
 
 	Foreach ($MXEntry in $MXRecord)
@@ -459,7 +457,7 @@ Function Get-MailProtection
 				$MXAvailable = $true
 				$MXCount = $MXCount + 1
 
-				#ReverseLookup
+				#IP of MX
 				$URI = "https://dns.google/resolve?name=$MXEntry&type=A"
 				$json = Invoke-RestMethod -URI $URI
 				$MXIP = $json.Answer.Data
@@ -472,16 +470,14 @@ Function Get-MailProtection
 					$ReverseLookupIP = $SplitIP[3] + "." + $SplitIP[2] + "." + $SplitIP[1] + "." + $SplitIP[0] + ".in-addr.arpa."
 					$URI = "https://dns.google/resolve?name=$ReverseLookupIP&type=PTR"
 					$json = Invoke-RestMethod -URI $URI
-					$ReverseLookupName = $json.Answer.Data
+					[Array]$ReverseLookupNames = $json.Answer.Data
 					If ($Null -ne $json.Answer.Data)
 					{
-						$ReverseLookupName = $json.Answer.Data.Substring(0,$json.Answer.Data.Length-1)
-						$ReverseLookupName = $ReverseLookupName.Substring(0,$ReverseLookupName.Length-1)
-					}
-
-					If ($Null -ne $ReverseLookupName)
-					{
-						[Array]$MXReverseLookup += $ReverseLookupName
+						Foreach ($ReverseLookupName in $ReverseLookupNames)
+						{
+							$ReverseLookupName = $ReverseLookupName.Substring(0,$ReverseLookupName.Length-1)
+							[Array]$MXReverseLookup += $ReverseLookupName
+						}
 					}
 				}
 
@@ -663,13 +659,11 @@ Function Get-MailProtection
 	If ($DomainKeyAvailable -eq $false)
 	{
 		$dnshost1 = "selector1._domainkey." + $Domain
-		$dnshost2 = "selector2._domainkey." + $Domain
-		#$DomainkeyS1 = Resolve-DnsName -Name $dnshost1 -Type CNAME -ErrorAction SilentlyContinue
+		$dnshost2 = "selector2._domainkey." + $Domain		
 		$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$dnshost1&type=CNAME"
 		#$DKIMRecord1 = $json.Answer.data | Where-Object {$_ -like "v=DKIM1*"}
 		$DKIMRecord1 = $json.Answer.data
-
-		#$DomainkeyS2 = Resolve-DnsName -Name $dnshost2 -Type CNAME -ErrorAction SilentlyContinue
+		
 		$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$dnshost2&type=CNAME"
 		#$DKIMRecord2 = $json.Answer.data | Where-Object {$_ -like "v=DKIM1*"}
 		$DKIMRecord2 = $json.Answer.data
@@ -744,8 +738,6 @@ Function Get-MailProtection
 			}
 		}
 	}
-
-
 
 	## BIMI
 	If ($Silent -ne $True)
@@ -976,6 +968,7 @@ Function Get-MailProtection
 
 	# Convert Arrays to String
 	$MXIPString = $MXIPArray -join " "
+	$MXReverseLookup = $MXReverseLookup -join " "
 	If ($Null -ne $Nameserver -or $Nameserver -ne "")
 	{
 		$NameserverString = $Nameserver -Join " "
