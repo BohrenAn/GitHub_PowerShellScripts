@@ -14,8 +14,10 @@ It checks for the following Information
 - MX Reverse Lookup
 - Connects to the MX Servers and checks for STARTTLS and shows SMTPBanner and Certificate Information
 - SPF (Sender Policy Framework)
+- SPF Count (Max 10 Lookups allowed)
 - DKIM (DomainKeys Identified Mail)
 - DMARC (Domain-based Message Authentication, Reporting and Conformance)
+- DMARCAuthorisationRecord
 - DANE (DNS-based Authentication of Named Entities)
 - BIMI (Brand Indicators for Message Identification)
 - MTA-STS (SMTP MTA Strict Transport Security)
@@ -71,13 +73,13 @@ Get-Mailprotection -Domain domain.tld -SMTPConnect $False
 Return the Result as Object
 
 ```pwsh
-$ReturnObject = Get-Mailprotection -Domain domain.tld -ReturnObject $true
+$ReturnObject = Get-Mailprotection -Domain domain.tld -ReturnObject
 ```
 
 Return the Result as Object with no Output to Console
 
 ```pwsh
-$ReturnObject = Get-Mailprotection -Domain domain.tld -ReturnObject $true -Silent $True
+$ReturnObject = Get-Mailprotection -Domain domain.tld -ReturnObject -Silent
 $ReturnObject
 ```
 
