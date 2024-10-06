@@ -1,0 +1,33 @@
+name: $(TeamProject)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+
+pr:
+  branches:
+    include:
+      - main
+trigger:
+  branches:
+    include:
+      - main
+
+jobs:
+- job: build_and_deploy_job
+  displayName: Build and Deploy Job
+  condition: or(eq(variables['Build.Reason'], 'Manual'),or(eq(variables['Build.Reason'], 'PullRequest'),eq(variables['Build.Reason'], 'IndividualCI')))
+  pool:
+    vmImage: ubuntu-latest
+  variables:
+  - group: AZURE_STATIC_WEB_APPS_API_TOKEN_DOMAIN-variable-group
+  steps:
+  - script: echo '$(Build.BuildNumber)' # outputs customized build number
+  - checkout: self
+    submodules: true
+  - task: AzureStaticWebApp@0
+    retryCountOnTaskFailure: 1
+    inputs:
+      azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN_gentle-pebble-020859d03)
+###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+# For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+      app_location: "/root" # App source code path
+      api_location: "" # Api source code path - optional
+      output_location: "public" # Built app content directory - optional
+###### End of Repository/Build Configurations ######
