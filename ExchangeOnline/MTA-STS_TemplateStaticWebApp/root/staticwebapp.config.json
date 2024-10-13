@@ -1,0 +1,13 @@
+{
+	"globalHeaders": {		
+		"Permissions-Policy": "geolocation=*",
+		"X-Frame-Options": "SAMEORIGIN",
+		"Content-Security-Policy": "script-src 'self'"
+	},
+	"responseOverrides": {
+	  "404": {
+		"rewrite": "/404.html",
+		"statusCode": 404
+	  }
+	}
+}
