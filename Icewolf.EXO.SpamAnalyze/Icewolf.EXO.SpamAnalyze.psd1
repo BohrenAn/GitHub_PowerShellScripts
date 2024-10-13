@@ -8,7 +8,7 @@
 RootModule = 'Icewolf.EXO.SpamAnalyze.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.0.11'
+ModuleVersion = '2.0.12'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -47,7 +47,7 @@ PowerShellVersion = '5.1'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @(@{ModuleName = 'ExchangeOnlineManagement'; GUID = 'b5eced50-afa4-455b-847a-d8fb64140a22'; ModuleVersion = '3.0.0'; })
+RequiredModules = @(@{ModuleName = 'ExchangeOnlineManagement'; GUID = 'b5eced50-afa4-455b-847a-d8fb64140a22'; })
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -107,9 +107,8 @@ PrivateData = @{
         ReleaseNotes = '
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
-V2.0.11 17.07.2024
-- Added Try Catch for Get-EOPIP
-- Fixed an Error with DKIM Checks
+V2.0.12 
+- Removed the Version of the ReqiredModule ExchangeOnlineManagement
 ---------------------------------------------------------------------------------------------
 '
 
