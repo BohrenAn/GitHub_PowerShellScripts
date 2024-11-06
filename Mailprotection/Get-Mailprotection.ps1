@@ -43,13 +43,16 @@
 # - Addet Property SPFLookupCount - SPF Record Lookup check if max 10 records are used
 # - Fixed some Autodiscover / Lyncdiscover Bugs
 # - Changed Parameter -Silent and -Returnobject to Switch
+# Version 1.15
+# - Fixed a Bug in Reverse Lookup of MX Records
+# - Added -ExportCSV Parameter
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.14
+.VERSION 1.15
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -116,8 +119,9 @@ https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 Get-Mailprotection.ps1 -Domain icewolf.ch
 $Result = Get-Mailprotection.ps1 -Domain icewolf.ch -ReturnObject
 $Result = Get-Mailprotection.ps1 -Domain icewolf.ch -SMTPConnect $False -ReturnObject
+$Result = Get-Mailprotection.ps1 -Domain icewolf.ch -SMTPConnect $False -ReturnObject -Silent
 
-.PARAMETER Domain
+.PARAMETER [string]Domain
 Mandatory Parameter. You need to specify a Domain as a string Value
 domain.tld or subdomain.domain.tld
 
@@ -125,22 +129,26 @@ domain.tld or subdomain.domain.tld
 Optional Parameter. You can specify not to connect with SMTP to the Server. Per Default this Setting is TRUE.
 You add the Parameter -SMTPConnect $False
 
-.PARAMETER ReturnObject
+.PARAMETER [switch]ReturnObject
 Optional Parameter. You can specify if a the Script returns an Object (For Scripting purposes). Per Default this Setting is FALSE.
 You can add the Parameter -ReturnObject
 
-.PARAMETER Silent
+.PARAMETER [switch]Silent
 Optional Parameter. You can specify to not get an Output to the Console. Per Default this Setting is FALSE.
 You can add the Parameter -Silent
 Can be helpful if you use it with the -ReturnObject
-#>
 
+.PARAMETER [String]$CSVExport 
+Optional Parameter. You can Specify a Path for CSV Export.
+You can add the Parameter -CSVExport "C:\Temp\Export.csv"
+#>
 
 PARAM (
 	[Parameter(Mandatory=$true)][String]$Domain,
 	[Parameter(Mandatory=$false)][bool]$SMTPConnect = $True,
 	[Parameter(Mandatory=$false)][switch]$ReturnObject = $false,
-	[Parameter(Mandatory=$false)][switch]$Silent = $false
+	[Parameter(Mandatory=$false)][switch]$Silent = $false,
+	[Parameter(Mandatory=$false)][string]$CSVExport = $Null
 	)
 
 	###############################################################################
@@ -476,7 +484,7 @@ Function Get-MailProtection
 					If ($Null -ne $json.Answer.Data)
 					{
 						$ReverseLookupName = $json.Answer.Data.Substring(0,$json.Answer.Data.Length-1)
-						$ReverseLookupName = $ReverseLookupName.Substring(0,$ReverseLookupName.Length-1)
+						#$ReverseLookupName = $ReverseLookupName.Substring(0,$ReverseLookupName.Length-1)
 					}
 
 					If ($Null -ne $ReverseLookupName)
@@ -1079,4 +1087,55 @@ $Result = Get-MailProtection -Domain $Domain -SMTPConnect $SMTPConnect
 If ($ReturnObject -eq $true)
 {
 	$Result
+}
+
+#Export a PowerShell object with nested arrays to CSV
+#$Properties = $Result | Get-Member | where {$_.MemberType -eq "NoteProperty"} | select Name
+
+
+If ($CSVExport -ne $Null)
+{
+	Write-Host "Export to CSV: $CSVExport" -ForegroundColor Cyan
+
+	# Flatten the array
+	$flattenedObject = [PSCustomObject]@{
+		Domain = $Result.Domain
+		NameServer = ($Result.Nameserver -Join " ")
+		ZoneDNSSigned = $Result.ZoneDNSSigned
+		CAA = ($Result.CAA -join " ")
+		MXCount = $Result.MXCount
+		MXRecord = ($Result.MXRecord -Join " ")
+		MXIP = ($Result.MXIP -Join " ")
+		MXReverseLookup = ($Result.MXReverseLookup -Join " ")
+		StartTLSCount = $Result.StartTLSCount
+		StartTLSSupport = $Result.StartTLSSupport
+		SMTPBanner = ($Result.SMTPBanner -Join " ")
+		SMTPCertIssuer = ($Result.SMTPCertIssuer -Join " ")
+		SPFAvailable = $Result.SPFAvailable
+		SPFRecord = $Result.SPFRecord
+		SPFLookupCount = $Result.SPFLookupCount
+		DomainKeyAvailable = $Result.DomainKeyAvailable
+		DomainKeySupport = $Result.DomainKeySupport
+		DomainKeyRecord = ($Result.DomainKeyRecord -Join " ")
+		DMARCAvailable = $Result.DMARCAvailable
+		DMARCRecord = $Result.DMARCRecord
+		DMARCAuthorisationRecord = $Result.DMARCAuthorisationRecord
+		DANECount = $Result.DANECount
+		DANESupport = $Result.DANESupport
+		DANERecord = $Result.DANERecord
+		BIMIAvailable = $Result.BIMIAvailable
+		BIMIRecord = $Result.BIMIRecord
+		MTASTSAvailable = $Result.MTASTSAvailable
+		MTASTSWeb = ($Result.MTASTSWeb).replace("`r`n","")
+		TLSRPT = $Result.TLSRPT
+		Autodiscover = $Result.Autodiscover
+		LyncDiscover = $Result.Lyncdiscover
+		SkypeFederation = $Result.SkypeFederation
+		M365 = $Result.M365
+		TenantID = $Result.TenantID
+		SecurityTXT = $Result.SecurityTXT
+	}
+
+	# Export to CSV
+	$flattenedObject | Export-Csv -Path $CSVExport -NoTypeInformation
 }
