@@ -1093,7 +1093,7 @@ If ($ReturnObject -eq $true)
 #$Properties = $Result | Get-Member | where {$_.MemberType -eq "NoteProperty"} | select Name
 
 
-If ($CSVExport -ne $Null)
+If ($CSVExport -ne "")
 {
 	Write-Host "Export to CSV: $CSVExport" -ForegroundColor Cyan
 
@@ -1126,7 +1126,7 @@ If ($CSVExport -ne $Null)
 		BIMIAvailable = $Result.BIMIAvailable
 		BIMIRecord = $Result.BIMIRecord
 		MTASTSAvailable = $Result.MTASTSAvailable
-		MTASTSWeb = ($Result.MTASTSWeb).replace("`r`n","")
+		MTASTSWeb = ($Result.MTASTSWeb) -replace("(`r`n|`r|`n)"," ") 
 		TLSRPT = $Result.TLSRPT
 		Autodiscover = $Result.Autodiscover
 		LyncDiscover = $Result.Lyncdiscover
