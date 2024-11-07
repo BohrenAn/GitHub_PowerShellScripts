@@ -46,6 +46,7 @@
 # Version 1.15
 # - Fixed a Bug in Reverse Lookup of MX Records
 # - Added -ExportCSV Parameter
+# - Some minor Bugfixes
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
@@ -65,12 +66,10 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.14
-- Moved from Resolve-DNS to DNS over Https (DoH) https://dns.google/resolve
-- Addet Property DMARCAuthorisationRecord
-- Addet Property SPFLookupCount - SPF Record Lookup check if max 10 records are used
-- Fixed some Autodiscover / Lyncdiscover Bugs
-- Changed Parameter -Silent and -Returnobject to Switch
+Version 1.15
+- Fixed a Bug in Reverse Lookup of MX Records
+- Added -ExportCSV Parameter
+- Some minor Bugfixes
 #>
 
 <#
