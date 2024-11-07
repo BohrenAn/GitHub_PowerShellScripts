@@ -520,3 +520,34 @@ Convert JSON to Object
 #Convert JSON
 $Filetypes = Get-Content -Path E:\temp\FileTypes.json | Out-String | ConvertFrom-Json
 ```
+
+## Odata.NextLink
+
+On the Example of [M365 neue Service Health und Communications API in Microsoft Graph](https://blog.icewolf.ch/archive/2021/08/24/m365-neue-service-health-und-communications-api-in-microsoft-graph/)
+
+```pwsh
+#Messages
+$URI = "https://graph.microsoft.com/v1.0/admin/serviceAnnouncement/messages"
+$ContentType = "application/json"
+$Headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentType $ContentType
+
+
+$AllMessages += $result.value
+
+$INT = 0
+if ($result.'@odata.nextLink') 
+{	
+	do {
+		$INT = $INT + 1
+		Write-Host "Invoke Odata.NextLink [$INT]"
+		$result = (Invoke-RestMethod -Uri $result.'@odata.nextLink' -Headers $Headers -Method Get -ContentType $ContentType)
+		$AllMessages += $result.value
+
+	} until (
+		!$result.'@odata.nextLink'
+	)
+}
+
+$AllMessages
+```
