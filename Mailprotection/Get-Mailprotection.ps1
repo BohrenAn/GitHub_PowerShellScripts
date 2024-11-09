@@ -1096,6 +1096,14 @@ If ($CSVExport -ne "")
 {
 	Write-Host "Export to CSV: $CSVExport" -ForegroundColor Cyan
 
+	# Replace Line Breaks
+	If ($MTASTSWeb -ne "")
+	{
+		$MTASTSWeb = $MTASTSWeb.replace("`r`n"," ")
+		$MTASTSWeb = $MTASTSWeb.replace("`r"," ")
+		$MTASTSWeb = $MTASTSWeb.replace("`n"," ")
+	}
+
 	# Flatten the array
 	$flattenedObject = [PSCustomObject]@{
 		Domain = $Result.Domain
@@ -1125,7 +1133,7 @@ If ($CSVExport -ne "")
 		BIMIAvailable = $Result.BIMIAvailable
 		BIMIRecord = $Result.BIMIRecord
 		MTASTSAvailable = $Result.MTASTSAvailable
-		MTASTSWeb = ($Result.MTASTSWeb) -replace("(`r`n|`r|`n)"," ") 
+		MTASTSWeb = $MTASTSWeb
 		TLSRPT = $Result.TLSRPT
 		Autodiscover = $Result.Autodiscover
 		LyncDiscover = $Result.Lyncdiscover
