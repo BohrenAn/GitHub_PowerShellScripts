@@ -45,6 +45,7 @@
 # - Changed Parameter -Silent and -Returnobject to Switch
 # Version 1.15
 # - Fixed a Bug in Reverse Lookup of MX Records
+# - Added SMTPError to Output
 # - Added -ExportCSV Parameter
 # - Some minor Bugfixes
 # Backlog / Whishlist
@@ -275,6 +276,7 @@ PARAM (
 			}
 			if(!$ConnectResponse.StartsWith("220")){
 				#throw "Error connecting to the SMTP Server"
+				$SMTPError = $ConnectResponse
 			} else {
 				$SMTPBanner = $ConnectResponse
 			}
@@ -301,6 +303,11 @@ PARAM (
 					If ($Silent -ne $True)
 					{
 						Write-Host($ehloResponse)
+						If ($ehloResponse -match "550")
+						{
+							Write-Host "SMTPError occured"
+							$SMTPError = $ehloResponse
+						}
 					}
 					$response += $ehloResponse
 			}
@@ -358,6 +365,7 @@ PARAM (
 		$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPBanner' -Value $SMTPBanner
 		$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPCertIssuer' -Value $SMTPCertIssuer
 		$ResultObject | Add-Member -MemberType NoteProperty -Name 'TLSSupport' -Value $TLSSupport
+		$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPError' -Value $SMTPError
 
 		return $ResultObject
 		#return $TLSSupport
@@ -517,6 +525,7 @@ Function Get-MailProtection
 						$StartTLSReturn = Invoke-STARTTLS -SMTPServer $MXEntry
 						[Array]$SMTPBannerArray += $StartTLSReturn.SMTPBanner
 						[Array]$SMTPCertIssuerArray += $StartTLSReturn.SMTPCertIssuer
+						[String]$SMTPError = $StartTLSReturn.SMTPError
 					}
 				}
 				If ($StartTLSReturn.TLSSupport -eq $true)
@@ -1013,6 +1022,7 @@ Function Get-MailProtection
 		Write-Host "STARTTLS Support: $StartTLSSupport" -ForegroundColor cyan
 		Write-Host "SMTPBanner: $SMTPBanner" -ForegroundColor cyan
 		Write-Host "SMTPCertIssuer: $SMTPCertIssuer" -ForegroundColor cyan
+		Write-Host "SMTPError: $SMTPError" -ForegroundColor cyan
 		Write-Host "SPF: $SPFAvailable" -ForegroundColor cyan
 		Write-Host "SPFRecord: $SPFRecord" -ForegroundColor cyan
 		Write-host "SPFLookupCount: $SPFLookupCount" -ForegroundColor cyan
@@ -1052,6 +1062,7 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'StartTLSSupport' -Value $StartTLSSupport
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPBanner' -Value $SMTPBannerArray
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPCertIssuer' -Value $SMTPCertIssuerArray
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPError' -Value $SMTPError
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFAvailable' -Value $SPFAvailable
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFRecord' -Value $SPFRecord
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFLookupCount' -Value $SPFLookupCount
@@ -1118,6 +1129,7 @@ If ($CSVExport -ne "")
 		StartTLSSupport = $Result.StartTLSSupport
 		SMTPBanner = ($Result.SMTPBanner -Join " ")
 		SMTPCertIssuer = ($Result.SMTPCertIssuer -Join " ")
+		SMTPError = $Result.SMTPError
 		SPFAvailable = $Result.SPFAvailable
 		SPFRecord = $Result.SPFRecord
 		SPFLookupCount = $Result.SPFLookupCount
