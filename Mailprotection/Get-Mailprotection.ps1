@@ -1108,7 +1108,7 @@ If ($CSVExport -ne "")
 	Write-Host "Export to CSV: $CSVExport" -ForegroundColor Cyan
 
 	# Replace Line Breaks
-	$MTASTSWeb = $Result.MTASTSWeb
+	[string]$MTASTSWeb = $Result.MTASTSWeb
 	If ($MTASTSWeb -ne "")
 	{
 		$MTASTSWeb = $MTASTSWeb.replace("`r`n"," ")
