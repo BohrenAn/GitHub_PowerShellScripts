@@ -45,7 +45,9 @@
 # - Changed Parameter -Silent and -Returnobject to Switch
 # Version 1.15
 # - Fixed a Bug in Reverse Lookup of MX Records
+# - Added SMTPError to Output
 # - Added -ExportCSV Parameter
+# - Some minor Bugfixes
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
@@ -65,12 +67,10 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.14
-- Moved from Resolve-DNS to DNS over Https (DoH) https://dns.google/resolve
-- Addet Property DMARCAuthorisationRecord
-- Addet Property SPFLookupCount - SPF Record Lookup check if max 10 records are used
-- Fixed some Autodiscover / Lyncdiscover Bugs
-- Changed Parameter -Silent and -Returnobject to Switch
+Version 1.15
+- Fixed a Bug in Reverse Lookup of MX Records
+- Added -ExportCSV Parameter
+- Some minor Bugfixes
 #>
 
 <#
@@ -276,6 +276,7 @@ PARAM (
 			}
 			if(!$ConnectResponse.StartsWith("220")){
 				#throw "Error connecting to the SMTP Server"
+				$SMTPError = $ConnectResponse
 			} else {
 				$SMTPBanner = $ConnectResponse
 			}
@@ -302,6 +303,11 @@ PARAM (
 					If ($Silent -ne $True)
 					{
 						Write-Host($ehloResponse)
+						If ($ehloResponse -match "550")
+						{
+							Write-Host "SMTPError occured"
+							$SMTPError = $ehloResponse
+						}
 					}
 					$response += $ehloResponse
 			}
@@ -359,6 +365,7 @@ PARAM (
 		$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPBanner' -Value $SMTPBanner
 		$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPCertIssuer' -Value $SMTPCertIssuer
 		$ResultObject | Add-Member -MemberType NoteProperty -Name 'TLSSupport' -Value $TLSSupport
+		$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPError' -Value $SMTPError
 
 		return $ResultObject
 		#return $TLSSupport
@@ -518,6 +525,7 @@ Function Get-MailProtection
 						$StartTLSReturn = Invoke-STARTTLS -SMTPServer $MXEntry
 						[Array]$SMTPBannerArray += $StartTLSReturn.SMTPBanner
 						[Array]$SMTPCertIssuerArray += $StartTLSReturn.SMTPCertIssuer
+						[String]$SMTPError = $StartTLSReturn.SMTPError
 					}
 				}
 				If ($StartTLSReturn.TLSSupport -eq $true)
@@ -1014,6 +1022,7 @@ Function Get-MailProtection
 		Write-Host "STARTTLS Support: $StartTLSSupport" -ForegroundColor cyan
 		Write-Host "SMTPBanner: $SMTPBanner" -ForegroundColor cyan
 		Write-Host "SMTPCertIssuer: $SMTPCertIssuer" -ForegroundColor cyan
+		Write-Host "SMTPError: $SMTPError" -ForegroundColor cyan
 		Write-Host "SPF: $SPFAvailable" -ForegroundColor cyan
 		Write-Host "SPFRecord: $SPFRecord" -ForegroundColor cyan
 		Write-host "SPFLookupCount: $SPFLookupCount" -ForegroundColor cyan
@@ -1053,6 +1062,7 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'StartTLSSupport' -Value $StartTLSSupport
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPBanner' -Value $SMTPBannerArray
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPCertIssuer' -Value $SMTPCertIssuerArray
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SMTPError' -Value $SMTPError
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFAvailable' -Value $SPFAvailable
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFRecord' -Value $SPFRecord
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SPFLookupCount' -Value $SPFLookupCount
@@ -1093,9 +1103,18 @@ If ($ReturnObject -eq $true)
 #$Properties = $Result | Get-Member | where {$_.MemberType -eq "NoteProperty"} | select Name
 
 
-If ($CSVExport -ne $Null)
+If ($CSVExport -ne "")
 {
 	Write-Host "Export to CSV: $CSVExport" -ForegroundColor Cyan
+
+	# Replace Line Breaks
+	[string]$MTASTSWeb = $Result.MTASTSWeb
+	If ($MTASTSWeb -ne "")
+	{
+		$MTASTSWeb = $MTASTSWeb.replace("`r`n"," ")
+		$MTASTSWeb = $MTASTSWeb.replace("`r"," ")
+		$MTASTSWeb = $MTASTSWeb.replace("`n"," ")
+	}
 
 	# Flatten the array
 	$flattenedObject = [PSCustomObject]@{
@@ -1111,6 +1130,7 @@ If ($CSVExport -ne $Null)
 		StartTLSSupport = $Result.StartTLSSupport
 		SMTPBanner = ($Result.SMTPBanner -Join " ")
 		SMTPCertIssuer = ($Result.SMTPCertIssuer -Join " ")
+		SMTPError = $Result.SMTPError
 		SPFAvailable = $Result.SPFAvailable
 		SPFRecord = $Result.SPFRecord
 		SPFLookupCount = $Result.SPFLookupCount
@@ -1126,7 +1146,7 @@ If ($CSVExport -ne $Null)
 		BIMIAvailable = $Result.BIMIAvailable
 		BIMIRecord = $Result.BIMIRecord
 		MTASTSAvailable = $Result.MTASTSAvailable
-		MTASTSWeb = ($Result.MTASTSWeb).replace("`r`n","")
+		MTASTSWeb = $MTASTSWeb
 		TLSRPT = $Result.TLSRPT
 		Autodiscover = $Result.Autodiscover
 		LyncDiscover = $Result.Lyncdiscover
