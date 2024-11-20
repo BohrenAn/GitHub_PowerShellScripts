@@ -69,6 +69,7 @@
 .RELEASENOTES
 Version 1.15
 - Fixed a Bug in Reverse Lookup of MX Records
+- Added SMTPError to Output
 - Added -ExportCSV Parameter
 - Some minor Bugfixes
 #>
