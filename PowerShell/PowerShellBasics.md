@@ -158,7 +158,6 @@ $csv = Import-Csv c:\mitarbeiter.csv -Header $header -Delimiter ";"
 Get-ADUser | select-object sn, givenName, title | export-csv C:\ad-name-title.csv -encoding UTF8 -NoTypeInformation
 ```
 
-
 # Filesystem
 ```pwsh
 cd c:\temp
@@ -220,7 +219,18 @@ $arr = $domuser.split("\")
 $domain = $arr[0]
 $sam = $arr[1]
 ```
- 
+
+# DNS
+
+```pwsh
+#Resolve-DnsName does only work on Windows
+Resolve-DnsName -Name "www.facebook.com"
+Resolve-DnsName -Name "www.facebook.com" -Server 8.8.8.8
+Resolve-DnsName -Name "www.facebook.com" -Server 8.8.8.8 -Type "MX"
+
+#Get your Public IP
+(Resolve-DnsName -Name "myip.opendns.org").IPAddress
+```
 # Registry
 ```pwsh
 Get-ItemProperty -path "REGISTRY::\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\WinTrust\Trust Providers\Software Publishing\" -name State
@@ -429,7 +439,7 @@ $Cred = New-Object System.Management.Automation.PSCredential $Username,$Password
 
 # Securestring
 ```pwsh
-$Password = ConvertTo-SecureString Pass@word1 -AsPlainText -Force
+$Password = ConvertTo-SecureString "Pass@word1" -AsPlainText -Force
 ```
 
 # Run a Script
