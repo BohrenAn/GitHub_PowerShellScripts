@@ -627,17 +627,18 @@ Function Get-MailProtection
 	}
 
 	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$Domain&type=TXT"
-	$SPFRecord = $json.Answer.data | Where-Object {$_ -like "V=SPF1*"}
+	[Array]$SPFRecord = $json.Answer.data | Where-Object {$_ -like "V=SPF1*"}
 	If ($SPFRecord.Count -eq 0)
 	{
 		$SPFRecord = $NULL
 	} else {
-		#SPF Record Presend
+		#SPF Record Present
 		If ($SPFRecord.Count -eq 1)
 		{
 			[string]$SPFRecord = ($SPFRecord | Out-String).Replace("'","").Trim()
 			$SPFLookupCount = Get-SPFLookupCount -Domain $Domain
 		} else {
+			Write-Debug "Multiple SPF Records found"
 			$SPFRecord = "MULTIPLE SPF RECORDS"
 		}
 	}
