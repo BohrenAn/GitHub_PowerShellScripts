@@ -2,6 +2,7 @@
 # Search-AuditlogGraph.ps1
 # https://learn.microsoft.com/en-us/graph/api/resources/security-auditlogquery?view=graph-rest-beta
 # 14.07.2024 - Initial Version - Andres Bohren
+# 09.12.2024 - Removed Get-MgBetaSecurityAuditLogQuery - Andres Bohren
 ###############################################################################
 
 #Connect to Graph - Interactive
@@ -52,15 +53,24 @@ If ($SearchId -eq $null -or $SearchId -eq "")
 ###############################################################################
 Write-Output "Wait for Search to complete"
 #$AuditSearch = Get-MgBetaSecurityAuditLogQuery -AuditLogQueryId $SearchId | fl
-$AuditSearch = Get-MgBetaSecurityAuditLogQuery -AuditLogQueryId $SearchId
+#$AuditSearch = Get-MgBetaSecurityAuditLogQuery -AuditLogQueryId $SearchId
+$URI = "https://graph.microsoft.com/beta/security/auditLog/queries/$searchId"
+$AuditSearch = Invoke-MgGraphRequest -Method "GET" -Uri $Uri
 $AuditSearchStatus = $AuditSearch.Status
 Write-Output "Status: $AuditSearchStatus"
 While ($AuditSearch.Status -ne "succeeded")
 {
+	#Status: notStarted, running, succeeded, failed
 	$AuditSearch = Get-MgBetaSecurityAuditLogQuery -AuditLogQueryId $SearchId
     $AuditSearchStatus = $AuditSearch.Status
 	Write-Output "Status: $AuditSearchStatus"
 	Start-Sleep -Seconds 60
+
+	If ($AuditSearchStatus -eq "failed")
+	{
+		Write-Output "Audit Search failed - aborting Script"
+		Exit
+	}
 }
 
 ###############################################################################
