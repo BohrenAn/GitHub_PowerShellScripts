@@ -1,22 +1,28 @@
-# Integrated Help
+# PowerShell Basics
+
+## Integrated Help
+
 ```pwsh
 Get-Help
 Get-Help Get-Date
 Get-Help *
 ```
 
-# List all cmdlets
+## List all cmdlets
+
 ```pwsh
 Get-Command
 Get-Command -Module MicrosoftTeams
 ```
 
-# Powershell Version
+## Powershell Version
+
 ```pwsh
 Get-Host | Select-Object Version
 ```
 
-# Execution Policy
+## Execution Policy
+
 ```pwsh
 Get-Help about_signing
 Get-ExecutionPolicy
@@ -26,19 +32,19 @@ Set-ExecutionPolicy RemoteSigned
 
 | Policy Wert | Beschreibung |
 | --- | --- |
-| Restricted (Default) |	Keine Skripte werden ausgeführt |
-| Allsigned	| Nur signierte Skripte werden ausgeführt |
-| RemoteSigned	| Lokal erstellte Skripte sind erlaubt, aber andere Skripte müssen signiert sein |
+| Restricted (Default) | Keine Skripte werden ausgeführt |
+| Allsigned | Nur signierte Skripte werden ausgeführt |
+| RemoteSigned | Lokal erstellte Skripte sind erlaubt, aber andere Skripte müssen signiert sein |
 | Unrestricted | Jedes Skript wird ausgeführt |
 
+## Powershell Datatypes
 
-# Powershell Datatypes
 |Datatype | Beschreibung |
 | --- | --- |
 | [string] | Fixed-length string of Unicode characters |
 | [char] | A Unicode 16-bit character |
 | [byte] | An 8-bit unsigned character |
-| [int]	| 32-bit signed integer |
+| [int]    | 32-bit signed integer |
 | [long] | 64-bit signed integer |
 | [bool] | Boolean True/False value |
 | [decimal] | A 128-bit decimal value |
@@ -49,8 +55,8 @@ Set-ExecutionPolicy RemoteSigned
 | [array] | An array of values |
 | [hashtable] | Hashtable object |
 
+## Compare Operator
 
-# Compare Operator
 | Operator | Beschreibung |
 | --- | --- |
 | -lt | Less than |
@@ -65,23 +71,24 @@ Set-ExecutionPolicy RemoteSigned
 | -notlike | Not Like - uses wildcards for pattern matching |
 | -match | Match - uses regular expressions for pattern matching |
 | -notmatch | Not Match - uses regular expressions for pattern matching |
-| -band	| Bitwise AND |
+| -band    | Bitwise AND |
 | -bor | Bitwise OR |
 | -is | Is of Type  |
 | -isnot | Is not of Type |
 
-# Operator
+## Operator
+
 | Operator | Beschreibung |
 | --- | --- |
 | \# | The hash key is for comments |
 | \+ | Add  |
 | \- | Subtract |
 | \* | Multiply |
-| /	| Divide |
-| %	| Modulus (Some call it Modulo) - Means remainder 17 % 5 = 2 Remainder |
-| =	| equal |
+| / | Divide |
+| % | Modulus (Some call it Modulo) - Means remainder 17 % 5 = 2 Remainder |
+| = | equal |
 | -not | logical not equal |
-| !	| logical not equa |
+| ! | logical not equa |
 | -replace | Replace (e.g.  "abcde" -replace "b","B") (case insensitive) |
 | -ireplace | Case-insensitive replace (e.g.  "abcde" -ireplace "B","3") |
 | -creplace | Case-sensitive replace (e.g.  "abcde" -creplace "B","3") |
@@ -89,29 +96,32 @@ Set-ExecutionPolicy RemoteSigned
 | -or | OR  (e.g. ($a -eq "A" -OR $a -eq "B") ) |
 | -as | convert to type (e.g. 1 -as [string] treats 1 as a string ) |
 | .. | Range operator |
-| &	| call operator |
+| & | call operator |
 | . (space) | call operator (e.g. $a = "Get-ChildItem" . $a executes Get-ChildItem in the current scope) |
-| .	| for an objects properties $CompSys.TotalPhysicalMemory |
+| . | for an objects properties $CompSys.TotalPhysicalMemory |
 | -F | Format operator |
 
+## Pipe
 
-# Pipe
 ```pwsh
 Get-Service | fl name, status
 Get-Service | ft name, status
 ```
 
-# Pipe Output to clipboard
+## Pipe Output to clipboard
+
 ```pwsh
 Get-Service | clip
 ```
 
-# Sort
+## Sort
+
 ```pwsh
 Get-Service | Sort-Object -Property status
 ```
 
-# Select
+## Select
+
 ```pwsh
 $Services = Get-Service
 $Services[0] | Format-List
@@ -121,44 +131,52 @@ $Services | Select-Object Name, DisplayName, Status
 $Object | select-object @{Name="Property1"; Expression={$_.PropertyObject.Property1}}
 ```
 
-# Where
+## Where
+
 ```pwsh
 Get-Service | Where-Object {$_.status -eq "Running"}
 ```
 
-# Count Objects
+## Count Objects
+
 ```pwsh
 Get-Service | Where-Object {$_.status -eq "Running"} | Measure-Object
 ```
 
-# Output
+## Output
+
 ```pwsh
 Write-Host "Test"
 Write-Host "Test" -ForegroundColor "Green"
 ```
 
-# Output in HTML
+## Output in HTML
 ```pwsh
 Get-Service | ConvertTo-Html -Property Name,Status > D:\Temp\Service.html
 ```
 
-# Input
+## Input
+
 ```pwsh
 $a = Read-Host "Enter your name"
 Write-Host "Hello" $a
 ```
-# Import-CSV
+
+## Import-CSV
+
 ```pwsh
 $Header = "Vorname", "Nachname"
 $csv = Import-Csv c:\mitarbeiter.csv -Header $header -Delimiter ";"
 ```
 
-# Export-CSV
+## Export-CSV
+
 ```pwsh
 Get-ADUser | select-object sn, givenName, title | export-csv C:\ad-name-title.csv -encoding UTF8 -NoTypeInformation
 ```
 
-# Filesystem
+## Filesystem
+
 ```pwsh
 cd c:\temp
 Get-ChildItem
@@ -172,11 +190,12 @@ Test-Path C:\Temp\somefile.txt
 $CSVFile = ".\demo.csv"
 If (Test-Path -Path $CSVFile)
 {
-	Remove-Item -Path $CSVFile
+    Remove-Item -Path $CSVFile
 }
 ```
 
-# Read from File
+## Read from File
+
 ```pwsh
 [string]\$Attachment = Get-Content C:\Attachment_small.txt
 $sw = new-object system.IO.StreamWriter($LogPath, 1)
@@ -184,20 +203,23 @@ $sw.readline("Just a new Line")
 $sw.close()
 ```
 
-# Out-File
+## Out-File
+
 ```pwsh
 $a = "Hello world"
 $a | out-file test.txt
 ```
 
-# WriteToFile
+## WriteToFile
+
 ```pwsh
 $sw = new-object system.IO.StreamWriter($LogPath, 1)
 $sw.writeline("Just a new Line")
 $sw.close()
 ```
 
-# Content
+## Content
+
 ```pwsh
 $CSVFile = "C:\Temp\test.txt"
 Set-Content -Path $CSVFile -Value "Header1;Header2;Header3"
@@ -205,14 +227,16 @@ Add-Content -Path $CSVFile -Value "$Var1;$Var2;$Var3"
 Get-Content -Path $CSVFile
 ```
 
-# Replace
+## Replace
+
 ```pwsh
 $test = "This is just a test"
 $test= $test.Replace("test", "text")
 $test
 ```
- 
-# Split
+
+## Split
+
 ```pwsh
 $domuser = "DOMAIN\widmanaf"
 $arr = $domuser.split("\")
@@ -220,7 +244,7 @@ $domain = $arr[0]
 $sam = $arr[1]
 ```
 
-# DNS
+## DNS
 
 ```pwsh
 #Resolve-DnsName does only work on Windows
@@ -231,18 +255,22 @@ Resolve-DnsName -Name "www.facebook.com" -Server 8.8.8.8 -Type "MX"
 #Get your Public IP
 (Resolve-DnsName -Name "myip.opendns.org").IPAddress
 ```
-# Registry
+
+## Registry
+
 ```pwsh
 Get-ItemProperty -path "REGISTRY::\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\WinTrust\Trust Providers\Software Publishing\" -name State
 Get-ItemProperty -path "REGISTRY::\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\WinTrust\Trust Providers\Software Publishing\" -name State -value 146944
 ```
 
-# WMI
+## WMI
+
 ```pwsh
 Get-WMIObject -Class Win32_Computersystem
 ```
 
-# Date
+## Date
+
 ```pwsh
 [datetime]$datum = "11/01/2012"
 $Datum = get-date
@@ -250,67 +278,76 @@ $Datum = (Get-Date).addDays(5)
 $Datum =  $(get-date -format "dd.MM.yyyy HH:mm:ss")
 ```
 
-# If Else
+## If Else
+
 ```pwsh
 If ($Count -gt 0) {
-	Write-Host("Computer " + $Computername + " found") -foregroundcolor Green
+    Write-Host("Computer " + $Computername + " found") -foregroundcolor Green
 } else {
-	Write-Host("Computer " + $Computername + " NOT found") -foregroundcolor Red
+    Write-Host("Computer " + $Computername + " NOT found") -foregroundcolor Red
 }
 ```
 
-# Condition
+## Condition
+
 ```pwsh
 $a = "red"
 switch ($a)
 {
-	"red" {"The colour is red"}
-	"white"{"The colour is white"}
-	default{"Another colour"}
+    "red" {"The colour is red"}
+    "white"{"The colour is white"}
+    default{"Another colour"}
 }
 ```
 
-# Match
+## Match
+
 ```pwsh
     $string = "Just a little string"
     $searchstring = "little"
     $result = $string -match $searchstring #Result is TRUE
 ```
 
-# For Each
+## For Each
+
 ```pwsh
 Foreach ($Item in $Items)
 {
-	Write-Host("Do whatever you want")
+    Write-Host("Do whatever you want")
 }
 ```
 
-# Range
+## Range
+
 ```pwsh
 $range = 1..2000
 ForEach ($iterator in $range) 
 {
-	$Groupname = "Group" + "{0:D4}" -f $iterator
-	New-QADGroup -Name $groupname -SamAccountName $groupname -ParentContainer 'OU=Groups,OU=TEST,DC=destination,DC=internal' -Member j.doe
+    $Groupname = "Group" + "{0:D4}" -f $iterator
+    New-QADGroup -Name $groupname -SamAccountName $groupname -ParentContainer 'OU=Groups,OU=TEST,DC=destination,DC=internal' -Member j.doe
 }
 ```
 
-# Do While
+## Do While
+
 ```pwsh
 $a=1
 Do {$a; $a++}
 While ($a –lt 10)
 ```
 
-# Do Until
+## Do Until
+
 ```pwsh
 $a=1
 Do {$a; $a++}
 Until ($a –gt 10)
 ```
 
-# Array
+## Array
+
 > Is depreciated
+
 ```pwsh
 #Arrays are depreciated and should not be used anymore - they also have a bad performance
 
@@ -323,7 +360,8 @@ $myarray.GetType()
 $myarray
 $myarray[0]
 ```
-## Arraylist
+
+### Arraylist
 > Is depreciated
 ```pwsh
 #Arraylists are depreciated
@@ -334,7 +372,8 @@ $ArrayList
 $ArrayList[0]
 ```
 
-## List
+### List
+
 ```pwsh
 $MyList = [System.Collections.Generic.List[object]]::new()
 $MyList = [System.Collections.Generic.List[int]]::new()
@@ -348,14 +387,17 @@ $MyList.Remove("Value2")
 $MyList
 ```
 
-## String from Array
+### String from Array
+
 > Requires PowerShell 7.x
+
 ```pwsh
 $StringFromArray = $MyList  | Join-String -Separator ","
 $StringFromArray
 ```
 
 ## Hashtable
+
 ```pwsh
 #Initialize Hashtable (Key / Value Pair) > Key needs to be unique
 $ageList = @{}
@@ -378,7 +420,8 @@ $ageList = @{
 }
 ```
 
-# PSCustomObject
+## PSCustomObject
+
 ```pwsh
 $myObject = [PSCustomObject]@{
     Name     = 'Kevin'
@@ -398,38 +441,43 @@ $myHashtable = @{
 $myObject = [pscustomobject]$myHashtable
 ```
 
-# Powershell Snapin
+## Powershell Snapin
+
 ```pwsh
 #Check if Forefront Snapin is already loaded
 $Snapins = get-pssnapin
 if ($Snapins -match "FSSPSSnapin")
-	{
-		Write-Output $("Forefront PS Snapin already loaded")
-	}
-	else
-	{
-		Write-Output $("Loading Forefront PS Snapin")
-		Add-PsSnapin FSSPSSnapin
-	}
+    {
+        Write-Output $("Forefront PS Snapin already loaded")
+    }
+    else
+    {
+        Write-Output $("Loading Forefront PS Snapin")
+        Add-PsSnapin FSSPSSnapin
+    }
 ```
 
-# Eventlog
+## Eventlog
+
 ```pwsh
 Get-EventLog System -Newest 10
 ```
 
-# Garbage Collector
+## Garbage Collector
+
 ```pwsh
 [System.GC]::Collect()
 ```
 
-# COM Objekte
+## COM Objekte
+
 ```pwsh
 $a = New-Object –comobject "wscript.network"
 $a.username
 ```
 
-# Credential
+## Credential
+
 ```pwsh
 $Cred = Get-Credential
 $Username = "domain\username"
@@ -437,24 +485,28 @@ $Password = ConvertTo-SecureString -String "YourPassword" -AsPlainText -Force
 $Cred = New-Object System.Management.Automation.PSCredential $Username,$Password
 ```
 
-# Securestring
+## Securestring
+
 ```pwsh
 $Password = ConvertTo-SecureString "Pass@word1" -AsPlainText -Force
 ```
 
-# Run a Script
+## Run a Script
+
 ```pwsh
 powershell.exe "c:\myscript.ps1"
 ```
 
-# Parameter
+## Parameter
+
 ```pwsh
 myscript.ps1 server1 username
 $servername = $args[0]
 $username = $args[1]
 ```
 
-# Function
+## Function
+
 ```pwsh
 function sum ([int]$a,[int]$b)
 {
@@ -464,7 +516,8 @@ function sum ([int]$a,[int]$b)
 sum 4 5
 ```
 
-# Funktion WriteLog
+## Funktion WriteLog
+
 ```pwsh
 ###############################################################################
 # Function WriteLog
@@ -481,7 +534,8 @@ Function WriteLog {
 }
 ```
 
-# SQL Querys
+## SQL Querys
+
 ```pwsh
 ###############################################################################
 # SQL Query's with Powershell
@@ -501,9 +555,9 @@ $SqlCmd.Connection = $SqlConnection
 $SQLReader = $SqlCmd.ExecuteReader()
 while ($sqlReader.Read()) 
 {
-	$Column1 = $sqlReader["Column1"]
-	$Column2 = $sqlReader["Column2"]
-	Write-Host "Column1: $Column1 / Column2: $Column2"
+    $Column1 = $sqlReader["Column1"]
+    $Column2 = $sqlReader["Column2"]
+    Write-Host "Column1: $Column1 / Column2: $Column2"
 }
 $SQLReader.close()
 
@@ -524,6 +578,7 @@ $SqlConnection.Close()
 ```
 
 ## JSON
+
 Convert JSON to Object
 
 ```pwsh
@@ -547,16 +602,16 @@ $AllMessages += $result.value
 
 $INT = 0
 if ($result.'@odata.nextLink') 
-{	
-	do {
-		$INT = $INT + 1
-		Write-Host "Invoke Odata.NextLink [$INT]"
-		$result = (Invoke-RestMethod -Uri $result.'@odata.nextLink' -Headers $Headers -Method Get -ContentType $ContentType)
-		$AllMessages += $result.value
+{    
+    do {
+        $INT = $INT + 1
+        Write-Host "Invoke Odata.NextLink [$INT]"
+        $result = (Invoke-RestMethod -Uri $result.'@odata.nextLink' -Headers $Headers -Method Get -ContentType $ContentType)
+        $AllMessages += $result.value
 
-	} until (
-		!$result.'@odata.nextLink'
-	)
+    } until (
+        !$result.'@odata.nextLink'
+    )
 }
 
 $AllMessages
