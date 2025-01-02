@@ -303,9 +303,9 @@ switch ($a)
 ## Match
 
 ```pwsh
-    $string = "Just a little string"
-    $searchstring = "little"
-    $result = $string -match $searchstring #Result is TRUE
+$string = "Just a little string"
+$searchstring = "little"
+$result = $string -match $searchstring #Result is TRUE
 ```
 
 ## For Each
@@ -489,6 +489,14 @@ $Cred = New-Object System.Management.Automation.PSCredential $Username,$Password
 
 ```pwsh
 $Password = ConvertTo-SecureString "Pass@word1" -AsPlainText -Force
+```
+
+## Properties from Sub Objects
+
+```pwsh
+Connect-MgGraph -NoWelcome
+$MgUser = Get-MgUser -UserId m.muster@icewolf.ch -Property DisplayName, Id, Mail, UserPrincipalName, AssignedLicenses
+$MgUser | ft UserPrincipalName, @{Name="DisabledPlans";Expression={$_.AssignedLicenses.DisabledPlans}},@{Name="SKUID";Expression={$_.AssignedLicenses.skuid}}
 ```
 
 ## Run a Script
