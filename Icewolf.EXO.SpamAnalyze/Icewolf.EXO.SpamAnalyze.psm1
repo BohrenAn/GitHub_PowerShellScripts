@@ -33,6 +33,10 @@
 # V2.0.11 17.07.2024
 # - Added Try Catch for Get-EOPIP
 # - Fixed an Error with DKIM Checks
+# V2.0.12 13.10.2024
+# - Updated the ReqiredModule ExchangeOnlineManagement to 3.6.0
+# V2.0.13 07.01.2025
+# - Added Support for Get-MessageTraceV2 / Get-MessageTraceDetailV2
 ##############################################################################
 #Requires -Modules ExchangeOnlineManagement
 
@@ -75,8 +79,7 @@ Function Get-EOPIP {
 
 	Try {
 		#Get Exchange Endpoints
-		$uri = "https://endpoints.office.com/endpoints/worldwide?ServiceAreas=Exchange&NoIPv6=true&ClientRequestId=$ClientRequestId"
-		#"DEBUG: URL $uri"
+		$uri = "https://endpoints.office.com/endpoints/worldwide?ServiceAreas=Exchange&NoIPv6=true&ClientRequestId=$ClientRequestId"		
 		$Result = Invoke-RestMethod -Method GET -uri $uri
 	} catch {
 		if($_.ErrorDetails.Message) {
@@ -107,15 +110,24 @@ Function Invoke-SpamAnalyze
 .PARAMETER SenderAddress
 	The Emailadress of the Sender
 
-	.EXAMPLE
-.\Invoke-SpamAnalyze -SenderAddress SenderAddress@domain.tld -RecipientAddress RecipientAddress@domain.tld
+.PARAMETER StartDate
+	Optional Parameter: Startdate <DateTime> of MessageTrace (by default current Date - 10)
+
+.PARAMETER EndDate
+	Optional Parameter: Enddate <DateTime> of MessageTrace (by default current Date)
+
+.EXAMPLE
+.\Invoke-SpamAnalyze -SenderAddress SenderAddress@domain.tld -RecipientAddress RecipientAddress@domain.tld [-StartDate 01/01/2025] [-EndDate 01/10/2025]
 
 .LINK
+https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Icewolf.EXO.SpamAnalyze
 #>
 
 Param(
 	[parameter(Mandatory=$true)][String]$RecipientAddress,
-	[parameter(Mandatory=$true)][String]$SenderAddress
+	[parameter(Mandatory=$true)][String]$SenderAddress,
+	[parameter(Mandatory=$false)][datetime]$StartDate = (Get-Date).AddDays(-10),
+	[parameter(Mandatory=$false)][datetime]$EndDate = (Get-Date)
 	)
 
 Begin {
@@ -144,20 +156,34 @@ Begin {
 	}
 
 	##############################################################################
-	# Check MessageTraceDetail
+	# Get-SPAMinfo
 	##############################################################################
 	Function Get-SPAMinfo {
 		Param(
 			[parameter(Mandatory=$false)][String]$RecipientAddress,
 			[parameter(Mandatory=$false)][String]$SenderAddress,
-			[parameter(Mandatory=$true)][String]$MessageTraceId
+			[parameter(Mandatory=$true)][String]$MessageTraceId,
+			[parameter(Mandatory=$false)][datetime]$StartDate = (Get-Date).AddDays(-10),
+			[parameter(Mandatory=$false)][datetime]$EndDate = (Get-Date)
 			)
 
-		$Start = (Get-Date).AddDays(-10)
-		$End = (Get-Date)
+		#Check Get-MessageTracev2, Get-MessageTraceDetailV2
+		[bool]$MTV2Available = $False
+		[Array]$Commands = Get-Command Get-MessageTracev2, Get-MessageTraceDetailV2
+		IF ($Commands.Count -ge 2)
+		{
+			[bool]$MTV2Available = $True
+		}
 
 		Write-Host "Message events:" -ForegroundColor Magenta
-		$MTDetail = Get-MessageTraceDetail -MessageTraceId $MessageTraceId -RecipientAddress $RecipientAddress -SenderAddress $SenderAddress -StartDate $Start -EndDate $End | Sort-Object Date
+		If ($MTV2Available -eq $true)
+		{
+			Write-Debug "Using Get-MessageTraceDetailV2"
+			$MTDetail = Get-MessageTraceDetailV2 -MessageTraceId $MessageTraceId -RecipientAddress $RecipientAddress -SenderAddress $SenderAddress -StartDate $StartDate -EndDate $EndDate | Sort-Object Date
+		} else {
+			$MTDetail = Get-MessageTraceDetail -MessageTraceId $MessageTraceId -RecipientAddress $RecipientAddress -SenderAddress $SenderAddress -StartDate $StartDate -EndDate $EndDate | Sort-Object Date
+		}	
+		
 
 		$MTEventFail = $MTDetail | Where-Object {$_.event -eq "Failed"}
 		If ($Null -ne $MTEventFail) {
@@ -313,6 +339,9 @@ Begin {
 	}
 }
 
+##############################################################################
+# Main Programm
+##############################################################################
 Process {
 	#Set Window and Buffersize
 	$pshost = get-host
@@ -337,28 +366,54 @@ Process {
 	#Check if Messagetrace is available
 	Try {
 		Get-Command Get-MessageTrace -ErrorAction Stop | Out-Null
+		Get-Command Get-MessageTraceV2 -ErrorAction Stop | Out-Null
 	} catch {
-		Write-Host "No Permission for the Command: Get-MessageTrace. Stopping script."
+		Write-Host "No Permission for the Command: Get-MessageTrace or Get-MessageTraceV2. Stopping script."
 		#exit
 		Break
 	}
 
-	#Set Start- and Enddate for Messagetrace
-	$Start = ((Get-Date).AddDays(-10))
-	$End = Get-Date
+	#Check Get-MessageTracev2, Get-MessageTraceDetailV2
+	[bool]$MTV2Available = $False
+	[Array]$Commands = Get-Command Get-MessageTracev2, Get-MessageTraceDetailV2
+	IF ($Commands.Count -ge 2)
+	{
+		[bool]$MTV2Available = $True
+	}
+	
 
 	#Messagetrace depending on Parameters
 	If ($SenderAddress -ne $Null)
 	{
 		If ($RecipientAddress -ne $Null)
 		{
-			$MT = Get-MessageTrace -StartDate (get-date).AddDays(-10) -EndDate (get-date) -SenderAddress $SenderAddress -RecipientAddress $RecipientAddress
+			If ($MTV2Available -eq $true)
+			{
+				Write-Debug "Using Get-MessageTraceV2"
+				$MT = Get-MessageTraceV2 -StartDate $StartDate -EndDate $EndDate -SenderAddress $SenderAddress -RecipientAddress $RecipientAddress
+			} else {
+				$MT = Get-MessageTrace -StartDate $StartDate -EndDate $EndDate -SenderAddress $SenderAddress -RecipientAddress $RecipientAddress
+			}
+			
 		} else {
-			$MT = Get-MessageTrace -StartDate (get-date).AddDays(-10) -EndDate (get-date) -SenderAddress $SenderAddress
+			If ($MTV2Available -eq $true)
+			{
+				Write-Debug "Using Get-MessageTraceV2"
+				$MT = Get-MessageTraceV2 -StartDate $StartDate -EndDate $EndDate -SenderAddress $SenderAddress	
+			} else {
+				$MT = Get-MessageTrace -StartDate $StartDate -EndDate $EndDate -SenderAddress $SenderAddress
+			}
 		}
 	} else {
 		#SenderAddress = $Null / RecipientAddress populated
-		$MT = Get-MessageTrace -StartDate (get-date).AddDays(-10) -EndDate (get-date) -RecipientAddress $RecipientAddress
+		If ($MTV2Available -eq $true)
+		{
+			Write-Debug "Using Get-MessageTraceV2"
+			$MT = Get-MessageTraceV2 -StartDate $StartDate -EndDate $EndDate -RecipientAddress $RecipientAddress
+		} else {
+			$MT = Get-MessageTrace -StartDate $StartDate -EndDate $EndDate -RecipientAddress $RecipientAddress
+		}	
+		
 	}
 	#$MT | Format-Table Received, SenderAddress, RecipientAddress, Subject, Status, MessageTraceID
 	$MT | Select-Object Received, SenderAddress, RecipientAddress, @{label='Subject';expression={$_.Subject.Substring(0,20)}}, Status, MessageTraceID  | Format-Table
@@ -374,15 +429,11 @@ Process {
 		If ($readhost -eq "")
 		{
 			Write-Host "Not a MessageTraceID... Stopping Script"
-		} else {
-			#Write-Host "DEBUG: Readhost: $readhost"
+		} else {			
 			Foreach ($Line in $MT)
 			{
 				If ($readhost -eq $Line.MessageTraceId)
 				{
-					#Write-Host "DEBUG: MessageTraceID: $($Line.MessageTraceId)"
-					#Write-Host "DEBUG: Sender: $($Line.Senderaddress)"
-					#Write-Host "DEBUG: Recipient: $($Line.RecipientAddress)"
 					$MessageTraceId = $Line.MessageTraceId
 					$MTSenderAddress = $Line.Senderaddress
 					$MTRecipientAddress = $Line.RecipientAddress
@@ -478,6 +529,7 @@ Process {
 					#GLOBALConfig
 					Write-Host "Check if $MTSenderAddress exists in GLOBAL Trusted-/BlockedSender list: " -ForegroundColor Magenta
 					$GLOBALJunkConfig = Get-HostedContentFilterPolicy
+
 					#Allowed Senders
 					If ($GLOBALJunkConfig.AllowedSenders -match $MTSenderAddress)
 					{
@@ -586,7 +638,7 @@ Process {
 					Write-Host
 
 					#Spam Details
-					Get-SPAMinfo -RecipientAddress $MTRecipientAddress -SenderAddress $MTSenderAddress -MessageTraceId $MessageTraceId
+					Get-SPAMinfo -RecipientAddress $MTRecipientAddress -SenderAddress $MTSenderAddress -MessageTraceId $MessageTraceId -StartDate $StartDate -EndDate $EndDate
 
 					#DNS Records
 					Write-Host "DNS Records of $SenderDomain" -ForegroundColor Magenta

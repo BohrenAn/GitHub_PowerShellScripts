@@ -8,7 +8,7 @@
 RootModule = 'Icewolf.EXO.SpamAnalyze.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.0.12'
+ModuleVersion = '2.0.13'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -23,10 +23,10 @@ Author = 'Andres Bohren'
 CompanyName = 'icewolf.ch'
 
 # Copyright statement for this module
-Copyright = '(c) 2023 Andres Bohren. All rights reserved.'
+Copyright = '(c) 2025 Andres Bohren. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'This is a Powershell Module that simplifies the Message Trace in Exchange Online (EXO). Install-Module Icewolf.EXO.SpamAnalyze'
+Description = 'This is a Powershell Module that simplifies the Message Trace in Exchange Online (EXO).'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '5.1'
@@ -107,8 +107,8 @@ PrivateData = @{
         ReleaseNotes = '
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
-V2.0.12 
-- Updated the ReqiredModule ExchangeOnlineManagement to 3.6.0 
+V2.0.13 07.01.2025
+- Added Support for Get-MessageTraceV2 / Get-MessageTraceDetailV2
 ---------------------------------------------------------------------------------------------
 '
 
