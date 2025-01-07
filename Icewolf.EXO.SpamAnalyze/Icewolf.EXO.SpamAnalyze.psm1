@@ -37,6 +37,7 @@
 # - Updated the ReqiredModule ExchangeOnlineManagement to 3.6.0
 # V2.0.13 07.01.2025
 # - Added Support for Get-MessageTraceV2 / Get-MessageTraceDetailV2
+# - Updated the ReqiredModule ExchangeOnlineManagement to 3.6.0
 ##############################################################################
 #Requires -Modules ExchangeOnlineManagement
 

@@ -47,7 +47,7 @@ PowerShellVersion = '5.1'
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @(@{ModuleName = 'ExchangeOnlineManagement'; GUID = 'b5eced50-afa4-455b-847a-d8fb64140a22'; ModuleVersion = '3.6.0'})
+RequiredModules = @(@{ModuleName = 'ExchangeOnlineManagement'; GUID = 'b5eced50-afa4-455b-847a-d8fb64140a22'; ModuleVersion = '3.7.0'})
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -109,6 +109,7 @@ PrivateData = @{
 Whats new in this release:
 V2.0.13 07.01.2025
 - Added Support for Get-MessageTraceV2 / Get-MessageTraceDetailV2
+- Updated the ReqiredModule ExchangeOnlineManagement to 3.7.0
 ---------------------------------------------------------------------------------------------
 '
 
