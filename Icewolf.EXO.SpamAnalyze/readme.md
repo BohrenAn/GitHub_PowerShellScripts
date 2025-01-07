@@ -61,6 +61,11 @@ Then select and paste the MessageTraceID
 
 ## Release Notes
 
+V2.0.14 07.01.2025
+
+- Added Support for Get-MessageTraceV2 / Get-MessageTraceDetailV2
+- Updated the ReqiredModule ExchangeOnlineManagement to 3.7.0
+
 V2.0.13 07.01.2025
 
 - Added Support for Get-MessageTraceV2 / Get-MessageTraceDetailV2
