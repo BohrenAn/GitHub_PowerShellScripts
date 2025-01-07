@@ -8,7 +8,7 @@
 RootModule = 'Icewolf.EXO.SpamAnalyze.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.0.13'
+ModuleVersion = '2.0.14'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -107,7 +107,7 @@ PrivateData = @{
         ReleaseNotes = '
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
-V2.0.13 07.01.2025
+V2.0.14 07.01.2025
 - Added Support for Get-MessageTraceV2 / Get-MessageTraceDetailV2
 - Updated the ReqiredModule ExchangeOnlineManagement to 3.7.0
 ---------------------------------------------------------------------------------------------
