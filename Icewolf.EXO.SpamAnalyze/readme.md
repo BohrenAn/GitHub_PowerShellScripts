@@ -31,19 +31,32 @@ Get-Help Invoke-SpamAnalyze -Full
 ## Usage
 
 ```pwsh
-Invoke-SpamAnalyze [-RecipientAddress] <String> [-SenderAddress] <String> -StartDate <DateTime> -EndDate <DateTime> [<CommonParameters>]
+Invoke-SpamAnalyze [-RecipientAddress] <String> [-SenderAddress] <String> [Optional: -StartDate <DateTime>] [Optional: -EndDate <DateTime>] [<CommonParameters>]
+
+#Check Spam (automatic search in the last 10 days)
 Invoke-SpamAnalyze -SenderAddress SenderAddress@domain.tld -RecipientAddress RecipientAddress@domain.tld
-
-Invoke-SpamAnalyze -SenderAddress SenderAddress@domain.tld -RecipientAddress RecipientAddress@domain.tld -StartDate "01/01/2025" -EndDate "01/10/2025"
-
 ```
+
+Invoke-SpamAnalyze without -StartDate and -EndDate Parameter
 
 ![Image](Icewolf.EXO.SpamAnalyze_01.jpg)
 
 Then select and paste the MessageTraceID
 
 ![Image](Icewolf.EXO.SpamAnalyze_02.jpg)
- 
+
+```pwsh
+#Check Spam with StartDate and Enddate (max 90 days back but only 10 days between StartDate and -EndDate)
+Invoke-SpamAnalyze -SenderAddress SenderAddress@domain.tld -RecipientAddress RecipientAddress@domain.tld -StartDate "01/01/2025" -EndDate "01/10/2025"
+```
+
+Invoke-SpamAnalyze with -StartDate and -EndDate Parameter
+
+![Image](Icewolf.EXO.SpamAnalyze_03.jpg)
+
+Then select and paste the MessageTraceID
+
+![Image](Icewolf.EXO.SpamAnalyze_04.jpg)
 
 ## Release Notes
 V2.0.13 07.01.2025
@@ -68,4 +81,3 @@ V2.0.9 09.02.2022
 V2.0.8 11.11.2022
 - Requires now ExchangeOnlineManagement 3.0.0
 - Addet TentantAllowBlockList checks
-
