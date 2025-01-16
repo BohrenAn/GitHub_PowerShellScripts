@@ -7,6 +7,10 @@
 //Check a single User
 SigninLogs | where UserPrincipalName == ewservice@icewolf.ch
 
+//SignIn from a User including the DeviceID
+SigninLogs
+| where UserPrincipalName == "h.muster@icewolf.ch"
+| project UserPrincipalName, TimeGenerated, DeviceID = DeviceDetail.deviceId
 
 //Azure Active Directory PowerShell / MSOnline
 // Last 4 Hours Detail
