@@ -1159,5 +1159,5 @@ If ($CSVExport -ne "")
 	}
 
 	# Export to CSV
-	$flattenedObject | Export-Csv -Path $CSVExport -NoTypeInformation
+	$flattenedObject | Export-Csv -Path $CSVExport -NoTypeInformation #-Append
 }
