@@ -48,13 +48,16 @@
 # - Added SMTPError to Output
 # - Added -ExportCSV Parameter
 # - Some minor Bugfixes
+# Version 1.16
+# - Addet -AppendCSVExport Parameter
+# - Added EntraNameSpaceType and FederatedAuthURL to Output
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.15
+.VERSION 1.16
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -67,11 +70,9 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.15
-- Fixed a Bug in Reverse Lookup of MX Records
-- Added SMTPError to Output
-- Added -ExportCSV Parameter
-- Some minor Bugfixes
+Version 1.16
+- Addet -AppendCSVExport Parameter
+- Added EntraNameSpaceType and FederatedAuthURL to Output
 #>
 
 <#
@@ -149,7 +150,8 @@ PARAM (
 	[Parameter(Mandatory=$false)][bool]$SMTPConnect = $True,
 	[Parameter(Mandatory=$false)][switch]$ReturnObject = $false,
 	[Parameter(Mandatory=$false)][switch]$Silent = $false,
-	[Parameter(Mandatory=$false)][string]$CSVExport = $Null
+	[Parameter(Mandatory=$false)][string]$CSVExport = $Null,
+	[Parameter(Mandatory=$false)][bool]$AppendCSVExport = $False
 	)
 
 	###############################################################################
@@ -960,6 +962,26 @@ Function Get-MailProtection
 		$M365 = $False
 	}
 
+	## Check for Managed / Federated Domain
+	If ($Null -ne $TenantID)
+	{
+		If ($Silent -ne $True)
+		{
+			Write-Host "Check: M365 Tenant (OpenIDConnect)" -ForegroundColor Green
+		}
+		try {
+			#https://login.microsoftonline.com/getuserrealm.srf?login=user@swisscom.com&json=1
+			$Response = Invoke-RestMethod -URI "https://login.microsoftonline.com/getuserrealm.srf?login=user@$Domain&json=1" -Method "GET"
+			$EntraNameSpaceType = $Response.NameSpaceType
+			$FederatedAuthURL = $Response.AuthURL
+		} catch {
+			Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
+			$NameSpaceType = $Null
+			$AuthURL = $Null
+		}
+	}
+
+
 	## Check for https://securitytxt.org/
 	# Example: https://www.admin.ch/.well-known/security.txt
 	If ($Silent -ne $True)
@@ -1047,6 +1069,8 @@ Function Get-MailProtection
 		Write-Host "SkypeFederation: $SkypeFederation" -ForegroundColor cyan
 		Write-Host "M365: $M365" -ForegroundColor cyan
 		Write-Host "TenantID: $TenantID" -ForegroundColor cyan
+		Write-Host "EntraNameSpaceType: $EntraNameSpaceType" -ForegroundColor cyan
+		Write-Host "FederatedAuthURL: $FederatedAuthURL" -ForegroundColor cyan
 		Write-Host "SecurityTXT: $SecurityTXTAvailable" -ForegroundColor cyan
 	}
 
@@ -1087,6 +1111,8 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SkypeFederation' -Value $SkypeFederation
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'M365' -Value $M365
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'TenantID' -Value $TenantID
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'EntraNameSpaceType' -Value $EntraNameSpaceType
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'FederatedAuthURL' -Value $FederatedAuthURL
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SecurityTXT' -Value $SecurityTXTAvailable
 
 	return $ResultObject
@@ -1155,9 +1181,16 @@ If ($CSVExport -ne "")
 		SkypeFederation = $Result.SkypeFederation
 		M365 = $Result.M365
 		TenantID = $Result.TenantID
+		EntraNameSpaceType = $Result.EntraNameSpaceType
+		FederatedAuthURL = $Result.FederatedAuthURL
 		SecurityTXT = $Result.SecurityTXT
 	}
 
 	# Export to CSV
-	$flattenedObject | Export-Csv -Path $CSVExport -NoTypeInformation #-Append
+	If ($AppendCSVExport -eq $true)
+	{
+		$flattenedObject | Export-Csv -Path $CSVExport -NoTypeInformation -Append
+	} else {
+		$flattenedObject | Export-Csv -Path $CSVExport -NoTypeInformation
+	}
 }
