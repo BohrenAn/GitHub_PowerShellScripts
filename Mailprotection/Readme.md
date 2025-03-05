@@ -21,7 +21,7 @@ It checks for the following Information
 - DANE (DNS-based Authentication of Named Entities)
 - BIMI (Brand Indicators for Message Identification)
 - MTA-STS (SMTP MTA Strict Transport Security)
-- MTA-STS Web (https://mta-sts.domain.tld/.well-known/mta-sts.txt)
+- MTA-STS Web https://mta-sts.domain.tld/.well-known/mta-sts.txt
 - TLSRPT (TLS Reporting)
 - Autodiscover
 - Lyncdiscover
@@ -85,7 +85,7 @@ $ReturnObject
 
 ![Image](Get-Mailprotection03.jpg)
 
-# Details
+## Details
 
 ## DNS Zone Signed (DNSSEC)
 
@@ -94,15 +94,14 @@ If the JSON Returns an AD = True, it means that the DNS Zone is Signed (DNSSEC).
 
 ```pwsh
 $Domain = "domain.tld"
-$URI = "https://dns.google/resolve?name=$Domain&type=NS"	
+$URI = "https://dns.google/resolve?name=$Domain&type=NS"    
 $json = Invoke-RestMethod -URI $URI
 $json
 ```
 
 ## CAA (Certification Authority Authorization)
 
-DNS Certification Authority Authorization
-https://en.wikipedia.org/wiki/DNS_Certification_Authority_Authorization
+[DNS Certification Authority Authorization](https://en.wikipedia.org/wiki/DNS_Certification_Authority_Authorization)
 
 The CAA Record Type returns a List of Certification Authorities that are allowed to issue Certificates for that Domain.
 
@@ -173,15 +172,13 @@ Connect to the Mailserver on Port 25 and send an
 Then checks for "STARTTLS" in the Capabilities of the Mailserver.
 Also shows the Details of the Certificate
 
-Used most Code from here
-https://github.com/BohrenAn/GitHub_PowerShellScripts/blob/main/Exchange/Get-SMTPCertificate.ps1
+Used most Code from [here](https://github.com/BohrenAn/GitHub_PowerShellScripts/blob/main/Exchange/Get-SMTPCertificate.ps1)
 
 ## SPF (Sender Policy Framework)
 
 SPF exists since 2003 with Updates 2006 and 2014 [rfc7208](https://datatracker.ietf.org/doc/html/rfc7208)
 
-SPF (Sender Policy Framework)
-https://en.wikipedia.org/wiki/Sender_Policy_Framework
+[SPF (Sender Policy Framework)](https://en.wikipedia.org/wiki/Sender_Policy_Framework)
 
 SPF is a TXT Record that starts with "V=SPF1"
 The SPF Record controls what Mailservers are allowed to send Mails in the Name of the Domain
@@ -258,9 +255,9 @@ $Domain = "domain.tld"
 $MX = Resolve-DnsName -Type MX -Name domain.tld
 Foreach ($MXEntry in $MX)
 {
-	$TLSAQuery = "_25._tcp.mailserver.domain.tld"
-	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$TLSAQuery&type=TLSA"
-	$json.Answer.Data
+    $TLSAQuery = "_25._tcp.mailserver.domain.tld"
+    $json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$TLSAQuery&type=TLSA"
+    $json.Answer.Data
 }
 ```
 
@@ -297,8 +294,7 @@ $json.Answer.data | Where-Object {$_ -like "V=STSv1*"}
 
 Exists since 2018 [rfc8461](https://datatracker.ietf.org/doc/html/rfc8461)
 
-Searches for the MTA-STS Policy
-https://mta-sts.domain.tld/.well-known/mta-sts.txt
+Searches for the [MTA-STS Policy](https://mta-sts.domain.tld/.well-known/mta-sts.txt)
 
 ```pwsh
 $Domain = "domain.tld"
@@ -375,8 +371,16 @@ $json.Answer.data
 
 ```pwsh
 $Domain = "domain.tld"
-$Response = Invoke-WebRequest -UseBasicParsing https://login.windows.net/$Domain/.well-known/openid-configuration
+$Response = Invoke-WebRequest -UseBasicParsing "https://login.windows.net/$Domain/.well-known/openid-configuration"
 $TenantID = ($Response | ConvertFrom-Json).token_endpoint.Split('/')[3]
+```
+
+## EntraNameSpaceType and FederatedAuthURL
+
+```pwsh
+$Domain = "domain.tld"
+$Response = Invoke-RestMethod -URI "https://login.microsoftonline.com/getuserrealm.srf?login=user@$Domain&json=1" -Method "GET"
+$Response
 ```
 
 ## Security.txt
@@ -395,24 +399,24 @@ $Domain = "domain.tld"
 [bool]$SecurityTXTAvailable = $false
 $URI = "https://$Domain/.well-known/security.txt"
 try {
-	$Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
-	If ($Null -ne $Response)
-	{
-		[bool]$SecurityTXTAvailable = $true
-	}
+    $Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
+    If ($Null -ne $Response)
+    {
+        [bool]$SecurityTXTAvailable = $true
+    }
 } catch {
-	Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
 }
 
 $URI = "https://$Domain/security.txt"
 try {
-	$Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
-	If ($Null -ne $Response)
-	{
-		[bool]$SecurityTXTAvailable = $true
-	}
+    $Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
+    If ($Null -ne $Response)
+    {
+        [bool]$SecurityTXTAvailable = $true
+    }
 } catch {
-	Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
 }
 $SecurityTXTAvailable
 ```
@@ -459,6 +463,9 @@ $SecurityTXTAvailable
 - Version 1.15
   - Fixed a Bug in Reverse Lookup of MX Records
   - Added -ExportCSV Parameter
+- Version 1.16
+  - Addet -AppendCSVExport [$True / $False] Parameter
+  - Added EntraNameSpaceType and EntraFederatedAuthURL to Output
 
 Kind Regards\
 Andres Bohren

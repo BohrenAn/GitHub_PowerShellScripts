@@ -72,7 +72,7 @@
 .RELEASENOTES
 Version 1.16
 - Addet -AppendCSVExport Parameter
-- Added EntraNameSpaceType and FederatedAuthURL to Output
+- Added EntraNameSpaceType and EntraFederatedAuthURL to Output
 #>
 
 <#
@@ -967,17 +967,17 @@ Function Get-MailProtection
 	{
 		If ($Silent -ne $True)
 		{
-			Write-Host "Check: M365 Tenant (OpenIDConnect)" -ForegroundColor Green
+			Write-Host "Check: Entra NameSpaceType / FederatedAuthURL" -ForegroundColor Green
 		}
 		try {
 			#https://login.microsoftonline.com/getuserrealm.srf?login=user@swisscom.com&json=1
 			$Response = Invoke-RestMethod -URI "https://login.microsoftonline.com/getuserrealm.srf?login=user@$Domain&json=1" -Method "GET"
 			$EntraNameSpaceType = $Response.NameSpaceType
-			$FederatedAuthURL = $Response.AuthURL
+			$EntraFederatedAuthURL = $Response.AuthURL
 		} catch {
 			Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
-			$NameSpaceType = $Null
-			$AuthURL = $Null
+			$EntraNameSpaceType = $Null
+			$EntraFederatedAuthURL = $Null
 		}
 	}
 
@@ -1070,7 +1070,7 @@ Function Get-MailProtection
 		Write-Host "M365: $M365" -ForegroundColor cyan
 		Write-Host "TenantID: $TenantID" -ForegroundColor cyan
 		Write-Host "EntraNameSpaceType: $EntraNameSpaceType" -ForegroundColor cyan
-		Write-Host "FederatedAuthURL: $FederatedAuthURL" -ForegroundColor cyan
+		Write-Host "EntraFederatedAuthURL: $EntraFederatedAuthURL" -ForegroundColor cyan
 		Write-Host "SecurityTXT: $SecurityTXTAvailable" -ForegroundColor cyan
 	}
 
@@ -1112,7 +1112,7 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'M365' -Value $M365
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'TenantID' -Value $TenantID
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'EntraNameSpaceType' -Value $EntraNameSpaceType
-	$ResultObject | Add-Member -MemberType NoteProperty -Name 'FederatedAuthURL' -Value $FederatedAuthURL
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'EntraFederatedAuthURL' -Value $EntraFederatedAuthURL
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SecurityTXT' -Value $SecurityTXTAvailable
 
 	return $ResultObject
@@ -1182,7 +1182,7 @@ If ($CSVExport -ne "")
 		M365 = $Result.M365
 		TenantID = $Result.TenantID
 		EntraNameSpaceType = $Result.EntraNameSpaceType
-		FederatedAuthURL = $Result.FederatedAuthURL
+		EntraFederatedAuthURL = $Result.EntraFederatedAuthURL
 		SecurityTXT = $Result.SecurityTXT
 	}
 
