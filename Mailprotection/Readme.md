@@ -14,7 +14,7 @@ It checks for the following Information
 - MX Reverse Lookup
 - Connects to the MX Servers and checks for STARTTLS and shows SMTPBanner and Certificate Information
 - SPF (Sender Policy Framework)
-- SPF Count (Max 10 Lookups allowed)
+- SPF Lookup Count (Max 10 Lookups allowed)
 - DKIM (DomainKeys Identified Mail)
 - DMARC (Domain-based Message Authentication, Reporting and Conformance)
 - DMARCAuthorisationRecord
@@ -28,6 +28,8 @@ It checks for the following Information
 - Lync/Skype/Teamsfederation
 - M365 (Check via Open ID Connect)
 - M365 TenantID
+- M365 NameSpaceType (Federated / Managed)
+- M365 FederatedAuthURL (ADFS or 3rd Party Auth URI)
 - Security.txt https://securitytxt.org/
 
 ## How to Install
@@ -465,7 +467,7 @@ $SecurityTXTAvailable
   - Added -ExportCSV Parameter
 - Version 1.16
   - Addet -AppendCSVExport [$True / $False] Parameter
-  - Added EntraNameSpaceType and EntraFederatedAuthURL to Output
+  - Added M365NameSpaceType and M365FederatedAuthURL to Output
 
 Kind Regards\
 Andres Bohren

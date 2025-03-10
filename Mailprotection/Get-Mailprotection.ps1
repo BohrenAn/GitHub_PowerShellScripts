@@ -1,6 +1,6 @@
 ###############################################################################
 # Get-Mailprotection.ps1
-# Andres Bohren / www.icewolf.ch / blog.icewolf.ch / info@icewolf.ch
+# Andres Bohren / https://blog.icewolf.ch / a.bohren@icewolf.ch
 #
 # Version 1.0 / 21.02.2015 Initial Version
 # Version 1.1 / 08.04.2015 IDN Domains / Crawled Domains / Unique Domains
@@ -72,7 +72,7 @@
 .RELEASENOTES
 Version 1.16
 - Addet -AppendCSVExport Parameter
-- Added EntraNameSpaceType and EntraFederatedAuthURL to Output
+- Added M365NameSpaceType and M365FederatedAuthURL to Output
 #>
 
 <#
@@ -89,8 +89,10 @@ It checks for the following Information
 - MX Reverse Lookup
 - Connects to the MX Servers and checks for STARTTLS and shows SMTP Banner and Certificate Information
 - SPF (Sender Policy Framework)
+- SPF Lookup Count (Max 10 Lookups allowed)
 - DKIM (DomainKeys Identified Mail)
 - DMARC (Domain-based Message Authentication, Reporting and Conformance)
+- DMARCAuthorisationRecord
 - DANE (DNS-based Authentication of Named Entities)
 - BIMI (Brand Indicators for Message Identification)
 - MTA-STS (SMTP MTA Strict Transport Security)
@@ -101,6 +103,8 @@ It checks for the following Information
 - Lync/Skype/Teamsfederation
 - M365 (Check via Open ID Connect)
 - M365 TenantID
+- M365 NameSpaceType (Managed /Federated) 
+- M365 FederatedAuthURL (ADFS or 3rd Party Auth URI)
 - Security.txt https://securitytxt.org/
 
 .DESCRIPTION
@@ -119,6 +123,8 @@ https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 
 .EXAMPLE
 Get-Mailprotection.ps1 -Domain icewolf.ch
+Get-Mailprotection.ps1 -Domain icewolf.ch -CSVExport "C:\Temp\Export.csv"
+Get-Mailprotection.ps1 -Domain icewolf.ch -CSVExport "C:\Temp\Export.csv" -AppendCSVExport $True
 $Result = Get-Mailprotection.ps1 -Domain icewolf.ch -ReturnObject
 $Result = Get-Mailprotection.ps1 -Domain icewolf.ch -SMTPConnect $False -ReturnObject
 $Result = Get-Mailprotection.ps1 -Domain icewolf.ch -SMTPConnect $False -ReturnObject -Silent
@@ -128,8 +134,8 @@ Mandatory Parameter. You need to specify a Domain as a string Value
 domain.tld or subdomain.domain.tld
 
 .PARAMETER SMTPConnect
-Optional Parameter. You can specify not to connect with SMTP to the Server. Per Default this Setting is TRUE.
-You add the Parameter -SMTPConnect $False
+Optional Parameter. You can specify not to connect with SMTP to the Server. This Setting is TRUE by default.
+You can add the Parameter -SMTPConnect $False
 
 .PARAMETER [switch]ReturnObject
 Optional Parameter. You can specify if a the Script returns an Object (For Scripting purposes). Per Default this Setting is FALSE.
@@ -143,6 +149,11 @@ Can be helpful if you use it with the -ReturnObject
 .PARAMETER [String]$CSVExport 
 Optional Parameter. You can Specify a Path for CSV Export.
 You can add the Parameter -CSVExport "C:\Temp\Export.csv"
+
+.PARAMETER [bool]$AppendCSVExport 
+Optional Parameter. You can Specify a if the Output should appended to the CSV Export.
+You can add the Parameter -AppendCSVExport $True
+
 #>
 
 PARAM (
@@ -462,8 +473,6 @@ Function Get-MailProtection
 		} else {
 			$MXRecord += $MXRecordData.Substring(0,$MXRecordData.Length-1)
 		}
-		#$MXRecordData = $Entry.Substring(0,$Entry.Length-1)
-		#$MXRecord += $MXRecordData.split(" ")[1]
 	}
 
 	Foreach ($MXEntry in $MXRecord)
@@ -494,7 +503,6 @@ Function Get-MailProtection
 					If ($Null -ne $json.Answer.Data)
 					{
 						$ReverseLookupName = $json.Answer.Data.Substring(0,$json.Answer.Data.Length-1)
-						#$ReverseLookupName = $ReverseLookupName.Substring(0,$ReverseLookupName.Length-1)
 					}
 
 					If ($Null -ne $ReverseLookupName)
@@ -663,21 +671,6 @@ Function Get-MailProtection
 	}
 	$DomainKeyRecord = $Null
 	$DomainKeySupport = $False
-	<#
-	#$Domainkey = Resolve-DnsName -Name $dnshost -Type TXT -ErrorAction SilentlyContinue
-	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$dnshost&type=TXT"
-	$SPFRecord = $json.Answer.data | Where-Object {$_ -like "V=SPF1*"}
-	Foreach ($Key in $DomainKey)
-	{
-		If ($Null -ne $KEY.Strings)
-		{
-			#DomainKey Found
-			$DomainKeyAvailable = $true
-			$DomainKeySupport = $True
-			$DomainKeyRecord = $KEY.Strings
-		}
-	}
-	#>
 
 	#Try O365 Selector1 and Selector2
 	If ($DomainKeyAvailable -eq $false)
@@ -702,22 +695,6 @@ Function Get-MailProtection
 			[Array]$DomainKeyRecord += $DKIMRecord2.Substring(0,$DKIMRecord2.Length-1)
 		}
 	}
-	<#
-	#If DomainKey TXT is not Available check NS
-	$dnshost = "_domainkey." + $Domain
-	If ($DomainKeyAvailable -eq $false)
-	{
-		#If DomainKey TXT is not Available check NS
-		#$DomainkeyNS = Resolve-DnsName -Name $dnshost -Type NS -ErrorAction SilentlyContinue
-		$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$dnshost&type=NS"
-		$DomainkeyNS = $json.Answer.data
-
-		If ($Null -ne $DomainkeyNS)
-		{
-			$DomainKeySupport = "maybe"
-		}
-	}
-	#>
 
 	## Check for DMARC
 	If ($Silent -ne $True)
@@ -962,7 +939,7 @@ Function Get-MailProtection
 		$M365 = $False
 	}
 
-	## Check for Managed / Federated Domain
+	## Check for M365 Managed / Federated Domain
 	If ($Null -ne $TenantID)
 	{
 		If ($Silent -ne $True)
@@ -972,15 +949,14 @@ Function Get-MailProtection
 		try {
 			#https://login.microsoftonline.com/getuserrealm.srf?login=user@swisscom.com&json=1
 			$Response = Invoke-RestMethod -URI "https://login.microsoftonline.com/getuserrealm.srf?login=user@$Domain&json=1" -Method "GET"
-			$EntraNameSpaceType = $Response.NameSpaceType
-			$EntraFederatedAuthURL = $Response.AuthURL
+			$M365NameSpaceType = $Response.NameSpaceType
+			$M365FederatedAuthURL = $Response.AuthURL
 		} catch {
 			Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
-			$EntraNameSpaceType = $Null
-			$EntraFederatedAuthURL = $Null
+			$M365NameSpaceType = $Null
+			$M365FederatedAuthURL = $Null
 		}
 	}
-
 
 	## Check for https://securitytxt.org/
 	# Example: https://www.admin.ch/.well-known/security.txt
@@ -1069,8 +1045,8 @@ Function Get-MailProtection
 		Write-Host "SkypeFederation: $SkypeFederation" -ForegroundColor cyan
 		Write-Host "M365: $M365" -ForegroundColor cyan
 		Write-Host "TenantID: $TenantID" -ForegroundColor cyan
-		Write-Host "EntraNameSpaceType: $EntraNameSpaceType" -ForegroundColor cyan
-		Write-Host "EntraFederatedAuthURL: $EntraFederatedAuthURL" -ForegroundColor cyan
+		Write-Host "M365NameSpaceType: $M365NameSpaceType" -ForegroundColor cyan
+		Write-Host "M365FederatedAuthURL: $M365FederatedAuthURL" -ForegroundColor cyan
 		Write-Host "SecurityTXT: $SecurityTXTAvailable" -ForegroundColor cyan
 	}
 
@@ -1111,8 +1087,8 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SkypeFederation' -Value $SkypeFederation
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'M365' -Value $M365
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'TenantID' -Value $TenantID
-	$ResultObject | Add-Member -MemberType NoteProperty -Name 'EntraNameSpaceType' -Value $EntraNameSpaceType
-	$ResultObject | Add-Member -MemberType NoteProperty -Name 'EntraFederatedAuthURL' -Value $EntraFederatedAuthURL
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'M365NameSpaceType' -Value $M365NameSpaceType
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'M365FederatedAuthURL' -Value $M365FederatedAuthURL
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SecurityTXT' -Value $SecurityTXTAvailable
 
 	return $ResultObject
@@ -1181,8 +1157,8 @@ If ($CSVExport -ne "")
 		SkypeFederation = $Result.SkypeFederation
 		M365 = $Result.M365
 		TenantID = $Result.TenantID
-		EntraNameSpaceType = $Result.EntraNameSpaceType
-		EntraFederatedAuthURL = $Result.EntraFederatedAuthURL
+		M365NameSpaceType = $Result.M365NameSpaceType
+		M365FederatedAuthURL = $Result.M365FederatedAuthURL
 		SecurityTXT = $Result.SecurityTXT
 	}
 
