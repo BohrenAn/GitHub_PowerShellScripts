@@ -62,7 +62,7 @@
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
 .COPYRIGHT Free to copy, inspire, etc...
-.TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLSRPT, BIMI, CAA, Autodiscover, Lynciscover, Teamsfederation, M365, TenantID, Security.txt
+.TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLSRPT, BIMI, CAA, Autodiscover, Lyncdiscover, Teamsfederation, M365, TenantID, Security.txt
 .LICENSEURI
 .PROJECTURI https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 .ICONURI
