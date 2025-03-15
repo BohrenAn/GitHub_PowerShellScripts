@@ -87,6 +87,18 @@ $ReturnObject
 
 ![Image](Get-Mailprotection03.jpg)
 
+Save Results to CSV
+
+```pwsh
+#Save Results to CSV
+Get-Mailprotection.ps1 -Domain icewolf.ch -CSVExport "C:\Temp\Export.csv"
+
+#Save Results to CSV and append to CSV File
+Get-Mailprotection.ps1 -Domain swisscom.com -CSVExport "C:\Temp\Export.csv" -AppendCSVExport $True
+```
+
+![Image](Get-Mailprotection04.jpg)
+
 ## Details
 
 ## DNS Zone Signed (DNSSEC)
@@ -96,7 +108,7 @@ If the JSON Returns an AD = True, it means that the DNS Zone is Signed (DNSSEC).
 
 ```pwsh
 $Domain = "domain.tld"
-$URI = "https://dns.google/resolve?name=$Domain&type=NS"    
+$URI = "https://dns.google/resolve?name=$Domain&type=NS"
 $json = Invoke-RestMethod -URI $URI
 $json
 ```

@@ -50,7 +50,7 @@
 # - Some minor Bugfixes
 # Version 1.16
 # - Addet -AppendCSVExport Parameter
-# - Added EntraNameSpaceType and FederatedAuthURL to Output
+# - Added M365NameSpaceType and M365FederatedAuthURL to Output
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
@@ -62,7 +62,7 @@
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
 .COPYRIGHT Free to copy, inspire, etc...
-.TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLSRPT, BIMI, CAA, M365, TenantID, Security.txt
+.TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLSRPT, BIMI, CAA, Autodiscover, Lynciscover, Teamsfederation, M365, TenantID, Security.txt
 .LICENSEURI
 .PROJECTURI https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 .ICONURI
