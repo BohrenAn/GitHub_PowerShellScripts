@@ -73,7 +73,7 @@ $AccessToken
 ###############################################################################
 # PSMSALNet as a Replacement of MSAL.PS
 ###############################################################################
-#Prerequisit PowerShell 7.2
+#Prerequisit PowerShell 7.4
 Install-Module PSMSALNet
 
 #Setting up the Variables for all Examples
@@ -95,7 +95,7 @@ $AccessToken = $Token.AccessToken
 $AccessToken
 
 #Authenticate with Certificate
-$CertificateThumbprint = "07EFF3918F47995EB53B91848F69B5C0E78622FD" #O365Powershell3.cer
+$CertificateThumbprint = "A3A07A3C2C109303CCCB011B10141A020C8AFDA3" #O365Powershell4.cer
 $Certificate = Get-ChildItem -Path cert:\CurrentUser\my\$CertificateThumbprint
 $HashArguments = @{
   ClientId = $AppID
@@ -162,8 +162,8 @@ $Body = @{
 #Get AccessToken
 Remove-Variable AccessToken
 $AccessToken
-$result = Invoke-RestMethod -Method POST -uri $authority -Body $body
-$AccessToken = $result.access_token
+$Result = Invoke-RestMethod -Method POST -uri $authority -Body $body
+$AccessToken = $Result.access_token
 
 ###############################################################################
 # List Mailbox Folders
@@ -179,8 +179,43 @@ $URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/?includeHidd
 
 $ContentType = "application/json"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
-$result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentType $ContentType
-$result.value | Format-Table displayName, id
+$Result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentType $ContentType
+$Result.value | Format-Table displayName, id
+
+###############################################################################
+# List Child Mailbox Folders
+# https://learn.microsoft.com/en-us/graph/api/mailfolder-list-childfolders?view=graph-rest-1.0&tabs=http
+###############################################################################
+#Delegated (work or school account) Mail.ReadBasic Mail.ReadWrite, Mail.Read
+#Delegated (personal Microsoft account) Mail.ReadBasic Mail.ReadWrite, Mail.Read
+#Application Mail.ReadBasic.All Mail.ReadWrite, Mail.Read
+$Mailbox = "Postmaster@icewolf.ch"
+$FolderID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQAuAAAAAADI11bk3aFKQJXy4z2GgQYRAQD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAA=" #Posteing
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderId/ChildFolders"
+
+$ContentType = "application/json"
+$Headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$Result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentType $ContentType
+$Result.value | Format-List displayName, id
+
+###############################################################################
+# Permanently Delete Mailbox Folder
+# https://learn.microsoft.com/en-us/graph/api/mailfolder-permanentdelete?view=graph-rest-1.0&tabs=http
+###############################################################################
+#Delegated (work or school account)	Mail.ReadWrite
+#Delegated (personal Microsoft account)	Mail.ReadWrite
+#Application	Mail.ReadWrite
+
+$Mailbox = "Postmaster@icewolf.ch"
+$FolderID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQAuAAAAAADI11bk3aFKQJXy4z2GgQYRAQD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAA=" #Posteing
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderID/permanentDelete"
+$ChildFolderID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQAuAAAAAADI11bk3aFKQJXy4z2GgQYRAQD9DAdvUOIbRK2TMu1gBCF9AARIILy3AAA=" #Posteing/Subfolder
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderID/childFolders/$ChildFolderID/permanentDelete"
+
+$ContentType = "application/json"
+$Headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$Result = Invoke-RestMethod -Method "POST" -Uri $uri -Headers $Headers -ContentType $ContentType
+$Result
 
 ###############################################################################
 # List Mailbox Message
@@ -192,14 +227,32 @@ $result.value | Format-Table displayName, id
 
 $Mailbox = "Postmaster@icewolf.ch"
 $URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/messages"
+$FolderID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQAuAAAAAADI11bk3aFKQJXy4z2GgQYRAQD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAA="
 $URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderID/messages"
 
 $ContentType = "application/json"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
-$result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentType $ContentType
-$result.value[0] | Format-List
-$result.value | Format-List receivedDateTime, subject, hasAttachments, importance, internetMessageId,isRead
+$Result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentType $ContentType
+$Result.value[0] | Format-List
+$Result.value | Format-List id,receivedDateTime, subject, hasAttachments, importance, internetMessageId,isRead
 
+###############################################################################
+# Permanent Delete Mailbox Message
+# https://learn.microsoft.com/en-us/graph/api/message-permanentdelete?view=graph-rest-1.0&tabs=http
+###############################################################################
+#Delegated (work or school account)	Mail.ReadWrite
+#Delegated (personal Microsoft account)	Mail.ReadWrite
+#Application	Mail.ReadWrite
+
+$Mailbox = "Postmaster@icewolf.ch"
+$MessageID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQBGAAAAAADI11bk3aFKQJXy4z2GgQYRBwD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAD9DAdvUOIbRK2TMu1gBCF9AAaBvvhvAAA="
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/messages/$MessageID/permanentDelete"
+$FolderID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQAuAAAAAADI11bk3aFKQJXy4z2GgQYRAQD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAA="
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderID/messages/$MessageID/permanentDelete"
+
+$ContentType = "application/json"
+$Headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$Result = Invoke-RestMethod -Method "POST" -Uri $uri -Headers $Headers -ContentType $ContentType
 
 ###############################################################################
 # Create Mailbox Message
@@ -232,8 +285,8 @@ $Body = @"
     ]
 }
 "@
-$result = Invoke-RestMethod -Method "POST" -Uri $uri -Headers $Headers -Body $Body -ContentType $ContentType
-$result
+$Result = Invoke-RestMethod -Method "POST" -Uri $uri -Headers $Headers -Body $Body -ContentType $ContentType
+$Result
 
 ###############################################################################
 # Add Attachment to Mailbox Message (max 3MB)
@@ -261,8 +314,8 @@ $Body = @"
 }
 "@
 
-$result = Invoke-RestMethod -Method "POST" -Uri $uri -Headers $Headers -Body $Body -ContentType $ContentType
-$result
+$Result = Invoke-RestMethod -Method "POST" -Uri $uri -Headers $Headers -Body $Body -ContentType $ContentType
+$Result
 
 
 ###############################################################################
@@ -280,7 +333,7 @@ $URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderID/me
 
 $ContentType = "application/json"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
-$result = Invoke-RestMethod -Method "DELETE" -Uri $uri -Headers $Headers -ContentType $ContentType
+$Result = Invoke-RestMethod -Method "DELETE" -Uri $uri -Headers $Headers -ContentType $ContentType
 
 ###############################################################################
 # SendMail
@@ -312,7 +365,7 @@ $Body = @"
     }
 }
 "@
-$result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
+$Result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
 
 ###############################################################################
 # Use the Microsoft Search API to search Outlook messages
@@ -341,9 +394,9 @@ $Body = @"
 }
 "@
 
-$result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
-$result.value | Format-List
-$result.value.hitsContainers.hits
+$Result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
+$Result.value | Format-List
+$Result.value.hitsContainers.hits
 
 ###############################################################################
 #Get calendar
@@ -421,7 +474,7 @@ $json = @"
 $uri = "https://graph.microsoft.com/v1.0/users/$Mailbox/calendar/events"
 $Result = Invoke-RestMethod -Method POST -Uri $uri -Headers $headers -Body $json
 $Result | Format-List
-$id = $result.id
+$id = $Result.id
 
 ###############################################################################
 #Get Event
@@ -436,7 +489,7 @@ $Mailbox = "postmaster@icewolf.ch"
 $headers = @{"Authorization" = "Bearer "+ $AccessToken}
 $uri = "https://graph.microsoft.com/v1.0/users/$Mailbox/events/$id"
 $Result = Invoke-RestMethod -Method GET -uri $uri -headers $headers
-$result | Format-List start, end, subject, isorganizer, isReminderOn, reminderMinutesBeforeStart, attendees
+$Result | Format-List start, end, subject, isorganizer, isReminderOn, reminderMinutesBeforeStart, attendees
 
 ###############################################################################
 #Update event
@@ -466,7 +519,7 @@ $json = @"
 
 $uri = "https://graph.microsoft.com/v1.0/users/$Mailbox/events/$id"
 $Result = Invoke-RestMethod -Method PATCH -Uri $uri -Headers $headers -Body $json
-$result
+$Result
 
 ###############################################################################
 # Delete event
@@ -509,7 +562,7 @@ $Body = @"
 }
 "@
 
-$result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
+$Result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
 
 ###############################################################################
 # List contactFolders
@@ -523,7 +576,7 @@ $mailbox = "postmaster@icewolf.ch"
 $headers = @{"Authorization" = "Bearer "+ $AccessToken}
 $uri = "https://graph.microsoft.com/v1.0/users/$Mailbox/contactFolders"
 $Result = Invoke-RestMethod -Method GET -uri $uri -headers $headers
-$result
+$Result
 
 ###############################################################################
 # List contacts
@@ -537,8 +590,8 @@ $Mailbox = "postmaster@icewolf.ch"
 #$URI = "https://graph.microsoft.com/beta/users/$Mailbox/contacts"
 $URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/contacts"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
-$result = Invoke-RestMethod -Method "GET" -uri $uri -headers $headers
-$result.value[0]
+$Result = Invoke-RestMethod -Method "GET" -uri $uri -headers $headers
+$Result.value[0]
 
 ###############################################################################
 # Create contact
@@ -571,9 +624,9 @@ $Body = @"
 }
 "@
 
-$result = Invoke-RestMethod -Method "POST" -uri $uri -headers $headers -Body $Body -ContentType $ContentType
-$result.value
-$ContactID = $result.id
+$Result = Invoke-RestMethod -Method "POST" -uri $uri -headers $headers -Body $Body -ContentType $ContentType
+$Result.value
+$ContactID = $Result.id
 $ContactID
 
 ###############################################################################
@@ -592,7 +645,7 @@ $URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/contacts/$ContactID"
 $ContentType = "application/json"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 
-$result = Invoke-RestMethod -Method "GET" -uri $uri -headers $headers 
+$Result = Invoke-RestMethod -Method "GET" -uri $uri -headers $headers 
 
 
 ###############################################################################
@@ -623,8 +676,8 @@ $Body = @"
 }
 "@
 
-$result = Invoke-RestMethod -Method "PATCH" -uri $uri -headers $headers -Body $Body -ContentType $ContentType
-$result
+$Result = Invoke-RestMethod -Method "PATCH" -uri $uri -headers $headers -Body $Body -ContentType $ContentType
+$Result
 
 ###############################################################################
 # Delete contact
@@ -641,8 +694,8 @@ $URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/contacts/$ContactID"
 #$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/contactFolders/$ContactFolderId/Contacts/$ContactID"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 
-$result = Invoke-RestMethod -Method "DELETE" -uri $uri -headers $headers 
-$result
+$Result = Invoke-RestMethod -Method "DELETE" -uri $uri -headers $headers 
+$Result
 
 
 ###############################################################################
@@ -657,9 +710,9 @@ $result
 $URI = "https://graph.microsoft.com/v1.0/me/todo/lists"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 
-$result = Invoke-RestMethod -Method "GET" -uri $uri -headers $headers 
-$result.value
-$ToDoListID = $result.value[0].id
+$Result = Invoke-RestMethod -Method "GET" -uri $uri -headers $headers 
+$Result.value
+$ToDoListID = $Result.value[0].id
 
 ###############################################################################
 # List tasks
@@ -673,5 +726,5 @@ $ToDoListID = $result.value[0].id
 $ToDoListID = "AAMkADU4NGU4M2ViLWM5NjctNGI0YS05ZmJhLTIyN2ZhYjQyNGRiZAAuAAAAAAA6idhlmkQcSr-xCVjgRm0QAQAAxv0CGCZgRJI9qX2JA27rAAIdgHwoAAA="
 $URI = "https://graph.microsoft.com/v1.0/me/todo/lists/$ToDoListID/tasks"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
-$result = Invoke-RestMethod -Method "GET" -uri $uri -headers $headers
-$result
+$Result = Invoke-RestMethod -Method "GET" -uri $uri -headers $headers
+$Result
