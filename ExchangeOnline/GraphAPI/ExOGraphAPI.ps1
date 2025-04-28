@@ -237,24 +237,6 @@ $Result.value[0] | Format-List
 $Result.value | Format-List id,receivedDateTime, subject, hasAttachments, importance, internetMessageId,isRead
 
 ###############################################################################
-# Permanent Delete Mailbox Message
-# https://learn.microsoft.com/en-us/graph/api/message-permanentdelete?view=graph-rest-1.0&tabs=http
-###############################################################################
-#Delegated (work or school account)	Mail.ReadWrite
-#Delegated (personal Microsoft account)	Mail.ReadWrite
-#Application	Mail.ReadWrite
-
-$Mailbox = "Postmaster@icewolf.ch"
-$MessageID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQBGAAAAAADI11bk3aFKQJXy4z2GgQYRBwD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAD9DAdvUOIbRK2TMu1gBCF9AAaBvvhvAAA="
-$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/messages/$MessageID/permanentDelete"
-$FolderID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQAuAAAAAADI11bk3aFKQJXy4z2GgQYRAQD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAA="
-$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderID/messages/$MessageID/permanentDelete"
-
-$ContentType = "application/json"
-$Headers = @{"Authorization" = "Bearer "+ $AccessToken}
-$Result = Invoke-RestMethod -Method "POST" -Uri $uri -Headers $Headers -ContentType $ContentType
-
-###############################################################################
 # Create Mailbox Message
 # https://docs.microsoft.com/en-us/graph/api/user-post-messages?view=graph-rest-1.0&tabs=http
 ###############################################################################
@@ -317,7 +299,6 @@ $Body = @"
 $Result = Invoke-RestMethod -Method "POST" -Uri $uri -Headers $Headers -Body $Body -ContentType $ContentType
 $Result
 
-
 ###############################################################################
 # Delete  Mailbox Message
 # https://docs.microsoft.com/en-us/graph/api/message-delete?view=graph-rest-1.0&tabs=http
@@ -334,6 +315,24 @@ $URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderID/me
 $ContentType = "application/json"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 $Result = Invoke-RestMethod -Method "DELETE" -Uri $uri -Headers $Headers -ContentType $ContentType
+
+###############################################################################
+# Permanent Delete Mailbox Message
+# https://learn.microsoft.com/en-us/graph/api/message-permanentdelete?view=graph-rest-1.0&tabs=http
+###############################################################################
+#Delegated (work or school account)	Mail.ReadWrite
+#Delegated (personal Microsoft account)	Mail.ReadWrite
+#Application	Mail.ReadWrite
+
+$Mailbox = "Postmaster@icewolf.ch"
+$MessageID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQBGAAAAAADI11bk3aFKQJXy4z2GgQYRBwD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAD9DAdvUOIbRK2TMu1gBCF9AAaBvvhvAAA="
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/messages/$MessageID/permanentDelete"
+$FolderID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQAuAAAAAADI11bk3aFKQJXy4z2GgQYRAQD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAA="
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderID/messages/$MessageID/permanentDelete"
+
+$ContentType = "application/json"
+$Headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$Result = Invoke-RestMethod -Method "POST" -Uri $uri -Headers $Headers -ContentType $ContentType
 
 ###############################################################################
 # SendMail
@@ -429,6 +428,16 @@ $Events = Invoke-RestMethod -Method GET -uri $uri -headers $headers
 $Events | Get-Member
 
 $Events.Value | Format-Table subject,start,end,location
+
+#Loop through Results as long there is a odata.nextLink
+if ($null -ne $Events.'@odata.nextLink') 
+{
+    do {
+        $Uri = [uri]$Events.'@odata.nextLink';
+        $Events = Invoke-RestMethod -Method GET -uri $uri -headers $headers
+        $Events.Value | Format-Table subject,start,end,location
+    } until ($null -eq $Events.'@odata.nextLink')
+}
 
 ###############################################################################
 #Create Event
