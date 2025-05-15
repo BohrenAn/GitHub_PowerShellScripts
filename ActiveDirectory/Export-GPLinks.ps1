@@ -38,7 +38,7 @@ Param (
 )
 
 #Check if the Parameter GPOName is provided
-If ($null -ne $GPOName)
+If ($GPOName -ne "")
 {
     [Array]$GPOs = Get-GPO -Name $GPOName
     If ($null -eq $GPO)
