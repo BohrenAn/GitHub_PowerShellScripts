@@ -6,10 +6,6 @@
 # Description: This script will export all GPO links to a CSV file.
 # Some Source code from here https://www.easy365manager.com/get-gpo-links-with-powershell/
 ###############################################################################
-#Get-GPO -Name <GPOName>
-#[xml]$Report = $GPO | Get-GPOReport -ReportType XML
-#$Report.GPO.LinksTo
-
 <#
     .SYNOPSIS
     This script will export all GPO links to a CSV file.
@@ -63,22 +59,22 @@ $INT = 0
 #Loop through the GPOs
 Foreach ($GPO in $GPOs)
 {
-	$Int = $INT + 1
-	$GPODisplayName = $GPO.DisplayName
-	Write-Host "Working on: $GPODisplayName [$INT/$TotalGPO]" -ForegroundColor Green
-	[xml]$Report = $GPO | Get-GPOReport -ReportType XML
-	$Links = $Report.GPO.LinksTo
-	If ($Null -ne $Links)
-	{
-		ForEach($Link In $Links)
-		{
-			#A Line for each Link
-			$Output = $Report.GPO.Name + ";" + $Link.SOMPath + ";" + $Report.GPO.Computer.Enabled + ";" + $Report.GPO.User.Enabled + ";" + $_.WmiFilter.Name
-			$Output | Out-File $OutputFile -Append
-		}
-	} else {
-			#No Links
-			$Output = $Report.GPO.Name + ";;" + $Report.GPO.Computer.Enabled + ";" + $Report.GPO.User.Enabled + ";" + $_.WmiFilter.Name
-			$Output | Out-File $OutputFile -Append
-	}
+    $Int = $INT + 1
+    $GPODisplayName = $GPO.DisplayName
+    Write-Host "Working on: $GPODisplayName [$INT/$TotalGPO]" -ForegroundColor Green
+    [xml]$Report = $GPO | Get-GPOReport -ReportType XML
+    $Links = $Report.GPO.LinksTo
+    If ($Null -ne $Links)
+    {
+        ForEach($Link In $Links)
+        {
+            #A Line for each Link
+            $Output = $Report.GPO.Name + ";" + $Link.SOMPath + ";" + $Report.GPO.Computer.Enabled + ";" + $Report.GPO.User.Enabled + ";" + $_.WmiFilter.Name
+            $Output | Out-File $OutputFile -Append
+        }
+    } else {
+            #No Links
+            $Output = $Report.GPO.Name + ";;" + $Report.GPO.Computer.Enabled + ";" + $Report.GPO.User.Enabled + ";" + $_.WmiFilter.Name
+            $Output | Out-File $OutputFile -Append
+    }
 }
