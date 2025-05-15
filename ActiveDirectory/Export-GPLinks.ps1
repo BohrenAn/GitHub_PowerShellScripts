@@ -50,29 +50,35 @@ If ($GPOName -ne "")
     Write-Host "No GPO name provided, exporting all GPOs." -ForegroundColor Yellow
     #Get all GPOs
     [Array]$GPOs = Get-GPO -All
-    $OutputFile = ".\GPLinks.csv"
-    "Name;LinkPath;ComputerEnabled;UserEnabled;WmiFilter" | Out-File $OutputFile
-    $TotalGPO = $GPOs.Count
-    $INT = 0
-    Foreach ($GPO in $GPOs)
-    {
-        $Int = $INT + 1
-        $GPODisplayName = $GPO.DisplayName
-        Write-Host "Working on: $GPODisplayName [$INT/$TotalGPO]" -ForegroundColor Green
-        [xml]$Report = $GPO | Get-GPOReport -ReportType XML
-        $Links = $Report.GPO.LinksTo
-        If ($Null -ne $Links)
-        {
-            ForEach($Link In $Links)
-            {
-                #A Line for each Link
-                $Output = $Report.GPO.Name + ";" + $Link.SOMPath + ";" + $Report.GPO.Computer.Enabled + ";" + $Report.GPO.User.Enabled + ";" + $_.WmiFilter.Name
-                $Output | Out-File $OutputFile -Append
-            }
-        } else {
-                #No Links
-                $Output = $Report.GPO.Name + ";;" + $Report.GPO.Computer.Enabled + ";" + $Report.GPO.User.Enabled + ";" + $_.WmiFilter.Name
-                $Output | Out-File $OutputFile -Append
-        }
-    }
+}
+
+#Loop through the GPOs and create the CSV Export
+
+#Create the CSV file
+$OutputFile = ".\GPLinks.csv"
+"Name;LinkPath;ComputerEnabled;UserEnabled;WmiFilter" | Out-File $OutputFile
+$TotalGPO = $GPOs.Count
+$INT = 0
+
+#Loop through the GPOs
+Foreach ($GPO in $GPOs)
+{
+	$Int = $INT + 1
+	$GPODisplayName = $GPO.DisplayName
+	Write-Host "Working on: $GPODisplayName [$INT/$TotalGPO]" -ForegroundColor Green
+	[xml]$Report = $GPO | Get-GPOReport -ReportType XML
+	$Links = $Report.GPO.LinksTo
+	If ($Null -ne $Links)
+	{
+		ForEach($Link In $Links)
+		{
+			#A Line for each Link
+			$Output = $Report.GPO.Name + ";" + $Link.SOMPath + ";" + $Report.GPO.Computer.Enabled + ";" + $Report.GPO.User.Enabled + ";" + $_.WmiFilter.Name
+			$Output | Out-File $OutputFile -Append
+		}
+	} else {
+			#No Links
+			$Output = $Report.GPO.Name + ";;" + $Report.GPO.Computer.Enabled + ";" + $Report.GPO.User.Enabled + ";" + $_.WmiFilter.Name
+			$Output | Out-File $OutputFile -Append
+	}
 }
