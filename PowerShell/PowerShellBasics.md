@@ -491,6 +491,31 @@ $Cred = New-Object System.Management.Automation.PSCredential $Username,$Password
 $Password = ConvertTo-SecureString "Pass@word1" -AsPlainText -Force
 ```
 
+## Enrypt/Decrypt and store Password in a safe way
+
+```pwsh
+###############################################################################
+# This script demonstrates how to encrypt and decrypt a password using PowerShell.
+# Note: The decryption will only work on the same machine and user context
+###############################################################################
+#Ecrypting a Plain Text password
+$Password = "ABC"
+$SecureString = $Password | ConvertTo-SecureString -AsPlainText -Force
+$EncryptedString = $SecureString | ConvertFrom-SecureString
+$EncryptedString
+# Save the encrypted string to a file
+$EncryptedString | Out-File -FilePath ".\EncryptedPassword.txt"
+
+
+###############################################################################
+# Decrypting the password from the file and converting it back to plain text
+###############################################################################
+$EncryptedString = Get-Content -Path ".\EncryptedPassword.txt"
+$DecryptedString = $EncryptedString | ConvertTo-SecureString
+$DecryptedPassword = $DecryptedString | ConvertFrom-SecureString -AsPlainText
+$DecryptedPassword
+```
+
 ## Properties from Sub Objects
 
 ```pwsh
