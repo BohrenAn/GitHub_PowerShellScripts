@@ -51,13 +51,15 @@
 # Version 1.16
 # - Addet -AppendCSVExport Parameter
 # - Added M365NameSpaceType and M365FederatedAuthURL to Output
+# Version 1.17
+# - Fixed Bug Autodiscover A Record
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.16
+.VERSION 1.17
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -70,9 +72,8 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.16
-- Addet -AppendCSVExport Parameter
-- Added M365NameSpaceType and M365FederatedAuthURL to Output
+Version 1.17
+- Fixed Bug Autodiscover A Record
 #>
 
 <#
@@ -830,7 +831,7 @@ Function Get-MailProtection
 		$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=Autodiscover.$Domain&type=A"
 		If ($Null -ne $json.Answer.Data)
 		{
-			$AutodiscoverA = $json.answer.Data[0]
+			$AutodiscoverA = $json.answer.Data
 		}
 		If ($Null -ne $AutodiscoverA)
 		{
