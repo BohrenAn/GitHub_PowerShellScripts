@@ -151,6 +151,7 @@ Write-Host "Test" -ForegroundColor "Green"
 ```
 
 ## Output in HTML
+
 ```pwsh
 Get-Service | ConvertTo-Html -Property Name,Status > D:\Temp\Service.html
 ```
@@ -185,7 +186,8 @@ New-Item C:\Test\Powershell -type directory
 Test-Path C:\Temp\somefile.txt
 ```
 
-#  Delete File if exist
+## Delete File if exist
+
 ```pwsh
 $CSVFile = ".\demo.csv"
 If (Test-Path -Path $CSVFile)
@@ -362,7 +364,9 @@ $myarray[0]
 ```
 
 ### Arraylist
+
 > Is depreciated
+
 ```pwsh
 #Arraylists are depreciated
 $ArrayList = [System.Collections.ArrayList]@()
@@ -455,6 +459,20 @@ if ($Snapins -match "FSSPSSnapin")
         Write-Output $("Loading Forefront PS Snapin")
         Add-PsSnapin FSSPSSnapin
     }
+```
+
+## Pause / Press any key
+
+```pwsh
+#Pause
+Start-Sleep -Seconds 15
+
+#Not supported by ISE
+Write-Host "Press any key to continue..."
+$Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+
+#Supported by ISE
+read-host "Press ENTER to continue..."
 ```
 
 ## Eventlog

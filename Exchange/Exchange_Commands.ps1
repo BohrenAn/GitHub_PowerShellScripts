@@ -4,7 +4,7 @@
 ###############################################################################
 
 #Certificate On Connector
-$cert = Get-ExchangeCertificate -Thumbprint <ThumbPrint>
+$cert = Get-ExchangeCertificate -Thumbprint $Thumbprint
 $tlscertificatename = "<i>$($cert.Issuer)<s>$($cert.Subject)"
 Set-ReceiveConnector "ICESRV06\Client Frontend ICESRV06" -TlsCertificateName $tlscertificatename
 
@@ -23,8 +23,8 @@ if ($isEMS)
 ###############################################################################
 # Get mailbox statistics
 ###############################################################################
-$MBXStat = Get-MailboxStatistics -Identity <MailboxIdentity> -ErrorAction SilentlyContinue
+$MBXStat = Get-MailboxStatistics -Identity $Mailbox -ErrorAction SilentlyContinue
 #PowerShell Remoting
-$MBXStat.TotalItemSize.Value -replace '.*\(| bytes\).*|,' | % {'{0:N2}' -f ($_ / 1mb)}
+$MBXStat.TotalItemSize.Value -replace '.*\(| bytes\).*|,' | ForEach-Object {'{0:N2}' -f ($_ / 1mb)}
 #EMS
 $MBXStat.TotalItemSize.Value.ToMB()
