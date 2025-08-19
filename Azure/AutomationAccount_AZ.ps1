@@ -248,7 +248,7 @@ $Result.Content
 #https://learn.microsoft.com/en-us/powershell/module/az.automation/publish-azautomationrunbook?view=azps-14.3.0
 $ResourceGroupName = "RG_DEMO"
 $AutomationAccountName = "AutomationDemoPS"
-$RunbookName = "DemoPS1"
+$RunbookName = "Demo_Runbook"
 
 Publish-AzAutomationRunbook -Name $RunbookName -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName
 
