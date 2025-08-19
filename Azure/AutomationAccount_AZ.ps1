@@ -76,7 +76,7 @@ Invoke-AzRestMethod -Method "PUT" -Path "/subscriptions/$SubscriptionID/resource
 # Update Default Packages
 ###############################################################################
 #Note: Only old Version available of AZ and Azure CLI
-#Current Versions: AZ 14.3.0
+#Current Versions: AZ 14.3.0 / AZ CLI 2.75.0
 $SubscriptionID = "42ecead4-eae9-4456-997c-1580c58b54ba"
 $ResourceGroupName = "RG_DEMO"
 $AutomationAccountName = "AutomationDemoPS"
