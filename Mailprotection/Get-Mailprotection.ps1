@@ -989,6 +989,51 @@ Function Get-MailProtection
 		Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
 	}
 
+	<# Decentralized Identifiers (DID) 
+	#DID
+	$URI = "https://$Domain/.well-known/did.json"
+	try {
+		$Response = Invoke-WebRequest -UseBasicParsing -URI $URI -TimeoutSec 1
+		If ($Null -ne $Response)
+		{
+			[string]$DID = ($Response.Content | ConvertFrom-Json).id
+		}
+	} catch {
+		Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
+	}
+	#>
+
+	#DID Configuration
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: Decentralized Identifiers (DID) Configuration" -ForegroundColor Green
+	}
+	#https://icewolf.ch/.well-known/did-configuration.json
+	$URI = "https://$Domain/.well-known/did-configuration.json"
+	try {
+		$Response = Invoke-WebRequest -UseBasicParsing -URI $URI -TimeoutSec 1
+		If ($Null -ne $Response)
+		{
+			#[string]
+			$Base64 = ($response.content | ConvertFrom-Json).linked_dids
+			If ($Base64.Split(".").count -eq 3)
+			{
+				#It's a JWT Token
+				$Part2 = $Base64.Split(".")[1]
+				#Fix Base64 Padding
+				$Part2 = $Part2.Replace('-', '+').Replace('_', '/')
+				switch ($Part2.Length % 4) {
+					2 { $Part2 += '==' }
+					3 { $Part2 += '=' }
+				}
+				$DIDConfiguration = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($Part2))
+				[string]$DID = ($DIDConfiguration | ConvertFrom-Json).Iss
+			}
+		}
+	} catch {
+		Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
+	}
+
 	# Convert Arrays to String
 	$MXIPString = $MXIPArray -join " "
 	If ($Null -ne $Nameserver -or $Nameserver -ne "")
@@ -1049,6 +1094,7 @@ Function Get-MailProtection
 		Write-Host "M365NameSpaceType: $M365NameSpaceType" -ForegroundColor cyan
 		Write-Host "M365FederatedAuthURL: $M365FederatedAuthURL" -ForegroundColor cyan
 		Write-Host "SecurityTXT: $SecurityTXTAvailable" -ForegroundColor cyan
+		Write-Host "DID: $DID" -ForegroundColor cyan
 	}
 
 	#Better ResponseObject
@@ -1091,6 +1137,7 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'M365NameSpaceType' -Value $M365NameSpaceType
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'M365FederatedAuthURL' -Value $M365FederatedAuthURL
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SecurityTXT' -Value $SecurityTXTAvailable
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DID' -Value $DID
 
 	return $ResultObject
 }
