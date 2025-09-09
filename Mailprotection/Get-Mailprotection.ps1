@@ -53,18 +53,20 @@
 # - Added M365NameSpaceType and M365FederatedAuthURL to Output
 # Version 1.17
 # - Fixed Bug Autodiscover A Record
+# Version 1.18
+# - Added Decentralized Identifiers (DID) Detection
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.17
+.VERSION 1.18
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
 .COPYRIGHT Free to copy, inspire, etc...
-.TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLSRPT, BIMI, CAA, Autodiscover, Lyncdiscover, Teamsfederation, M365, TenantID, Security.txt
+.TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLSRPT, BIMI, CAA, Autodiscover, Lyncdiscover, Teamsfederation, M365, TenantID, Security.txt, Decentralized Identifiers (DID),
 .LICENSEURI
 .PROJECTURI https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 .ICONURI
@@ -72,8 +74,8 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.17
-- Fixed Bug Autodiscover A Record
+Version 1.18
+- Added Decentralized Identifiers (DID) Detection
 #>
 
 <#
@@ -989,7 +991,7 @@ Function Get-MailProtection
 		Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
 	}
 
-	<# Decentralized Identifiers (DID) 
+	<# Decentralized Identifiers (DID)
 	#DID
 	$URI = "https://$Domain/.well-known/did.json"
 	try {
@@ -1003,7 +1005,7 @@ Function Get-MailProtection
 	}
 	#>
 
-	#DID Configuration
+	## Decentralized Identifiers (DID) Configuration
 	If ($Silent -ne $True)
 	{
 		Write-Host "Check: Decentralized Identifiers (DID) Configuration" -ForegroundColor Green
@@ -1029,6 +1031,24 @@ Function Get-MailProtection
 				$DIDConfiguration = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($Part2))
 				[string]$DID = ($DIDConfiguration | ConvertFrom-Json).Iss
 			}
+		}
+	} catch {
+		Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
+	}
+
+	## Model Context Protocol (MCP)
+	If ($Silent -ne $True)
+	{
+		Write-Host "Check: Model Context Protocol (MCP)" -ForegroundColor Green
+	}
+	#https://www.wellknownmcp.org/.well-known/mcp.json
+	#https://www.wellknownmcp.org/.well-known/.well-known/mcp/manifest.json
+	$URI = "https://$Domain/.well-known/mcp.json"
+	try {
+		$Response = Invoke-WebRequest -UseBasicParsing -URI $URI -TimeoutSec 1
+		If ($Null -ne $Response)
+		{
+			$MCP = $Response.Content #| ConvertFrom-Json
 		}
 	} catch {
 		Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
