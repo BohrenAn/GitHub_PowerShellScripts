@@ -54,7 +54,9 @@
 # Version 1.17
 # - Fixed Bug Autodiscover A Record
 # Version 1.18
-# - Added Decentralized Identifiers (DID) Detection
+# - Fixed Bug Autodiscover and Lyncdiscover with multiple A Records
+# - Added Decentralized Identifiers (DID) Detection (Experimental)
+# - Added Model Context Protocol (MCP) Detection (Experimental)
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
@@ -66,7 +68,7 @@
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
 .COPYRIGHT Free to copy, inspire, etc...
-.TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLSRPT, BIMI, CAA, Autodiscover, Lyncdiscover, Teamsfederation, M365, TenantID, Security.txt, Decentralized Identifiers (DID),
+.TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLSRPT, BIMI, CAA, Autodiscover, Lyncdiscover, Teamsfederation, M365, TenantID, Security.txt, Decentralized Identifiers (DID), Model Context Protocol (MCP)
 .LICENSEURI
 .PROJECTURI https://github.com/BohrenAn/GitHub_PowerShellScripts/tree/main/Mailprotection
 .ICONURI
@@ -75,7 +77,12 @@
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
 Version 1.18
-- Added Decentralized Identifiers (DID) Detection
+- Fixed Bug Autodiscover and Lyncdiscover with multiple A Records
+- Added Decentralized Identifiers (DID) Detection (Experimental)
+    - https://domain.tld/.well-known/did-configuration.json
+- Added Model Context Protocol (MCP) Detection (Experimental)
+    - https://domain.tld/.well-known/mcp.json
+	- https://domain.tld/.well-known/mcp/manifest.json
 #>
 
 <#
@@ -113,7 +120,8 @@ It checks for the following Information
 .DESCRIPTION
 This Script checks diffrent DNS Records about a Domain - mostly about Mailsecurity Settings.
 Most of the Querys are simple DNS Querys (NS, MX, SPF, DKIM, DMARC, BIMI, MTA-STS, TLSRPT).
-The Script uses also DNS over HTTP for several checks (ZoneSigned, TLSA Record for DANE).
+The Script uses also DNS over HTTP for several checks (ZoneSigned, TLSA Record for DANE) and
+Decentralized Identifiers (DID), Model Context Protocol (MCP).
 Also some Webrequests are required for MTA-STS, TenantID (OIDC), Security.txt.
 And connects via SMTP to check if the Server supports STARTTLS.
 
@@ -838,9 +846,16 @@ Function Get-MailProtection
 		If ($Null -ne $AutodiscoverA)
 		{
 			Try {
-				#Check if IPv4
-				$IP = [system.net.ipaddress]$AutodiscoverA
-				$Autodiscover = $AutodiscoverA.tostring()
+				If ($AutodiscoverA.Count -gt 1)
+				{
+					#Multiple A Records
+					$IP = [system.net.ipaddress]$AutodiscoverA[0]
+					$Autodiscover = $AutodiscoverA -join " "
+				} else {
+					#Check if IPv4
+					$IP = [system.net.ipaddress]$AutodiscoverA
+					$Autodiscover = $AutodiscoverA.tostring()
+				}
 			} catch {
 				#Then it must be a DNS Name
 				$AutodiscoverA = $AutodiscoverA.Substring(0,$AutodiscoverA.Length-1)
@@ -887,9 +902,16 @@ Function Get-MailProtection
 		If ($Null -ne $LyncDiscoverA)
 		{
 			Try {
-				#Check if IPv4
-				$IP = [system.net.ipaddress]$LyncDiscoverA
-				$Lyncdiscover = $LyncdiscoverA.tostring()
+				If ($LyncdiscoverA.Count -gt 1)
+				{
+					#Multiple A Records
+					$IP = [system.net.ipaddress]$LyncdiscoverA[0]
+					$Lyncdiscover = $LyncdiscoverA -join " "
+				} else {
+					#Check if IPv4
+					$IP = [system.net.ipaddress]$LyncDiscoverA
+					$Lyncdiscover = $LyncdiscoverA.tostring()
+				}
 			} catch {
 				#Then it must be a DNS Name
 				$LyncDiscoverA = $LyncDiscoverA.Substring(0,$LyncDiscoverA.Length-1)
@@ -1031,6 +1053,8 @@ Function Get-MailProtection
 				$DIDConfiguration = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($Part2))
 				[string]$DID = ($DIDConfiguration | ConvertFrom-Json).Iss
 			}
+		} else {
+			[string]$DID = $Null
 		}
 	} catch {
 		Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
@@ -1048,7 +1072,27 @@ Function Get-MailProtection
 		$Response = Invoke-WebRequest -UseBasicParsing -URI $URI -TimeoutSec 1
 		If ($Null -ne $Response)
 		{
-			$MCP = $Response.Content #| ConvertFrom-Json
+			If ($response.Content -match "<!DOCTYPE html>") 
+			{
+				$MCP = $Null
+			} else {
+				$MCP = $Response.Content
+			}
+		} else {
+			#Try manifest.json
+			$URI = "https://$Domain/.well-known/mcp/manifest.json"
+			$Response = Invoke-WebRequest -UseBasicParsing -URI $URI -TimeoutSec 1
+			If ($Null -ne $Response)
+			{
+				If ($response.Content -match "<!DOCTYPE html>") 
+				{
+					$MCP = $Null
+				} else {
+					$MCP = $Response.Content
+				}
+			} else {
+				$MCP = $Null
+			}
 		}
 	} catch {
 		Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
@@ -1115,6 +1159,7 @@ Function Get-MailProtection
 		Write-Host "M365FederatedAuthURL: $M365FederatedAuthURL" -ForegroundColor cyan
 		Write-Host "SecurityTXT: $SecurityTXTAvailable" -ForegroundColor cyan
 		Write-Host "DID: $DID" -ForegroundColor cyan
+		Write-Host "MCP: $MCP" -ForegroundColor cyan
 	}
 
 	#Better ResponseObject
@@ -1158,7 +1203,7 @@ Function Get-MailProtection
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'M365FederatedAuthURL' -Value $M365FederatedAuthURL
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'SecurityTXT' -Value $SecurityTXTAvailable
 	$ResultObject | Add-Member -MemberType NoteProperty -Name 'DID' -Value $DID
-
+	$ResultObject | Add-Member -MemberType NoteProperty -Name 'MCP' -Value $MCP
 	return $ResultObject
 }
 
@@ -1174,7 +1219,6 @@ If ($ReturnObject -eq $true)
 #Export a PowerShell object with nested arrays to CSV
 #$Properties = $Result | Get-Member | where {$_.MemberType -eq "NoteProperty"} | select Name
 
-
 If ($CSVExport -ne "")
 {
 	Write-Host "Export to CSV: $CSVExport" -ForegroundColor Cyan
@@ -1186,6 +1230,14 @@ If ($CSVExport -ne "")
 		$MTASTSWeb = $MTASTSWeb.replace("`r`n"," ")
 		$MTASTSWeb = $MTASTSWeb.replace("`r"," ")
 		$MTASTSWeb = $MTASTSWeb.replace("`n"," ")
+	}
+	
+	# Replace Line Breaks
+	If ($MCP -ne "")
+	{
+		$MCP = $MCP.replace("`r`n"," ")
+		$MCP = $MCP.replace("`r"," ")
+		$MCP = $MCP.replace("`n"," ")
 	}
 
 	# Flatten the array
@@ -1228,6 +1280,8 @@ If ($CSVExport -ne "")
 		M365NameSpaceType = $Result.M365NameSpaceType
 		M365FederatedAuthURL = $Result.M365FederatedAuthURL
 		SecurityTXT = $Result.SecurityTXT
+		DID = $Result.DID
+		MCP = $MCP
 	}
 
 	# Export to CSV
