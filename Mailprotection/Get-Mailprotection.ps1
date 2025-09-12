@@ -53,7 +53,7 @@
 # - Added M365NameSpaceType and M365FederatedAuthURL to Output
 # Version 1.17 23.07.2025
 # - Fixed Bug Autodiscover A Record
-# Version 1.18 12.09.2025
+# Version 1.20 12.09.2025
 # - Fixed Bug Autodiscover and Lyncdiscover with multiple A Records
 # - Added Decentralized Identifiers (DID) Detection (Experimental)
 # - Added Model Context Protocol (MCP) Detection (Experimental)
@@ -63,7 +63,7 @@
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.18
+.VERSION 1.20
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -76,7 +76,7 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.18
+Version 1.20
 - Fixed Bug Autodiscover and Lyncdiscover with multiple A Records
 - Added Decentralized Identifiers (DID) Detection (Experimental)
     - https://domain.tld/.well-known/did-configuration.json
@@ -1235,7 +1235,8 @@ If ($CSVExport -ne "")
 	}
 	
 	# Replace Line Breaks
-	If ($MCP -ne "")
+	$MCP = $Result.MCP
+	If ($Null -ne $MCP)
 	{
 		$MCP = $MCP.replace("`r`n"," ")
 		$MCP = $MCP.replace("`r"," ")

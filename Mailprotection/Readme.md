@@ -557,7 +557,7 @@ try {
   - Added M365NameSpaceType and M365FederatedAuthURL to Output
 - Version 1.17 23.07.2025
   - Fixed Bug Autodiscover A Record
-- Version 1.18 12.09.2025
+- Version 1.20 12.09.2025
   - Fixed Bug Autodiscover and Lyncdiscover with multiple A Records
   - Added Decentralized Identifiers (DID) Detection (Experimental)
   - Added Model Context Protocol (MCP) Detection (Experimental)
