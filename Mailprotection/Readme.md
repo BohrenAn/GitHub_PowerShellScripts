@@ -31,6 +31,8 @@ It checks for the following Information
 - M365 NameSpaceType (Federated / Managed)
 - M365 FederatedAuthURL (ADFS or 3rd Party Auth URI)
 - Security.txt https://securitytxt.org/
+- Added Decentralized Identifiers (DID) (Experimental)
+- Added Model Context Protocol (MCP) (Experimental)
 
 ## How to Install
 
@@ -435,6 +437,77 @@ try {
 $SecurityTXTAvailable
 ```
 
+## Decentralized Identifiers (DID) Configuration
+
+```pwsh
+$Domain = "domain.tld"
+#https://icewolf.ch/.well-known/did-configuration.json
+$URI = "https://$Domain/.well-known/did-configuration.json"
+try {
+    $Response = Invoke-WebRequest -UseBasicParsing -URI $URI -TimeoutSec 1
+    If ($Null -ne $Response)
+    {
+        #[string]
+        $Base64 = ($response.content | ConvertFrom-Json).linked_dids
+        If ($Base64.Split(".").count -eq 3)
+        {
+            #It's a JWT Token
+            $Part2 = $Base64.Split(".")[1]
+            #Fix Base64 Padding
+            $Part2 = $Part2.Replace('-', '+').Replace('_', '/')
+            switch ($Part2.Length % 4) {
+                2 { $Part2 += '==' }
+                3 { $Part2 += '=' }
+            }
+            $DIDConfiguration = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($Part2))
+            [string]$DID = ($DIDConfiguration | ConvertFrom-Json).Iss
+        }
+    } else {
+        [string]$DID = $Null
+    }
+} catch {
+    Write-Verbose "An exception was caught: $($_.Exception.Message)" #-ForegroundColor Yellow
+}
+```
+
+## Model Context Protocol (MCP)
+
+```pwsh
+$Domain = "domain.tld"
+#https://www.wellknownmcp.org/.well-known/mcp.json
+#https://www.wellknownmcp.org/.well-known/.well-known/mcp/manifest.json
+$URI = "https://$Domain/.well-known/mcp.json"
+try {
+    $Response = Invoke-WebRequest -UseBasicParsing -URI $URI -TimeoutSec 1
+    If ($Null -ne $Response)
+    {
+        If ($response.Content -match "<!DOCTYPE html>") 
+        {
+            $MCP = $Null
+        } else {
+            $MCP = $Response.Content
+        }
+    } else {
+        #Try manifest.json
+        $URI = "https://$Domain/.well-known/mcp/manifest.json"
+        $Response = Invoke-WebRequest -UseBasicParsing -URI $URI -TimeoutSec 1
+        If ($Null -ne $Response)
+        {
+            If ($response.Content -match "<!DOCTYPE html>") 
+            {
+                $MCP = $Null
+            } else {
+                $MCP = $Response.Content
+            }
+        } else {
+            $MCP = $Null
+        }
+    }
+} catch {
+    Write-Host "An exception was caught: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+```
+
 ## History
 
 - Version 1.0 / 21.02.2015 Initial Version
@@ -466,20 +539,28 @@ $SecurityTXTAvailable
   - Added -Silent Parameter
 - Version 1.10 / 08.11.2023 - Andres Bohren
   - Fixed STARTTLS and STARTTLS Support in Output and ReturnValue
-- Version 1.12
+- Version 1.12 13.10.2024
   - Fixed Bug in Detection of Multiple SPF Records
-- Version 1.14
+- Version 1.13 30.03.2024
+  - Fixed Bug in DANESupport when -SMTPConnect was set to $false
+- Version 1.14 28.09.2024
   - Moved from Resolve-DNS to DNS over Https (DoH) https://dns.google/resolve
   - Addet Property DMARCAuthorisationRecord
   - Addet Property SPFLookupCount - SPF Record Lookup check if max 10 records are used
   - Fixed some Autodiscover / Lyncdiscover Bugs
   - Changed Parameter -Silent and -Returnobject to Switch
-- Version 1.15
+- Version 1.15 20.11.2024
   - Fixed a Bug in Reverse Lookup of MX Records
   - Added -ExportCSV Parameter
-- Version 1.16
+- Version 1.16 15.03.2025
   - Addet -AppendCSVExport [$True / $False] Parameter
   - Added M365NameSpaceType and M365FederatedAuthURL to Output
+- Version 1.17 23.07.2025
+  - Fixed Bug Autodiscover A Record
+- Version 1.18 12.09.2025
+  - Fixed Bug Autodiscover and Lyncdiscover with multiple A Records
+  - Added Decentralized Identifiers (DID) Detection (Experimental)
+  - Added Model Context Protocol (MCP) Detection (Experimental)
 
 Kind Regards\
 Andres Bohren
