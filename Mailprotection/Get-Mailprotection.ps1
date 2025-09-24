@@ -57,13 +57,15 @@
 # - Fixed Bug Autodiscover and Lyncdiscover with multiple A Records
 # - Added Decentralized Identifiers (DID) Detection (Experimental)
 # - Added Model Context Protocol (MCP) Detection (Experimental)
+# Version 1.21 26.09.2025
+# - Improved Model Context Protocol (MCP) Detection
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.20
+.VERSION 1.21
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -76,13 +78,10 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.20
-- Fixed Bug Autodiscover and Lyncdiscover with multiple A Records
-- Added Decentralized Identifiers (DID) Detection (Experimental)
-    - https://domain.tld/.well-known/did-configuration.json
-- Added Model Context Protocol (MCP) Detection (Experimental)
+Version 1.21
+- Improved Model Context Protocol (MCP) Detection
     - https://domain.tld/.well-known/mcp.json
-	- https://domain.tld/.well-known/mcp/manifest.json
+    - https://domain.tld/.well-known/mcp/manifest.json
 #>
 
 <#
@@ -1071,26 +1070,30 @@ Function Get-MailProtection
 	#https://www.wellknownmcp.org/.well-known/.well-known/mcp/manifest.json
 	$URI = "https://$Domain/.well-known/mcp.json"
 	try {
-		$Response = Invoke-WebRequest -UseBasicParsing -URI $URI -TimeoutSec 1
+		$Response = Invoke-RestMethod -URI $URI -TimeoutSec 1
 		If ($Null -ne $Response)
 		{
-			If ($response.Content -match "<!DOCTYPE html>") 
+			$ResponseString = $Response | ConvertTo-Json
+			If ($ResponseString.StartsWith("{") -eq $true)
 			{
-				$MCP = $Null
+				#It's JSON
+				$MCP = $ResponseString
 			} else {
-				$MCP = $Response.Content
+				$MCP = $Null
 			}
 		} else {
 			#Try manifest.json
 			$URI = "https://$Domain/.well-known/mcp/manifest.json"
-			$Response = Invoke-WebRequest -UseBasicParsing -URI $URI -TimeoutSec 1
+			$Response = Invoke-RestMethod -URI $URI -TimeoutSec 1
 			If ($Null -ne $Response)
 			{
-				If ($response.Content -match "<!DOCTYPE html>") 
+				$ResponseString = $Response | ConvertTo-Json
+				If ($ResponseString.StartsWith("{") -eq $true)
 				{
-					$MCP = $Null
+					#It's JSON
+					$MCP = $ResponseString
 				} else {
-					$MCP = $Response.Content
+					$MCP = $Null
 				}
 			} else {
 				$MCP = $Null
