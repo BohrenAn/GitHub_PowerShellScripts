@@ -703,6 +703,7 @@ Process {
 						}
 
 						#DKIM
+						#google._domainkey.yourdomain.com
 						Write-Host "DKIM (Only checking for: selector1/selector2)" -ForegroundColor Magenta
 						try {
 							$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=Selector1._domainkey.$SenderDomain&type=CNAME"
