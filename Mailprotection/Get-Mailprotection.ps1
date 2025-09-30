@@ -57,7 +57,7 @@
 # - Fixed Bug Autodiscover and Lyncdiscover with multiple A Records
 # - Added Decentralized Identifiers (DID) Detection (Experimental)
 # - Added Model Context Protocol (MCP) Detection (Experimental)
-# Version 1.21 26.09.2025
+# Version 1.21 30.09.2025
 # - Improved Model Context Protocol (MCP) Detection
 # Backlog / Whishlist
 # - Open Mail Relay Check
