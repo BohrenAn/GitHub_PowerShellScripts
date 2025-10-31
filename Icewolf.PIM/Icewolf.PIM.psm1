@@ -126,6 +126,11 @@ Function Enable-PIM
 		#$policy = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/beta/policies/roleManagementPolicies/DirectoryRole_46bbad84-29f0-4e03-8d34-f6841a5071ad_20a5c74b-d9eb-4998-909a-ecba58414f09?$expand=rules"
 		#$policy
 
+		
+        Write-Progress -Activity "Fetching all active Entra ID roles" -Id 0
+        [array]$myActiveRoles = Get-MgRoleManagementDirectoryRoleAssignmentSchedule -ExpandProperty RoleDefinition -All -Filter "principalId eq '$currentUser'" -ErrorAction Stop
+        Write-Progress -Id 0 -Completed
+
 		$Int =0 
 		Foreach ($Role in $MyRoles)
 		{
