@@ -238,7 +238,7 @@ $Result.value | Format-List id,receivedDateTime, subject, hasAttachments, import
 
 ###############################################################################
 # List Mailbox Message Filtered by InternetMessageId
-################################################################################
+###############################################################################
 $internetMessageId = "<GV0P278MB074937BA8A5E19355D567F9CA642A@GV0P278MB0749.CHEP278.PROD.OUTLOOK.COM>"
 $Filter = "?`$filter=internetMessageId eq '" + $internetMessageId + "'"
 $Mailbox = "Postmaster@icewolf.ch"
@@ -251,6 +251,20 @@ $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 $Result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentType $ContentType
 $Result.value[0] | Format-List
 $Result.value | Format-List id,receivedDateTime, subject, hasAttachments, importance, internetMessageId,isRead
+
+###############################################################################
+# Get Mailbox Message with Message ID
+###############################################################################
+$ID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQBGAAAAAADI11bk3aFKQJXy4z2GgQYRBwD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAD9DAdvUOIbRK2TMu1gBCF9AAbTve6hAAA="
+$Mailbox = "Postmaster@icewolf.ch"
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/messages"
+$FolderID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQAuAAAAAADI11bk3aFKQJXy4z2GgQYRAQD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAA="
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderID/messages/$ID"
+
+$ContentType = "application/json"
+$Headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$Result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentType $ContentType
+$Result | Format-List id,receivedDateTime, subject, hasAttachments, importance, internetMessageId,isRead
 
 ###############################################################################
 # Create Mailbox Message
