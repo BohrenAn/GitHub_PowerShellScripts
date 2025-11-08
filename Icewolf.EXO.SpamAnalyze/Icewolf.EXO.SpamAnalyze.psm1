@@ -1,4 +1,4 @@
-##############################################################################
+###############################################################################
 # Invoke-SpamAnalyze.ps1
 # Get SPAM Detail Info for Specific MessageTraceID in MessageTrace
 # V2.0.0 04.05.2021 - Andres Bohren / Initial Version
@@ -40,6 +40,8 @@
 # V2.0.14 07.01.2025
 # - Added Support for Get-MessageTraceV2 / Get-MessageTraceDetailV2
 # - Updated the ReqiredModule ExchangeOnlineManagement to 3.6.0
+# V2.0.15 08.11.2025
+# - Removed the Dependency on ExchangeOnlineManagement in the Module Manifest
 ##############################################################################
 #Requires -Modules ExchangeOnlineManagement
 
