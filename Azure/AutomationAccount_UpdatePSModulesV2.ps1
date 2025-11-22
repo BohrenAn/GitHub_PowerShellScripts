@@ -60,11 +60,11 @@ Foreach ($Module in $Modules)
 #Create NuGetURL
 $body = @"
 {
-"properties": {
-    "contentLink": {
-    "uri": "$NupkgURI"
+    "properties": {
+        "contentLink": {
+            "uri": "$NupkgURI"
+        }
     }
-  }
 }
 "@
 
