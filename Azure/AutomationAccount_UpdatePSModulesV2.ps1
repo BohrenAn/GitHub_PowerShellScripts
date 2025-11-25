@@ -3,13 +3,14 @@
 # Requires Modules:
 # - Microsoft.PowerShell.PSResourceGet
 # 2025.01.02 - Initial Version - Andres Bohren
+# 2025.11.22 - Updated NuPacketURI - Andres Bohren
 ###############################################################################
 # Requirements
 # - Azure Automation Account has Managed Identity
 # - Managed Identity has "Contributor" Permission on Automation Account
 
 ###############################################################################
-#Variables
+# Variables
 ###############################################################################
 $SubscriptionID = "42ecead4-eae9-4456-997c-1580c58b54ba"
 $ResourceGroupName = "RG_DEV"
@@ -17,7 +18,7 @@ $AutomationAccountName = "icewolfautomation"
 $RuntimeEnvironment = "PowerShell-7.4"
 
 ###############################################################################
-#Array of Modules
+# Array of Modules
 ###############################################################################
 $Modules = @()
 $Modules += "Microsoft.PowerShell.PSResourceGet"
@@ -40,29 +41,30 @@ $Modules += "PSMSALNet"
 
 
 ###############################################################################
-#Connect to Azure
+# Connect to Azure
 ###############################################################################
 Write-Output "Connect-AzAccount"
 Connect-AzAccount -Identity
 
 ###############################################################################
-#Add Powershell Package
+# Add Powershell Package
 ###############################################################################
 Foreach ($Module in $Modules)
 {
     Write-Output "Module: $Module"
     $PSGallery = Find-PSResource -Name $Module
     $Version = $PSGallery.Version.ToString()
-    $NupkgURI = ("https://psg-prod-eastus.azureedge.net/packages/$Module.$Version.nupkg").ToLower()
+    #$NupkgURI = ("https://psg-prod-eastus.azureedge.net/packages/$Module.$Version.nupkg").ToLower()
+    $NupkgURI = "https://www.powershellgallery.com/api/v2/package/$Module/$Version"
 
 #Create NuGetURL
 $body = @"
 {
-"properties": {
-    "contentLink": {
-    "uri": "$NupkgURI"
+    "properties": {
+        "contentLink": {
+            "uri": "$NupkgURI"
+        }
     }
-  }
 }
 "@
 
@@ -71,7 +73,7 @@ $body = @"
 }
 
 ###############################################################################
-#Get PowerShell Packages
+# Get PowerShell Packages
 ###############################################################################
 Do {
 Write-Host "Checking Packages..."
@@ -86,7 +88,7 @@ While ($Null -ne $Packages)
 Write-Output "No installation pending"
 
 ###############################################################################
-#Disconnect from Azure
+# Disconnect from Azure
 ###############################################################################
 Write-Output "Disconnect-AzAccount"
 Disconnect-AzAccount

@@ -85,10 +85,10 @@ $RedirectUri = "https://login.microsoftonline.com/common/oauth2/nativeclient"
 #Authenticate with ClientSecret
 $ClientSecret = "YourClientSecret"
 $HashArguments = @{
-  ClientId = $AppID
-  ClientSecret = $ClientSecret
-  TenantId = $TenantId
-  Resource = "GraphAPI"
+    ClientId = $AppID
+    ClientSecret = $ClientSecret
+    TenantId = $TenantId
+    Resource = "GraphAPI"
 }
 $Token = Get-EntraToken -ClientCredentialFlowWithSecret @HashArguments
 $AccessToken = $Token.AccessToken
@@ -98,10 +98,10 @@ $AccessToken
 $CertificateThumbprint = "A3A07A3C2C109303CCCB011B10141A020C8AFDA3" #O365Powershell4.cer
 $Certificate = Get-ChildItem -Path cert:\CurrentUser\my\$CertificateThumbprint
 $HashArguments = @{
-  ClientId = $AppID
-  ClientCertificate = $Certificate
-  TenantId = $TenantId
-  Resource = "GraphAPI"
+    ClientId = $AppID
+    ClientCertificate = $Certificate
+    TenantId = $TenantId
+    Resource = "GraphAPI"
 }
 $Token = Get-EntraToken -ClientCredentialFlowWithCertificate @HashArguments
 $AccessToken = $Token.AccessToken
@@ -109,11 +109,11 @@ $AccessToken
 
 # DeviceCode
 $HashArguments = @{
-  ClientId = $AppID
-  TenantId = $TenantId
-  Resource = "GraphAPI"
-  Permissions = @("Mail.ReadWrite", "Mail.Send", "Calendars.ReadWrite", "Contacts.ReadWrite", "Tasks.ReadWrite")
-  verbose = $true
+    ClientId = $AppID
+    TenantId = $TenantId
+    Resource = "GraphAPI"
+    Permissions = @("Mail.ReadWrite", "Mail.Send", "Calendars.ReadWrite", "Contacts.ReadWrite", "Tasks.ReadWrite")
+    verbose = $true
 }
 $Token = Get-EntraToken -DeviceCodeFlow @HashArguments
 $AccessToken = $Token.AccessToken
@@ -121,12 +121,12 @@ $AccessToken
 
 # Authorization code with PKCE
 $HashArguments = @{
-  ClientId = $AppID
-  TenantId = $TenantId
-  RedirectUri = $RedirectUri
-  Resource = 'GraphAPI'
-  Permissions =  @("Mail.ReadWrite", "Mail.Send", "Calendars.ReadWrite", "Contacts.ReadWrite", "Tasks.ReadWrite")
-  verbose = $true
+    ClientId = $AppID
+    TenantId = $TenantId
+    RedirectUri = $RedirectUri
+    Resource = 'GraphAPI'
+    Permissions =  @("Mail.ReadWrite", "Mail.Send", "Calendars.ReadWrite", "Contacts.ReadWrite", "Tasks.ReadWrite")
+    verbose = $true
 }
 $Token = Get-EntraToken -PublicAuthorizationCodeFlow @HashArguments
 $AccessToken = $Token.AccessToken
@@ -153,10 +153,10 @@ $scope = "https://graph.microsoft.com/.default"
 $authority = "https://login.microsoftonline.com/$tenantID/oauth2/v2.0/token"
 
 $Body = @{
-  "grant_type"    = "client_credentials";
-  "client_id"     = "$ClientID";
-  "client_secret" = "$ClientSecret";
-  "scope"      = "$scope";
+    "grant_type"    = "client_credentials";
+    "client_id"     = "$ClientID";
+    "client_secret" = "$ClientSecret";
+    "scope"      = "$scope";
 }
 
 #Get AccessToken
@@ -237,6 +237,36 @@ $Result.value[0] | Format-List
 $Result.value | Format-List id,receivedDateTime, subject, hasAttachments, importance, internetMessageId,isRead
 
 ###############################################################################
+# List Mailbox Message Filtered by InternetMessageId
+###############################################################################
+$internetMessageId = "<GV0P278MB074937BA8A5E19355D567F9CA642A@GV0P278MB0749.CHEP278.PROD.OUTLOOK.COM>"
+$Filter = "?`$filter=internetMessageId eq '" + $internetMessageId + "'"
+$Mailbox = "Postmaster@icewolf.ch"
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/messages"
+$FolderID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQAuAAAAAADI11bk3aFKQJXy4z2GgQYRAQD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAA="
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderID/messages/$Filter"
+
+$ContentType = "application/json"
+$Headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$Result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentType $ContentType
+$Result.value[0] | Format-List
+$Result.value | Format-List id,receivedDateTime, subject, hasAttachments, importance, internetMessageId,isRead
+
+###############################################################################
+# Get Mailbox Message with Message ID
+###############################################################################
+$ID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQBGAAAAAADI11bk3aFKQJXy4z2GgQYRBwD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAD9DAdvUOIbRK2TMu1gBCF9AAbTve6hAAA="
+$Mailbox = "Postmaster@icewolf.ch"
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/messages"
+$FolderID = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQAuAAAAAADI11bk3aFKQJXy4z2GgQYRAQD4k93uZqwxSo0-0gbfaWPWAAAAr8HVAAA="
+$URI = "https://graph.microsoft.com/v1.0/users/$Mailbox/mailFolders/$FolderID/messages/$ID"
+
+$ContentType = "application/json"
+$Headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$Result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentType $ContentType
+$Result | Format-List id,receivedDateTime, subject, hasAttachments, importance, internetMessageId,isRead
+
+###############################################################################
 # Create Mailbox Message
 # https://docs.microsoft.com/en-us/graph/api/user-post-messages?view=graph-rest-1.0&tabs=http
 ###############################################################################
@@ -290,9 +320,9 @@ $ContentType = "application/json"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 $Body = @"
 {
-  "@odata.type": "#microsoft.graph.fileAttachment",
-  "name": "DemoAttachment.docx",
-  "contentBytes": "$ContentByte"
+    "@odata.type": "#microsoft.graph.fileAttachment",
+    "name": "DemoAttachment.docx",
+    "contentBytes": "$ContentByte"
 }
 "@
 
@@ -378,18 +408,18 @@ $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 
 $Body = @"
 {
-  "requests": [
+    "requests": [
     {
-      "entityTypes": [
+        "entityTypes": [
         "message"
-      ],
-      "query": {
+        ],
+        "query": {
         "queryString": "Swisscom"
-      },
-      "from": 0,
-      "size": 25
+        },
+        "from": 0,
+        "size": 25
     }
-  ]
+    ]
 }
 "@
 
@@ -449,9 +479,9 @@ if ($null -ne $Events.'@odata.nextLink')
 
 $mailbox = "postmaster@icewolf.ch"
 $headers = @{
- "Authorization" = "Bearer "+ $AccessToken;
- "Prefer" = 'outlook.timezone="W. Europe Standard Time"';
- "Content-type"  = "application/json"
+    "Authorization" = "Bearer "+ $AccessToken;
+    "Prefer" = 'outlook.timezone="W. Europe Standard Time"';
+    "Content-type"  = "application/json"
 }
 
 #Timeformat: 2022-03-08T20:34:22
@@ -461,22 +491,22 @@ $EndDate = ((Get-Date).AddHours(+1)).GetDateTimeFormats("s")
 #Create JSON Object
 $json = @"
 {
-  "subject":"Graph API Example",
-  "body": {
-    "contentType" : "HTML",
-    "content" : "Write Graph API Powershell Script"
-  },
-  "start": {
-      "dateTime" : "2022-03-08T12:00:00",
-      "timeZone" : "W. Europe Standard Time"
-  },
-  "end": {
-      "dateTime" : "2022-03-08T13:00:00",
-      "timeZone" : "W. Europe Standard Time"
-  },
-  "location":{
-      "displayName" : "HomeOffice"
-  }
+    "subject":"Graph API Example",
+    "body": {
+        "contentType" : "HTML",
+        "content" : "Write Graph API Powershell Script"
+    },
+    "start": {
+        "dateTime" : "2022-03-08T12:00:00",
+        "timeZone" : "W. Europe Standard Time"
+    },
+    "end": {
+        "dateTime" : "2022-03-08T13:00:00",
+        "timeZone" : "W. Europe Standard Time"
+    },
+    "location":{
+        "displayName" : "HomeOffice"
+    }
 }
 "@
 
@@ -511,19 +541,19 @@ $Result | Format-List start, end, subject, isorganizer, isReminderOn, reminderMi
 $id = "AQMkADU4NGU4M2ViLWM5NjctNGI0YS05ZmJhLTIyADdmYWI0MjRkYmQARgAAAzqJ2GWaRBxKv-EJWOBGbRAHAEZu88iLm85MjHqnrJ10b8oAAAIXkwAAAcb9AhgmYESSPal9iQNu6wAB0zikmgAAAA=="
 $mailbox = "postmaster@icewolf.ch"
 $headers = @{
- "Authorization" = "Bearer "+ $AccessToken;
- "Content-type"  = "application/json"
+    "Authorization" = "Bearer "+ $AccessToken;
+    "Content-type"  = "application/json"
 }
 
 $json = @"
- {
-  "subject" : "Graph API Example Update",
- },
- {
-   "location":{
-    "displayName" : "Office Bern"
-   }
- }
+    {
+        "subject" : "Graph API Example Update",
+    },
+    {
+        "location":{
+        "displayName" : "Office Bern"
+        }
+    }
 "@
 
 $uri = "https://graph.microsoft.com/v1.0/users/$Mailbox/events/$id"
@@ -556,18 +586,18 @@ $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 
 $Body = @"
 {
-  "requests": [
+    "requests": [
     {
-      "entityTypes": [
+        "entityTypes": [
         "event"
-      ],
-      "query": {
+        ],
+        "query": {
         "queryString": "contoso"
-      },
-      "from": 0,
-      "size": 25
+        },
+        "from": 0,
+        "size": 25
     }
-  ]
+    ]
 }
 "@
 
@@ -619,17 +649,17 @@ $ContentType = "application/json"
 $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 $Body = @"
 {
-  "givenName": "Pavel",
-  "surname": "Bansky",
-  "emailAddresses": [
+    "givenName": "Pavel",
+    "surname": "Bansky",
+    "emailAddresses": [
     {
-      "address": "pavelb@fabrikam.onmicrosoft.com",
-      "name": "Pavel Bansky"
+        "address": "pavelb@fabrikam.onmicrosoft.com",
+        "name": "Pavel Bansky"
     }
-  ],
-  "businessPhones": [
+    ],
+    "businessPhones": [
     "+1 732 555 0102"
-  ]
+    ]
 }
 "@
 
@@ -675,13 +705,13 @@ $Headers = @{"Authorization" = "Bearer "+ $AccessToken}
 
 $Body = @"
 {
-  "homeAddress": {
-    "street": "123 Some street",
-    "city": "Seattle",
-    "state": "WA",
-    "postalCode": "98121"
-  },
-  "birthday": "1974-07-22"
+    "homeAddress": {
+        "street": "123 Some street",
+        "city": "Seattle",
+        "state": "WA",
+        "postalCode": "98121"
+    },
+    "birthday": "1974-07-22"
 }
 "@
 
