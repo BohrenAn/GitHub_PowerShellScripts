@@ -1,6 +1,6 @@
 ###############################################################################
 # Update AzureFunction ExtensionBundle Version
-# 2925-11-25 Initilial Version - Andres Bohren - https://blog.icewolf.ch
+# 2025-11-25 Initilial Version - Andres Bohren - https://blog.icewolf.ch
 ###############################################################################
 Function Update-AZFunctionExtensionBundle {
     param(
