@@ -59,13 +59,15 @@
 # - Added Model Context Protocol (MCP) Detection (Experimental)
 # Version 1.21 30.09.2025
 # - Improved Model Context Protocol (MCP) Detection
+# Version 1.22 07.12.2025
+# - Fixed Bug in MTA-STS Removal of line breaks
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.21
+.VERSION 1.22
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -798,7 +800,9 @@ Function Get-MailProtection
 			{
 				$MTASTSTXT = [System.Text.Encoding]::UTF8.GetString($response.Content) #.trim().Replace("`r`n","")
 			} else {
-				$MTASTSTXT = ($response.Content).trim().Replace("`r`n","")
+				$MTASTSTXT = ($response.Content).Replace("`r`n"," ")
+				$MTASTSTXT = $MTASTSTXT.Replace("`n"," ")
+				#$MTASTSTXT = $response.Content
 			}
 		#$MTASTSTXT
 		} catch {
@@ -931,8 +935,8 @@ Function Get-MailProtection
 	$json = Invoke-RestMethod -URI "https://dns.google/resolve?name=_sipfederationtls._tcp.$Domain&type=SRV"
 	If ($null -ne $json.Answer.data)
 	{
-		#Prio Weight Port Hostname
-		#100 1 5061 sipfed.online.lync.com
+		# Prio Weight Port Hostname
+		# 100 1 5061 sipfed.online.lync.com
 		$SkypeFederationSRV = $json.Answer.data
 
 		$SpaceCount = ($Json.Answer.data.ToCharArray() | Where-Object { $_ -eq " "}).Count
@@ -954,7 +958,7 @@ Function Get-MailProtection
 		Write-Host "Check: M365 Tenant (OpenIDConnect)" -ForegroundColor Green
 	}
 	try {
-		#$TenantID = (Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration|ConvertFrom-Json).token_endpoint.Split('/')[3]
+		# $TenantID = (Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration|ConvertFrom-Json).token_endpoint.Split('/')[3]
 		$Response = Invoke-WebRequest -UseBasicParsing https://login.windows.net/$($Domain)/.well-known/openid-configuration -TimeoutSec 1
 		$TenantID = ($Response | ConvertFrom-Json).token_endpoint.Split('/')[3]
 		$M365 = $True
