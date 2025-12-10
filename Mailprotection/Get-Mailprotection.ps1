@@ -61,13 +61,16 @@
 # - Improved Model Context Protocol (MCP) Detection
 # Version 1.22 07.12.2025
 # - Fixed Bug in MTA-STS Removal of line breaks
+# Version 1.23 10.12.2025
+# - Fixed for CVE-2025-54100
+#   https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2025-54100
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.22
+.VERSION 1.23
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
 .AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
 .COMPANYNAME icewolf.ch
@@ -795,7 +798,7 @@ Function Get-MailProtection
 
 		$URI = "https://mta-sts.$Domain/.well-known/mta-sts.txt"
 		try {
-			$Response = Invoke-WebRequest -URI $URI -TimeoutSec 1
+			$Response = Invoke-WebRequest -UseBasicParsing -URI $URI -TimeoutSec 1
 			If ($response.Content -is [byte[]]) 
 			{
 				$MTASTSTXT = [System.Text.Encoding]::UTF8.GetString($response.Content) #.trim().Replace("`r`n","")
