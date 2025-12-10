@@ -62,8 +62,7 @@
 # Version 1.22 07.12.2025
 # - Fixed Bug in MTA-STS Removal of line breaks
 # Version 1.23 10.12.2025
-# - Fixed for CVE-2025-54100
-#   https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2025-54100
+# - Fix for CVE-2025-54100 https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2025-54100
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
@@ -83,10 +82,9 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-Version 1.21
-- Improved Model Context Protocol (MCP) Detection
-    - https://domain.tld/.well-known/mcp.json
-    - https://domain.tld/.well-known/mcp/manifest.json
+    Version 1.23
+    - Fix for CVE-2025-54100
+    https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2025-54100
 #>
 
 <#
