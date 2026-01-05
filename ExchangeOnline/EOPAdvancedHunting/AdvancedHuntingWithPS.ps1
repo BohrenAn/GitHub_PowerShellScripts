@@ -9,7 +9,7 @@
 # -Application: AdvancedHunting.Read.All
 # Powershell Modules
 # - Install-Module MSAL.PS > PowerShell 5.1
-# - Install-Module MSAL.PS > PowerShell 7.x
+# - Install-Module PSMSALNet > PowerShell 7.x
 # - Install-Module JWTDetails
 
 ###############################################################################
