@@ -1,19 +1,24 @@
 ###############################################################################
 # Defender for Office 365 - AdvancedHunting with PowerShell
-# 2023.04.21 - Initial Version - Andres Bohren
+# 2023-04-21 - Initial Version - Andres Bohren
+# 2026-01-05 - Updated for PSMSALNet and PowerShell 7.x - Andres Bohren
 ###############################################################################
 # Requires an Azure AD App with the following Permission
 # APIs my Organization uses > Microsoft Threat Protection
 # -Delegated: AdvancedHunting.Read
 # -Application: AdvancedHunting.Read.All
 # Powershell Modules
-# - Install-Module MSAL.PS
+# - Install-Module MSAL.PS > PowerShell 5.1
+# - Install-Module MSAL.PS > PowerShell 7.x
 # - Install-Module JWTDetails
 
+###############################################################################
+# Powershell 5.1
+###############################################################################
 #Application Authentication
 $AppId = "23299ad3-9e6f-4390-a121-1e5a394a6914" #PSSecurity
 $TenantId = "icewolfch.onmicrosoft.com"
-$ThumbPrint = "07EFF3918F47995EB53B91848F69B5C0E78622FD"
+$ThumbPrint = "A3A07A3C2C109303CCCB011B10141A020C8AFDA3" #O365Powershell4
 $Certificate = Get-ChildItem Cert:\CurrentUser\My\ | Where-Object {$_.Thumbprint -eq $ThumbPrint}
 Import-Module MSAL.PS
 Clear-MsalTokenCache
@@ -32,6 +37,34 @@ $Token = Get-MsalToken -ClientId $AppId -TenantId $TenantId -Scopes $Scopes
 $AccessToken = $Token.AccessToken
 Get-JWTDetails -token $AccessToken
 
+
+###############################################################################
+# Powershell 7.x
+###############################################################################
+Import-Module PSMSALNet
+$TenantId = "46bbad84-29f0-4e03-8d34-f6841a5071ad"
+$AppId = "23299ad3-9e6f-4390-a121-1e5a394a6914" #PSSecurity
+
+# Authenticate with Certificate
+$ThumbPrint = "A3A07A3C2C109303CCCB011B10141A020C8AFDA3" #O365Powershell4
+$Certificate = Get-ChildItem -Path cert:\CurrentUser\my\$Thumbprint
+$CustomResource =  "https://api.security.microsoft.com/"
+
+$HashArguments = @{
+  ClientId = $AppID
+  ClientCertificate = $Certificate
+  TenantId = $TenantId
+  Resource = "Custom"
+  CustomResource = $CustomResource
+}
+$Token = Get-EntraToken -ClientCredentialFlowWithCertificate @HashArguments
+$AccessToken = $Token.AccessToken
+#$AccessToken
+Get-JWTDetails -token $AccessToken
+
+###############################################################################
+# Advanced Hunting Query
+###############################################################################
 
 #KQL Query Oneliner
 $query = 'EmailAttachmentInfo | limit 10'
