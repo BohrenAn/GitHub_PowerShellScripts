@@ -16,19 +16,18 @@
 # Function WriteLog
 ###############################################################################
 Function Write-Log {
-PARAM (
-[string]$pLogtext
-)
-    $pDate =  $(get-date -format "dd.MM.yyyy HH:mm:ss")
-    $sw = new-object system.IO.StreamWriter($LogPath, 1)
-    $sw.writeline($pDate + " " + $pLogtext)
-    $sw.close()
+    PARAM (
+        [string]$LogMessage
+    )
+    $Date = $(get-date -format "dd.MM.yyyy HH:mm:ss")
+    Add-Content -Path "$LogPath" -Value ($Date + " " + $LogMessage)
 }
 
 ###############################################################################
 # Main Script
 ###############################################################################
-$LogPath = $PSScriptRoot + "\cleanup.log"
+$ShortDate = (Get-Date).ToString('yyyy-MM-dd')
+$LogPath = $PSScriptRoot + "\CleanupMobileDevice_$ShortDate.log"
 Write-Log "Starting Script"
 
 #Connect-ExchangeOnline
@@ -38,14 +37,13 @@ $AppID = "341772e9-4f7a-4444-9b2c-66620d27aec0" #Demo-EXO-RBAC-PS
 $CertificateThumbprint = "A3A07A3C2C109303CCCB011B10141A020C8AFDA3" #O365Powershell4
 Connect-ExchangeOnline -AppID $AppID -CertificateThumbprint $CertificateThumbprint -Organization $TenantId
 
-
+#Start Date
 $StartDate = get-date -f "dd.MM.yyyy HH:mm"
 
 Write-Host "Getting Mobile Devices..."
 Write-Log "Getting Mobile Devices..."
 $Mobiles = Get-MobileDevice -ResultSize Unlimited
 $TotalDevices = $Mobiles.count
-
 
 $ShortDate = get-date -f "yyyyMMdd"
 $CSVFilePath = "$PSScriptRoot\MobileDevice_$ShortDate.csv"

@@ -39,7 +39,7 @@
 ###############################################################################
 # Variables
 ###############################################################################
-<#
+<# December 2025
 Exchange Online
 Microsoft Entra
 Microsoft 365 suite
@@ -83,10 +83,6 @@ $CertificateThumbprint = "A3A07A3C2C109303CCCB011B10141A020C8AFDA3"  #CN=O365Pow
 
 #Log Purge
 [int]$LogPurgeDays = 30
-
-#Cover Mintues for New and Closed Issues
-#[int]$IssueCoverMinutes = 90
-#[int]$IssueCoverMinutes = 1440 #24 hours
 
 #Email Settings
 [string]$MailSender = "postmaster@icewolf.ch"
@@ -223,40 +219,51 @@ Write-Log -LogMessage "Removing log files older than $LogPurgeDays days."
 Write-Host "Removing log files older than $LogPurgeDays days." -ForegroundColor Cyan
 Remove-OldLogFiles -DaysOld $LogPurgeDays
 
-<#
-###############################################################################
-# Get Access Token using MSAL.PS (PowerShell 5.1)
-###############################################################################
-Import-Module MSAL.PS
-$ClientCertificate = Get-Item Cert:\CurrentUser\My\$CertificateThumbprint
-$Scope = "https://graph.microsoft.com/.default"
-$Token = Get-MsalToken -clientID $AppID -ClientCertificate $ClientCertificate -tenantID $tenantID -Scope $Scope
-$AccessToken = $Token.AccessToken
-$AccessToken
+# Detect if running in PowerShell 5.1 or PowerShell 7.x
+$PSVersion = $PSVersionTable.PSVersion.Major
+Write-Log -LogMessage "Detected PowerShell Version: $PSVersion"
+Write-Host "Detected PowerShell Version: $PSVersion" -ForegroundColor Cyan
 
-#$AccessToken
-#Get-JWTDetails -token $AccessToken
-#>
+If ($PSVersion -lt 6) {
+    Write-Log -LogMessage "Running in PowerShell 5.1"
+    Write-Host "Running in PowerShell 5.1" -ForegroundColor Cyan
 
-###############################################################################
-# Get Access Token using PSMSALNet (PowerShell 7.x)
-###############################################################################
-Write-Log -LogMessage "Getting Access Token using PSMSALNet."
-Write-Host "Getting Access Token using PSMSALNet." -ForegroundColor Cyan
+    ###############################################################################
+    # Get Access Token using MSAL.PS (PowerShell 5.1)
+    ###############################################################################
+    Import-Module MSAL.PS
+    $ClientCertificate = Get-Item Cert:\CurrentUser\My\$CertificateThumbprint
+    $Scope = "https://graph.microsoft.com/.default"
+    $Token = Get-MsalToken -clientID $AppID -ClientCertificate $ClientCertificate -tenantID $tenantID -Scope $Scope
+    $AccessToken = $Token.AccessToken
+    $AccessToken
+    #$AccessToken
+    #Get-JWTDetails -token $AccessToken
 
-Import-Module PSMSALNet
-$Certificate = Get-ChildItem -Path cert:\CurrentUser\my\$CertificateThumbprint
+} Else {
+    Write-Log -LogMessage "Running in PowerShell 7.x"
+    Write-Host "Running in PowerShell 7.x" -ForegroundColor Cyan
 
-$HashArguments = @{
-    ClientId          = $AppID
-    ClientCertificate = $Certificate
-    TenantId          = $TenantId
-    Resource          = "GraphAPI"
+    ###############################################################################
+    # Get Access Token using PSMSALNet (PowerShell 7.x)
+    ###############################################################################
+    Write-Log -LogMessage "Getting Access Token using PSMSALNet."
+    Write-Host "Getting Access Token using PSMSALNet." -ForegroundColor Cyan
+
+    Import-Module PSMSALNet
+    $Certificate = Get-ChildItem -Path cert:\CurrentUser\my\$CertificateThumbprint
+
+    $HashArguments = @{
+        ClientId          = $AppID
+        ClientCertificate = $Certificate
+        TenantId          = $TenantId
+        Resource          = "GraphAPI"
+    }
+    $Token = Get-EntraToken -ClientCredentialFlowWithCertificate @HashArguments
+    $AccessToken = $Token.AccessToken
+    #$AccessToken
+    #Get-JWTDetails -token $AccessToken
 }
-$Token = Get-EntraToken -ClientCredentialFlowWithCertificate @HashArguments
-$AccessToken = $Token.AccessToken
-#$AccessToken
-#Get-JWTDetails -token $AccessToken
 
 ###############################################################################
 # Service Healh Overview
