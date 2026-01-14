@@ -469,6 +469,37 @@ if ($null -ne $Events.'@odata.nextLink')
     } until ($null -eq $Events.'@odata.nextLink')
 }
 
+
+###############################################################################
+# List Events on a Specific Date
+###############################################################################
+$mailbox = "postmaster@icewolf.ch"
+$headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$uri = "https://graph.microsoft.com/v1.0/users/$Mailbox/calendarView?startDateTime=2026-02-03T00:00:00&endDateTime=2026-02-04T00:00:00&`$select=subject,start,end,isAllDay,organizer"
+#$uri = "https://graph.microsoft.com/v1.0/users/$Mailbox/calendarView?startDateTime=2026-02-03T00:00:00&endDateTime=2026-02-04T00:00:00&`$filter=startswith(Subject,'AVQ')&`$select=subject,start,end,isAllDay,organizer"
+$Events = Invoke-RestMethod -Method GET -uri $uri -headers $headers
+$Events.Value | Format-List subject,start,end,location
+
+###############################################################################
+ #Get Event by ID
+###############################################################################
+$mailbox = "postmaster@icewolf.ch"
+$headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$EventId = "AAMkADExY2U2ZWY2LTI0YzEtNGQ3Mi1iODY0LTZmNzQ2MWQxOWJlYQBGAAAAAADI11bk3aFKQJXy4z2GgQYRBwD4k93uZqwxSo0-0gbfaWPWAAAAr8HeAAD9DAdvUOIbRK2TMu1gBCF9AAcxzJpnAAA="
+$uri = "https://graph.microsoft.com/v1.0/users/$Mailbox/calendar/events/$EventId"
+$Events = Invoke-RestMethod -Method GET -uri $uri -headers $headers
+$Events.Value | Format-list subject,start,end,location,id
+
+###############################################################################
+# Get Event by Subject
+###############################################################################
+$mailbox = "postmaster@icewolf.ch"
+$headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$subject = "AVQ 1844448053"
+$uri = "https://graph.microsoft.com/v1.0/users/$Mailbox/calendar/events/?`$filter=startswith(Subject,'" + $Subject + "')"
+$Events = Invoke-RestMethod -Method GET -uri $uri -headers $headers
+$Events.Value | Format-list subject,start,end,location,id
+
 ###############################################################################
 #Create Event
 #https://docs.microsoft.com/en-us/graph/api/user-post-events?view=graph-rest-1.0&tabs=http
