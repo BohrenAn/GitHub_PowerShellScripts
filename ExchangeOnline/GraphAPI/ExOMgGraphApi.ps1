@@ -26,6 +26,62 @@ Test-ApplicationAccessPolicy -AppId c1a5903b-cd73-48fe-ac1f-e71bde968412 -Identi
 Test-ApplicationAccessPolicy -AppId c1a5903b-cd73-48fe-ac1f-e71bde968412 -Identity SharedMBX@icewolf.ch
 
 ###############################################################################
+#Create SelfSignedCertificate
+# https://docs.microsoft.com/en-us/powershell/module/pki/new-selfsignedcertificate?view=windowsserver2022-ps
+###############################################################################
+Get-ChildItem -Path cert:\CurrentUser\my | Format-Table
+$Subject = "DemoCert"
+$NotAfter = (Get-Date).AddMonths(+24)
+$Cert = New-SelfSignedCertificate -Subject $Subject -CertStoreLocation "Cert:\CurrentUser\My" -KeySpec Signature -NotAfter $Notafter -KeyExportPolicy Exportable
+#CD cert:\localmachine\my    #(computer cert)   
+#cd cert:\currentuser\my    #(user cert)
+#$cert =ls | where {$_.Subject -match "DemoCert"}
+#certmgr.msc
+$ThumbPrint = $Cert.ThumbPrint
+
+###############################################################################
+#Export DER Certificate
+###############################################################################
+$Subject = "DemoCert"
+$CurrentLocation = (Get-Location).path
+Export-Certificate -Filepath "$CurrentLocation\$Subject-DER.cer" -cert $Cert -type CERT -NoClobber 
+Get-ChildItem -Path cert:\CurrentUser\my\$ThumbPrint | Export-Certificate -FilePath "$CurrentLocation\$Subject-DER.cer"
+Get-ChildItem -Path cert:\CurrentUser\my\ | Where-Object {$_.Subject -eq "CN=$Subject"} | Export-Certificate -FilePath "$CurrentLocation\$Subject-DER.cer"
+
+###############################################################################
+#Export Base64 Certificate
+###############################################################################
+$ThumbPrint = "EC5E821C553DA9564394844B4C1076B5F8BB7F6D"
+$Base64 = [convert]::tobase64string((get-item cert:\currentuser\my\$ThumbPrint).RawData)
+$Base64Block = $Base64 |
+ForEach-Object {
+    $line = $_
+
+    for ($i = 0; $i -lt $Base64.Length; $i += 64)
+    {
+        $length = [Math]::Min(64, $line.Length - $i)
+        $line.SubString($i, $length)
+    }
+}
+$base64Block2 = $Base64Block | Out-String
+
+$Value = "-----BEGIN CERTIFICATE-----`r`n"
+$Value += "$Base64Block2"
+$Value += "-----END CERTIFICATE-----"
+$Value
+$CurrentLocation = (Get-Location).path
+Set-Content -Path "$CurrentLocation\$Subject-BASE64.cer" -Value $Value
+
+###############################################################################
+#Export PFX Certificate
+#https://docs.microsoft.com/en-us/powershell/module/pki/export-pfxcertificate?view=windowsserver2022-ps
+###############################################################################
+$PFXPassword = ConvertTo-SecureString -String "SecretPa$$word!" -Force -AsPlainText
+$Cert = Get-ChildItem -Path cert:\CurrentUser\my\$ThumbPrint 
+$Cert = Get-ChildItem -Path cert:\CurrentUser\my\ | Where-Object {$_.Subject -eq "CN=$Subject"}
+Export-PfxCertificate -Cert $cert -FilePath "C:\Git_WorkingDir\$Subject.pfx" -Password $PFXPassword
+
+###############################################################################
 # Exchange Online Role Based Access Control (RBAC) for Applications
 # https://blog.icewolf.ch/archive/2023/01/05/exchange-online-role-based-access-control-rbac-for-applications/
 ###############################################################################
