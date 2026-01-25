@@ -7,12 +7,15 @@
 #   - ServiceHealth.Read.All
 #   - ServiceMessage.Read.All
 #   - Mail.Send (if SendMailViaGraphAPI is set to true) or use Exchange RBAC for Applications see below
-# - Adjust TenantID, AppID and Certificate Thumbprint
-# V1.0 - 2025-11-26 - Initial Version - Andres Bohren - Isolutions AG
-# V1.1 - 2025-12-03 - Added State to track changes - Andres Bohren - Isolutions AG
+# - Adjust TenantID, AppID and Certificate Thumbprint and Email Settings in the Configuration Section
+# V1.0 - 2025-11-26 - Initial Version - Andres Bohren
+# V1.1 - 2025-12-03 - Added State to track changes - Andres Bohren
+# V1.2 - 2026-01-25 - Cleaned up and added comments - Andres Bohren
 ###############################################################################
 # Setup Notes
 ###############################################################################
+# Setup Exchange Online RBAC for Applications to send Mail without Graph API
+# https://blog.icewolf.ch/archive/2025/12/03/exchange-online-app-access-policies-are-replaced-by-RBAC-for-applications/
 # Create Exchange Service Principal
 # $AppID = "29581967-458b-4c7a-a4f7-03fa440c0e13" #ServiceCommunications
 # $AppObjectID = "1adfae9a-9d30-49c1-b786-0f3dd70f8a1e" #ObjectID of the Enterprise App
@@ -73,6 +76,8 @@ Microsoft 365 Copilot Chat
 Microsoft Copilot (Power Platform)
 #>
 
+### START Configuration Section ###
+
 #Create Array of Services to monitor
 [array]$ArrayServices = "Exchange Online", "Microsoft Entra", "Microsoft Intune", "Microsoft 365 for the web", "Microsoft 365 apps"
 
@@ -89,6 +94,8 @@ $CertificateThumbprint = "A3A07A3C2C109303CCCB011B10141A020C8AFDA3"  #CN=O365Pow
 [string]$MailRecipient = "a.bohren@icewolf.ch"
 [string]$SMTPServer = "smtprelay.corp.icewolf.ch"
 [bool]$SendMailViaGraphAPI = $true
+
+### END Configuration Section ###
 
 #Create HTML Template
 $HTML = @"
@@ -394,10 +401,6 @@ If ($OpenIssueCount -eq 0)
 ###############################################################################
 ### New Issues
 ###############################################################################
-#[Array]$NewIssuesArray = $result.value | Where-Object {$ArrayServices -match $_.Service -AND $_.startDateTime -gt (get-date).AddMinutes(-$IssueCoverMinutes)} | Sort-Object $_.Service
-#$NewIssueCount = $NewIssuesArray.Count
-
-#[array]$NewIssuesArray = ($CompareResult | where {$_.SideIndicator -eq "=>"}).InputObject
 [array]$NewIssuesIds = (($CompareResult | Where-Object { $_.SideIndicator -eq "<=" }).InputObject).id
 [array]$NewIssuesArray = $APIOpenIssuesArray | Where-Object { $NewIssuesIds -match $_.id }
 
