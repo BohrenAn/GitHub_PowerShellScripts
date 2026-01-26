@@ -528,10 +528,17 @@ $EncryptedString | Out-File -FilePath ".\EncryptedPassword.txt"
 ###############################################################################
 # Decrypting the password from the file and converting it back to plain text
 ###############################################################################
+# PowerShell 7.x
 $EncryptedString = Get-Content -Path ".\EncryptedPassword.txt"
 $DecryptedString = $EncryptedString | ConvertTo-SecureString
 $DecryptedPassword = $DecryptedString | ConvertFrom-SecureString -AsPlainText
 $DecryptedPassword
+
+# PowerShell 5.1
+$EncryptedString = Get-Content -Path ".\EncryptedPassword.txt"
+$SecurePassword   = $EncryptedString | ConvertTo-SecureString
+$PlainTextPassword = (New-Object System.Management.Automation.PSCredential("u",$SecurePassword)).GetNetworkCredential().Password
+$PlainTextPassword
 ```
 
 ## Properties from Sub Objects
