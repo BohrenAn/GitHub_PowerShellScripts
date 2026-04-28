@@ -11,6 +11,7 @@
 # V1.0 - 2025-11-26 - Initial Version - Andres Bohren
 # V1.1 - 2025-12-03 - Added State to track changes - Andres Bohren
 # V1.2 - 2026-01-25 - Cleaned up and added comments - Andres Bohren
+# V1.3 - 2026-04-28 - Multiple Recipients supported - Andres Bohren
 ###############################################################################
 # Setup Notes
 ###############################################################################
@@ -91,7 +92,7 @@ $CertificateThumbprint = "A3A07A3C2C109303CCCB011B10141A020C8AFDA3"  #CN=O365Pow
 
 #Email Settings
 [string]$MailSender = "postmaster@icewolf.ch"
-[string]$MailRecipient = "a.bohren@icewolf.ch"
+[array]$MailRecipient = "a.bohren@icewolf.ch","postmaster@icewolf.ch"
 [string]$SMTPServer = "smtprelay.corp.icewolf.ch"
 [bool]$SendMailViaGraphAPI = $true
 
@@ -179,6 +180,31 @@ function Send-MailGraphApi {
     $URI = "https://graph.microsoft.com/v1.0/users/$MailSender/sendMail"
     $ContentType = "application/json"
     $Headers = @{"Authorization" = "Bearer " + $AccessToken }
+
+    $ToRecipients = foreach ($Recipient in $MailRecipient) 
+    {
+        @{
+            emailAddress = @{
+                address = $Recipient
+            }
+        }
+    }
+
+    $BodyObject = @{
+        message = @{
+            subject = $Subject
+            body = @{
+                contentType = "HTML"
+                content     = $MessageBody
+            }
+            toRecipients = $ToRecipients
+        }
+    }
+
+    $Body = $BodyObject | ConvertTo-Json -Depth 6
+
+
+<#
     $Body = @"
 {
     "message": {
@@ -197,6 +223,7 @@ function Send-MailGraphApi {
     }
 }
 "@
+#>
 
     #DEBUG
     #Write-Host "URI: $URI" -ForegroundColor Magenta
