@@ -179,7 +179,7 @@ function Send-MailGraphApi {
     )
 
     #Adjust new lines for JSON body
-    $MessageBody = $MessageBody | ConvertTo-Json
+    #$MessageBody = $MessageBody | ConvertTo-Json
 
     $URI = "https://graph.microsoft.com/v1.0/users/$MailSender/sendMail"
     $ContentType = "application/json"
@@ -206,28 +206,6 @@ function Send-MailGraphApi {
     }
 
     $Body = $BodyObject | ConvertTo-Json -Depth 6
-
-
-<#
-    $Body = @"
-{
-    "message": {
-        "subject": "$Subject",
-        "body": {
-            "contentType": "HTML",
-            "content": $MessageBody
-        },
-        "toRecipients": [
-            {
-                "emailAddress": {
-                    "address": "$MailRecipient"
-                }
-            }
-        ]
-    }
-}
-"@
-#>
 
     #DEBUG
     #Write-Host "URI: $URI" -ForegroundColor Magenta
@@ -395,7 +373,7 @@ If ($AuthTokenWithoutModule -eq $true)
         $ClientCertificate = Get-Item Cert:\CurrentUser\My\$CertificateThumbprint
         $Scope = "https://graph.microsoft.com/.default"
         $Token = Get-MsalToken -clientID $AppID -ClientCertificate $ClientCertificate -tenantID $tenantID -Scope $Scope
-        $AccessToken = $Token.AccessToken        
+        $AccessToken = $Token.AccessToken
         #$AccessToken
         #Get-JWTDetails -token $AccessToken
 
