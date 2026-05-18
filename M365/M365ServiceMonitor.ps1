@@ -12,6 +12,7 @@
 # V1.1 - 2025-12-03 - Added State to track changes - Andres Bohren
 # V1.2 - 2026-01-25 - Cleaned up and added comments - Andres Bohren
 # V1.3 - 2026-04-28 - Multiple Recipients supported - Andres Bohren
+# V1.4 - 2026-05-18 - Added ConfigVariable AuthTokenWithoutModule See Function Get-AuthTokenWithoutModule for details - Andres Bohren
 ###############################################################################
 # Setup Notes
 ###############################################################################
@@ -80,12 +81,15 @@ Microsoft Copilot (Power Platform)
 ### START Configuration Section ###
 
 #Create Array of Services to monitor
-[array]$ArrayServices = "Exchange Online", "Microsoft Entra", "Microsoft Intune", "Microsoft 365 for the web", "Microsoft 365 apps"
+[array]$ArrayServices = "Exchange Online", "Microsoft Entra", "Microsoft Intune", "Microsoft 365 for the web", "Microsoft 365 apps", "SharePoint Online", "Microsoft OneDrive", "Microsoft Teams", "Planner", "Microsoft Purview"
 
 # Entra App  Details
 $TenantId = "46bbad84-29f0-4e03-8d34-f6841a5071ad"
 $AppID = "29581967-458b-4c7a-a4f7-03fa440c0e13" #ServiceCommunications
 $CertificateThumbprint = "A3A07A3C2C109303CCCB011B10141A020C8AFDA3"  #CN=O365Powershell4
+
+# Auth Token Without Module
+[bool]$AuthTokenWithoutModule = $true
 
 #Log Purge
 [int]$LogPurgeDays = 30
@@ -159,7 +163,7 @@ Function Write-Log {
     )
     $Date = $(get-date -format "dd.MM.yyyy HH:mm:ss")
     $ShortDate = (Get-Date).ToString('yyyy-MM-dd')
-    Add-Content -Path ".\M365ServiceMonitoring_$ShortDate.log" -Value ($Date + " " + $LogMessage)     
+    Add-Content -Path ".\M365ServiceMonitoring_$ShortDate.log" -Value ($Date + " " + $LogMessage)
 }
 
 ###############################################################################
@@ -169,7 +173,7 @@ Function Write-Log {
 function Send-MailGraphApi {
     PARAM (
         [Parameter(Mandatory = $true)][string]$MailSender,
-        [Parameter(Mandatory = $true)][string]$MailRecipient,
+        [Parameter(Mandatory = $true)][array]$MailRecipient,
         [Parameter(Mandatory = $true)][string]$Subject,
         [Parameter(Mandatory = $true)][string]$MessageBody
     )
@@ -243,6 +247,118 @@ function Send-MailGraphApi {
     }
 }
 
+
+###############################################################################
+# Native Login with Certificate (Application Permission)
+# https://learn.microsoft.com/en-us/answers/questions/346048/how-to-get-access-token-from-client-certificate-ca
+###############################################################################
+function Get-AuthTokenWithoutModule {
+    PARAM (
+        [Parameter(Mandatory = $true)][string]$TenantName,
+        [Parameter(Mandatory = $true)][string]$AppId,
+        [Parameter(Mandatory = $true)][string]$Thumbprint,
+        [Parameter(Mandatory = $true)][string]$Scope
+    )
+
+    $Certificate = Get-Item "Cert:\CurrentUser\My\$Thumbprint" #O365Powershell4.cer
+    #$Scope = "6a8b4b39-c021-437c-b060-5a14a3fd65f3/.default" # Example: "https://graph.microsoft.com/.default"
+
+    # Create base64 hash of certificate
+    $CertificateBase64Hash = [System.Convert]::ToBase64String($Certificate.GetCertHash())
+
+    # Create JWT timestamp for expiration
+    $StartDate = (Get-Date "1970-01-01T00:00:00Z" ).ToUniversalTime()
+    $JWTExpirationTimeSpan = (New-TimeSpan -Start $StartDate -End (Get-Date).ToUniversalTime().AddMinutes(2)).TotalSeconds
+    $JWTExpiration = [math]::Round($JWTExpirationTimeSpan,0)
+
+    # Create JWT validity start timestamp  
+    $NotBeforeExpirationTimeSpan = (New-TimeSpan -Start $StartDate -End ((Get-Date).ToUniversalTime())).TotalSeconds  
+    $NotBefore = [math]::Round($NotBeforeExpirationTimeSpan,0)
+
+    # Create JWT header
+    $JWTHeader = @{
+        alg = "RS256"
+        typ = "JWT"
+        # Use the CertificateBase64Hash and replace/strip to match web encoding of base64  
+        x5t = $CertificateBase64Hash -replace '\+','-' -replace '/','_' -replace '='  
+    }
+
+    # Create JWT payload
+    $JWTPayLoad = @{
+        # What endpoint is allowed to use this JWT  
+        aud = "https://login.microsoftonline.com/$TenantName/oauth2/token"  
+
+        # Expiration timestamp
+        exp = $JWTExpiration
+
+        # Issuer = your application
+        iss = $AppId
+
+        # JWT ID: random guid
+        jti = [guid]::NewGuid()
+
+        # Not to be used before
+        nbf = $NotBefore
+
+        # JWT Subject
+        sub = $AppId
+    }
+
+    # Convert header and payload to base64
+    $JWTHeaderToByte = [System.Text.Encoding]::UTF8.GetBytes(($JWTHeader | ConvertTo-Json))
+    $EncodedHeader = [System.Convert]::ToBase64String($JWTHeaderToByte)
+
+    $JWTPayLoadToByte =  [System.Text.Encoding]::UTF8.GetBytes(($JWTPayload | ConvertTo-Json))
+    $EncodedPayload = [System.Convert]::ToBase64String($JWTPayLoadToByte)
+
+    # Join header and Payload with "." to create a valid (unsigned) JWT
+    $JWT = $EncodedHeader + "." + $EncodedPayload
+
+    # Get the private key object of your certificate
+    $PrivateKey = ([System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPrivateKey($Certificate))
+
+    # Define RSA signature and hashing algorithm
+    $RSAPadding = [Security.Cryptography.RSASignaturePadding]::Pkcs1
+    $HashAlgorithm = [Security.Cryptography.HashAlgorithmName]::SHA256
+
+    # Create a signature of the JWT
+    $Signature = [Convert]::ToBase64String(
+        $PrivateKey.SignData([System.Text.Encoding]::UTF8.GetBytes($JWT),$HashAlgorithm,$RSAPadding)
+    ) -replace '\+','-' -replace '/','_' -replace '='
+
+    # Join the signature to the JWT with "."
+    $JWT = $JWT + "." + $Signature
+
+    # Create a hash with body parameters
+    $Body = @{
+        client_id = $AppId
+        client_assertion = $JWT
+        client_assertion_type = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+        scope = $Scope
+        grant_type = "client_credentials"
+    }
+
+    $Url = "https://login.microsoftonline.com/$TenantName/oauth2/v2.0/token"
+
+    # Use the self-generated JWT as Authorization
+    $Header = @{
+        Authorization = "Bearer $JWT"
+    }
+
+    # Splat the parameters for Invoke-Restmethod for cleaner code
+    $PostSplat = @{
+        ContentType = 'application/x-www-form-urlencoded'
+        Method = 'POST'
+        Body = $Body
+        Uri = $Url
+        Headers = $Header
+    }
+
+    $Token = Invoke-RestMethod @PostSplat
+    $AccessToken = $Token.access_token
+    return $AccessToken
+}
+
 ###############################################################################
 # Start Main Script
 ###############################################################################
@@ -258,46 +374,58 @@ $PSVersion = $PSVersionTable.PSVersion.Major
 Write-Log -LogMessage "Detected PowerShell Version: $PSVersion"
 Write-Host "Detected PowerShell Version: $PSVersion" -ForegroundColor Cyan
 
-If ($PSVersion -lt 6) {
-    Write-Log -LogMessage "Running in PowerShell 5.1"
-    Write-Host "Running in PowerShell 5.1" -ForegroundColor Cyan
+If ($AuthTokenWithoutModule -eq $true)
+{
+    Write-Log -LogMessage "Getting Access Token using native JWT creation without external module."
+    Write-Host "Getting Access Token using native JWT creation without external module." -ForegroundColor Cyan
 
-    ###############################################################################
-    # Get Access Token using MSAL.PS (PowerShell 5.1)
-    ###############################################################################
-    Import-Module MSAL.PS
-    $ClientCertificate = Get-Item Cert:\CurrentUser\My\$CertificateThumbprint
-    $Scope = "https://graph.microsoft.com/.default"
-    $Token = Get-MsalToken -clientID $AppID -ClientCertificate $ClientCertificate -tenantID $tenantID -Scope $Scope
-    $AccessToken = $Token.AccessToken
+    $AccessToken = Get-AuthTokenWithoutModule -TenantName $TenantId -AppId $AppID -Thumbprint $CertificateThumbprint -Scope "https://graph.microsoft.com/.default"
     $AccessToken
-    #$AccessToken
-    #Get-JWTDetails -token $AccessToken
+    Get-JWTDetails -token $AccessToken
+} else {
 
-} Else {
-    Write-Log -LogMessage "Running in PowerShell 7.x"
-    Write-Host "Running in PowerShell 7.x" -ForegroundColor Cyan
+    If ($PSVersion -lt 6) {
+        Write-Log -LogMessage "Running in PowerShell 5.1"
+        Write-Host "Running in PowerShell 5.1" -ForegroundColor Cyan
 
-    ###############################################################################
-    # Get Access Token using PSMSALNet (PowerShell 7.x)
-    ###############################################################################
-    Write-Log -LogMessage "Getting Access Token using PSMSALNet."
-    Write-Host "Getting Access Token using PSMSALNet." -ForegroundColor Cyan
+        ###############################################################################
+        # Get Access Token using MSAL.PS (PowerShell 5.1)
+        ###############################################################################
+        Import-Module MSAL.PS
+        $ClientCertificate = Get-Item Cert:\CurrentUser\My\$CertificateThumbprint
+        $Scope = "https://graph.microsoft.com/.default"
+        $Token = Get-MsalToken -clientID $AppID -ClientCertificate $ClientCertificate -tenantID $tenantID -Scope $Scope
+        $AccessToken = $Token.AccessToken        
+        #$AccessToken
+        #Get-JWTDetails -token $AccessToken
 
-    Import-Module PSMSALNet
-    $Certificate = Get-ChildItem -Path cert:\CurrentUser\my\$CertificateThumbprint
+    } Else {
+        Write-Log -LogMessage "Running in PowerShell 7.x"
+        Write-Host "Running in PowerShell 7.x" -ForegroundColor Cyan
 
-    $HashArguments = @{
-        ClientId          = $AppID
-        ClientCertificate = $Certificate
-        TenantId          = $TenantId
-        Resource          = "GraphAPI"
+        ###############################################################################
+        # Get Access Token using PSMSALNet (PowerShell 7.x)
+        ###############################################################################
+        Write-Log -LogMessage "Getting Access Token using PSMSALNet."
+        Write-Host "Getting Access Token using PSMSALNet." -ForegroundColor Cyan
+
+        Import-Module PSMSALNet
+        $Certificate = Get-ChildItem -Path cert:\CurrentUser\my\$CertificateThumbprint
+
+        $HashArguments = @{
+            ClientId          = $AppID
+            ClientCertificate = $Certificate
+            TenantId          = $TenantId
+            Resource          = "GraphAPI"
+        }
+        $Token = Get-EntraToken -ClientCredentialFlowWithCertificate @HashArguments
+        $AccessToken = $Token.AccessToken
+        #$AccessToken
+        #Get-JWTDetails -token $AccessToken
     }
-    $Token = Get-EntraToken -ClientCredentialFlowWithCertificate @HashArguments
-    $AccessToken = $Token.AccessToken
-    #$AccessToken
-    #Get-JWTDetails -token $AccessToken
 }
+
+break
 
 ###############################################################################
 # Service Healh Overview
