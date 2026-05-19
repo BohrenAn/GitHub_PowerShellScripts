@@ -13,6 +13,7 @@
 # V1.2 - 2026-01-25 - Cleaned up and added comments - Andres Bohren
 # V1.3 - 2026-04-28 - Multiple Recipients supported - Andres Bohren
 # V1.4 - 2026-05-18 - Added ConfigVariable AuthTokenWithoutModule See Function Get-AuthTokenWithoutModule for details - Andres Bohren
+# V1.5 - 2026-05-19 - Added Modern HTML / Page Reload - Andres Bohren
 ###############################################################################
 # Setup Notes
 ###############################################################################
