@@ -106,30 +106,155 @@ $CertificateThumbprint = "A3A07A3C2C109303CCCB011B10141A020C8AFDA3"  #CN=O365Pow
 $HTML = @"
 <!DOCTYPE html>
 <html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="300">
 <style>
-BODY{font-family: Arial; font-size: 10pt;}
-table, th, td {
-    border: 1px solid black;
+:root {
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --text: #1d2939;
+    --muted: #667085;
+    --line: #d0d5dd;
+    --accent: #0b63f6;
+    --new: #1565c0;
+    --open: #b54708;
+    --closed: #027a48;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 24px;
+    background: radial-gradient(circle at 5% 5%, #ffffff 0%, #f4f7fb 55%, #e9eef8 100%);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text);
+    font-size: 10pt;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    margin: 0 0 12px 0;
+    font-size: 28px;
+    letter-spacing: 0.2px;
+}
+
+h2 {
+    margin: 24px 0 10px 0;
+    font-size: 20px;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 8px 0 20px 0;
+}
+
+.summary-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left-width: 6px;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+}
+
+.summary-card .label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+.summary-card .value {
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.summary-card.new { border-left-color: var(--new); }
+.summary-card.open { border-left-color: var(--open); }
+.summary-card.closed { border-left-color: var(--closed); }
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.05);
+}
+
+table {
+    width: 100%;
+    border: 1px solid var(--line);
     border-collapse: collapse;
+    background: #fff;
 }
-th {
-    padding: 5px;
+
+th,
+td {
+    border: 1px solid var(--line);
+    padding: 8px;
     text-align: left;
-    background-color: #a8a7a7ff;
+    vertical-align: top;
 }
-tr.yellow {background-color: #f0e10e;}
-tr.green {background-color: #34eb57;}
+
+th {
+    background-color: #e8eef9;
+    color: #1f2a44;
+}
+
+tr.yellow { background-color: #ffd84d; }
+tr.green { background-color: #4ade80; }
+
 </style>
 <body>
+<body>
+<div class="container">
+<h1>Services Health</h1>
+<div class="summary-grid">
+    <div class="summary-card new">
+        <span class="label">New Issues</span>
+        <span class="value">%NewIssueCount%</span>
+    </div>
+    <div class="summary-card open">
+        <span class="label">Open Issues</span>
+        <span class="value">%OpenIssueCount%</span>
+    </div>
+    <div class="summary-card closed">
+        <span class="label">Closed Issues</span>
+        <span class="value">%ClosedIssueCount%<</span>
+    </div>
+</div>
+
+<div class="panel">
 <h1>Services Health</h1>
 %ServiceHealthTable%
+</div>
+
 <h1>Issues</h1>
 <h2>New Issues %NewIssueCount%</h2>
+<div class="panel">
 %NewIssuesTable%
+</div>
 <h2>Open Issues %OpenIssueCount%</h2>
+<div class="panel">
 %OpenIssuesTable%
+</div>
 <h2>Closed Issues %ClosedIssueCount%</h2>
+<div class="panel">
 %ClosedIssuesTable%
+</div>
 </body>
 </html>
 "@
