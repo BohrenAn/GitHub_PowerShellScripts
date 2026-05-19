@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root {
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --text: #1d2939;
+    --muted: #667085;
+    --line: #d0d5dd;
+    --accent: #0b63f6;
+    --new: #1565c0;
+    --open: #b54708;
+    --closed: #027a48;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 24px;
+    background: radial-gradient(circle at 5% 5%, #ffffff 0%, #f4f7fb 55%, #e9eef8 100%);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text);
+    font-size: 10pt;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    margin: 0 0 12px 0;
+    font-size: 28px;
+    letter-spacing: 0.2px;
+}
+
+h2 {
+    margin: 24px 0 10px 0;
+    font-size: 20px;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 8px 0 20px 0;
+}
+
+.summary-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left-width: 6px;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+}
+
+.summary-card .label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+.summary-card .value {
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.summary-card.new { border-left-color: var(--new); }
+.summary-card.open { border-left-color: var(--open); }
+.summary-card.closed { border-left-color: var(--closed); }
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.05);
+}
+
+table {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-collapse: collapse;
+    background: #fff;
+}
+
+th,
+td {
+    border: 1px solid var(--line);
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+th {
+    background-color: #e8eef9;
+    color: #1f2a44;
+}
+
+tr.yellow { background-color: #ffd84d; }
+tr.green { background-color: #4ade80; }
+
+.muted {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    body { padding: 14px; }
+    .summary-grid { grid-template-columns: 1fr; }
+    .summary-card .value { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Services Health</h1>
+<div class="summary-grid">
+    <div class="summary-card new">
+        <span class="label">New Issues</span>
+        <span class="value">0</span>
+    </div>
+    <div class="summary-card open">
+        <span class="label">Open Issues</span>
+        <span class="value">5</span>
+    </div>
+    <div class="summary-card closed">
+        <span class="label">Closed Issues</span>
+        <span class="value">0</span>
+    </div>
+</div>
+<div class="panel">
+<table>
+    <tr><th>Service</th><th>Status</th></tr>
+    <tr class='yellow'><td>Exchange Online</td><td>serviceDegradation</td></tr>
+    <tr class='green'><td>Microsoft Entra</td><td>serviceOperational</td></tr>
+    <tr class='green'><td>SharePoint Online</td><td>serviceOperational</td></tr>
+    <tr class='green'><td>Planner</td><td>serviceOperational</td></tr>
+    <tr class='green'><td>Microsoft Intune</td><td>serviceOperational</td></tr>
+    <tr class='green'><td>Microsoft OneDrive</td><td>serviceOperational</td></tr>
+    <tr class='yellow'><td>Microsoft Teams</td><td>serviceDegradation</td></tr>
+    <tr class='green'><td>Microsoft 365 for the web</td><td>serviceOperational</td></tr>
+    <tr class='green'><td>Microsoft 365 apps</td><td>serviceOperational</td></tr>
+    <tr class='green'><td>Microsoft Purview</td><td>serviceOperational</td></tr>
+</table>
+</div>
+<h1>Issues</h1>
+<h2>New Issues (0)</h2>
+<p class="muted">No New Issues</p>
+<h2>Open Issues (5)</h2>
+<div class="panel">
+<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1233142</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see that when selecting a meeting room when scheduling meetings, it changes from available to unavailable</td></tr><tr><td>Start</td><td>12/08/2025 03:04:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>05/15/2026 01:45:44</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>22</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see that when selecting a meeting room when scheduling meetings, it changes from available to unavailable
+
+User impact: Users may see that after selecting a meeting room when scheduling meetings, it changes from available to unavailable.
+
+More info: While we are working to remediate the impact, admins can mitigate the issue by assigning the desired working hours and the time zone for the meeting rooms.
+
+Current status: Our reviews and checks on the stability and reliability of the aforementioned fix are progressing, though taking an extended period of time as we continue our efforts to ensure it fully addresses impact. Additionally, we anticipate that we will be able to provide an estimated remediation timeline by our next scheduled update. 
+
+Scope of impact: Any users that are trying to select a meeting room when scheduling meetings outside the room's working hours in Exchange Online may be impacted. This information may be updated as our investigation continues.
+
+Start time: Monday, December 8, 2025, at 3:04 AM UTC
+
+Root cause: A recent expansion of the feature logic used to book rooms for scheduled meetings contains a code complication which automatically sets the meeting rooms' default working hours to appear in Pacific Standard Time instead of their accurate time zone.
+
+Next update by: Thursday, May 28, 2026, at 10:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1286033</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may be unable to initiate screen sharing in 1:1 calls using the Microsoft Teams web client</td></tr><tr><td>Start</td><td>04/07/2026 12:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>05/18/2026 16:05:59</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>21</td></tr><tr><td>LatestMessage</td><td>Title: Some users may be unable to initiate screen sharing in 1:1 calls using the Microsoft Teams web client
+
+User impact: Users may be unable to initiate screen sharing in 1:1 calls using the Microsoft Teams web client.
+
+More info: Specifically, only the first screen sharing session works; subsequent screen-sharing attempts may not be visible.
+
+While we're working to remediate this issue, affected users can still perform screen sharing by:
+
+- Using the desktop or mobile apps
+- Adding another user to the call
+- Ending and restarting the call
+
+Current status: The rollout of our solution to remediate impact is ongoing, and we anticipate it will complete by our next scheduled communication update on Tuesday, May 19, 2026, at 6:00 PM UTC. 
+
+Scope of impact: Some users initiating a second screen sharing session within a 1:1 call using the Microsoft Teams web client may be affected. This section may be updated as our investigation continues.
+
+Start time: Tuesday, April 07, 2026, at 12:00 PM UTC
+
+Root cause: A recent service update introduced an incompatibility issue for Chromium-based browsers and the Microsoft Teams web client, resulting in impact.
+
+Next update by: Tuesday, May 19, 2026, at 6:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1303836</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may see incorrect characters in incoming Microsoft Teams call notifications when display names contain diacritics</td></tr><tr><td>Start</td><td>04/10/2026 05:30:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>05/12/2026 15:16:05</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Users may see incorrect characters in incoming Microsoft Teams call notifications when display names contain diacritics
+
+User impact: Users may see incorrect characters in incoming Microsoft Teams call notifications when display names contain diacritics.
+
+More info: Users may see incorrect or corrupted characters in incoming Microsoft Teams call notification banners when display names contain European diacritical characters (e.g. ä, é, ü), resulting in names appearing with placeholder symbols.
+
+Current status: We've confirmed that the fix deployment is proceeding as expected, with an estimated completion date of Thursday, 21 May 2026.
+
+Scope of impact: Impact is specific to some users receiving inbound Microsoft Teams calls notifications when display names contain diacritics.
+
+Start time: Friday, April 10, 2026, at 5:30 AM UTC
+
+Estimated time to resolve: Thursday, 21 May 2026.
+
+Root cause: A prior fix addressing corrupted text appearing when character encoding fails in call titles has unintentionally corrupted valid UTF-8 special characters in display names, causing improper character rendering in inbound call notifications and resulting in impact.
+
+Next update by: Thursday, May 21, 2026, at 4:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1308375</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users with Technical Preview access may be unable to modify existing webinars in Microsoft Teams</td></tr><tr><td>Start</td><td>05/12/2026 09:17:36</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>05/18/2026 12:22:44</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Some users with Technical Preview access may be unable to modify existing webinars in Microsoft Teams
+
+User impact: Users with Technical Preview access may be unable to modify existing webinars in Microsoft Teams.
+
+Current status: We're continuing to progress with revert the offending update and due to capacity restraints, the reversion is taking longer than expected. We're now expecting the reversion to complete by our next scheduled update.
+
+Scope of impact: Impact is specific to some users who have early release or technical preview access, who are attempting to update existing webinars in Microsoft Virtual Events powered by Teams. This information may be updated as our investigation continues.
+
+Start time: Friday, May 08, 2026, at 8:44 AM UTC
+
+Root cause: A recent Microsoft Teams service update extending sensitivity-based access control to webinars inadvertently introduced a regression where updates to existing webinars are incorrectly treated as changes to event access type, resulting in impact.
+
+Next update by: Tuesday, May 19, 2026, at 1:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1311440</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users with non-ANSI characters in their alias may be unable to launch the Microsoft Teams desktop client</td></tr><tr><td>Start</td><td>05/15/2026 10:10:24</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>05/15/2026 12:50:32</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Some users with non-ANSI characters in their alias may be unable to launch the Microsoft Teams desktop client
+
+User impact: Users with non-ANSI characters in their alias may be unable to launch the Microsoft Teams desktop client.
+
+More info: Affected users may be unable to launch the Microsoft Teams desktop client due to failures during character encoding conversion.
+
+As a workaround affected users may be able to use Microsoft Teams web client.
+
+Current status: We’ve identified that a character encoding issue during Teams client start-up is causing failures for users with certain Unicode characters in their aliases. We're actively developing a fix and will validate it prior to deployment. We expect to provide estimated deployment timeline in our next scheduled update.
+
+Scope of impact: Impact is specific to some users attempting to launch the Microsoft Teams desktop client.
+
+Root cause: A character encoding issue during Teams client start-up is causing failures for users with certain Unicode characters in their aliases.
+
+Next update by: Tuesday, May 19, 2026, at 2:00 PM UTC</td></tr></table>
+</div>
+<h2>Closed Issues (0)</h2>
+<p class="muted">No Closed Issues</p>
+</div>
+</body>
+</html>

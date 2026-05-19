@@ -358,8 +358,8 @@ If ($AuthTokenWithoutModule -eq $true)
     Write-Host "Getting Access Token using native JWT creation without external module." -ForegroundColor Cyan
 
     $AccessToken = Get-AuthTokenWithoutModule -TenantName $TenantId -AppId $AppID -Thumbprint $CertificateThumbprint -Scope "https://graph.microsoft.com/.default"
-    $AccessToken
-    Get-JWTDetails -token $AccessToken
+    #$AccessToken
+    #Get-JWTDetails -token $AccessToken
 } else {
 
     If ($PSVersion -lt 6) {
@@ -402,8 +402,6 @@ If ($AuthTokenWithoutModule -eq $true)
         #Get-JWTDetails -token $AccessToken
     }
 }
-
-break
 
 ###############################################################################
 # Service Healh Overview
