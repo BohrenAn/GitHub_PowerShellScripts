@@ -53,6 +53,15 @@ h2 {
     margin: 8px 0 20px 0;
 }
 
+/* Outlook-safe summary cards (table layout)
+   We keep the old .summary-grid rules for browsers, but the HTML below no longer relies on it. */
+.summary-table { width: 100%; border-collapse: collapse; margin: 8px 0 20px 0; border: 0; background: transparent; }
+.summary-table td { border: 0; padding: 0; }
+.summary-card-table { width: 100%; border-collapse: collapse; background: #ffffff; border: 1px solid #d0d5dd; }
+.summary-card-table td { border: 0; }
+.summary-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: #667085; margin: 0 0 6px 0; }
+.summary-value { font-size: 34px; line-height: 1; font-weight: 700; margin: 0; }
+
 .summary-card {
     background: var(--surface);
     border: 1px solid var(--line);
@@ -126,21 +135,16 @@ td.red { background-color: #b54708; }
     body { padding: 14px; }
     .summary-grid { grid-template-columns: 1fr; }
     .summary-card .value { font-size: 28px; }
+
+    /* Mobile stacking for summary cards in clients that support media queries (incl. Outlook Mobile) */
+    .summary-col { display: block !important; width: 100% !important; max-width: 100% !important; }
+    .summary-value { font-size: 28px; }
 }
 </style>
 </head>
 <body>
-<div class="panel">
-<h1>Incidents Overview</h1>
-<table>
-    <tr><th>New Issues</th><th>Open Issues</th><th>Closed Issues</th></tr>
-    <tr><td class='green'>0</td><td class='yellow'>5</td><td class='green'>0</td></tr>
-
-</table>
-</div>
-
-
-<!--
+<div class="container">
+<h1>Services Health</h1>
 <div class="summary-grid">
     <div class="summary-card new">
         <span class="label">New Issues</span>

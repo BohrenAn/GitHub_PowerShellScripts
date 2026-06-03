@@ -170,7 +170,7 @@ h2 {
 
 .summary-card .label {
     display: block;
-    font-size: 11px;
+    font-size: 34px;
     text-transform: uppercase;
     letter-spacing: 0.7px;
     color: var(--muted);
@@ -220,22 +220,49 @@ tr.green { background-color: #4ade80; }
 
 </style>
 <body>
-<body>
 <div class="container">
 <h1>Services Health</h1>
-<div class="summary-grid">
-    <div class="summary-card new">
-        <span class="label">New Issues</span>
-        <span class="value">%NewIssueCount%</span>
-    </div>
-    <div class="summary-card open">
-        <span class="label">Open Issues</span>
-        <span class="value">%OpenIssueCount%</span>
-    </div>
-    <div class="summary-card closed">
-        <span class="label">Closed Issues</span>
-        <span class="value">%ClosedIssueCount%<</span>
-    </div>
+
+<!-- Outlook / Outlook Mobile safe summary cards (tables + inline-friendly styles) -->
+<table class="summary-table" role="presentation" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+        <td class="summary-col" width="33.33%" valign="top" style="padding:0 6px 12px 0; border:0;">
+            <table class="summary-card-table" role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td width="6" bgcolor="#1565c0" style="width:6px; font-size:0; line-height:0; padding:0; border:0;">&nbsp;</td>
+                    <td style="padding:14px 16px; border:0;">
+                        <span class="summary-label">New Issues</span>
+                        <div class="summary-value">%NewIssueCount%</div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+
+        <td class="summary-col" width="33.33%" valign="top" style="padding:0 6px 12px 6px; border:0;">
+            <table class="summary-card-table" role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td width="6" bgcolor="#b54708" style="width:6px; font-size:0; line-height:0; padding:0; border:0;">&nbsp;</td>
+                    <td style="padding:14px 16px; border:0;">
+                        <span class="summary-label">Open Issues</span>
+                        <div class="summary-value">%OpenIssueCount%</div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+
+        <td class="summary-col" width="33.33%" valign="top" style="padding:0 0 12px 6px; border:0;">
+            <table class="summary-card-table" role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td width="6" bgcolor="#027a48" style="width:6px; font-size:0; line-height:0; padding:0; border:0;">&nbsp;</td>
+                    <td style="padding:14px 16px; border:0;">
+                        <span class="summary-label">Closed Issues</span>
+                        <div class="summary-value">%ClosedIssueCount%</div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
 </div>
 
 <div class="panel">
