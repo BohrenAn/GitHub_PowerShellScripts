@@ -1,0 +1,17 @@
+// Use Barge VSCode extensibilityresourcechanges https://marketplace.visualstudio.com/items?itemName=PalmEmanuel.barge-vscode
+// Or Azure Portal https://portal.azure.com/#servicemenu/Microsoft_Azure_Resources/ResourceManager/resourcegraphexplorer
+
+resources
+| where type == "microsoft.keyvault/vaults"
+
+// App Service Plans
+resources
+| where type == "microsoft.web/serverfarms"
+
+// App Service
+resources
+| where type == "microsoft.web/sites"
+
+// Static Web Apps
+resources
+| where type == "microsoft.web/staticsites"
