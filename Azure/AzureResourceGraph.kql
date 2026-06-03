@@ -15,3 +15,6 @@ resources
 // Static Web Apps
 resources
 | where type == "microsoft.web/staticsites"
+
+// Resourece Changes
+resourcechanges
