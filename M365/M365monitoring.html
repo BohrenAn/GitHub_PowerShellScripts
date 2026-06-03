@@ -111,6 +111,11 @@ th {
 
 tr.yellow { background-color: #ffd84d; }
 tr.green { background-color: #4ade80; }
+tr.red { background-color: #b54708; }
+
+td.yellow { background-color: #ffd84d; }
+td.green { background-color: #4ade80; }
+td.red { background-color: #b54708; }
 
 .muted {
     color: var(--muted);
@@ -125,8 +130,17 @@ tr.green { background-color: #4ade80; }
 </style>
 </head>
 <body>
-<div class="container">
-<h1>Services Health</h1>
+<div class="panel">
+<h1>Incidents Overview</h1>
+<table>
+    <tr><th>New Issues</th><th>Open Issues</th><th>Closed Issues</th></tr>
+    <tr><td class='green'>0</td><td class='yellow'>5</td><td class='green'>0</td></tr>
+
+</table>
+</div>
+
+
+<!--
 <div class="summary-grid">
     <div class="summary-card new">
         <span class="label">New Issues</span>
@@ -142,6 +156,9 @@ tr.green { background-color: #4ade80; }
     </div>
 </div>
 <div class="panel">
+-->
+<div class="panel">
+<h1>Services Health</h1>
 <table>
     <tr><th>Service</th><th>Status</th></tr>
     <tr class='yellow'><td>Exchange Online</td><td>serviceDegradation</td></tr>
