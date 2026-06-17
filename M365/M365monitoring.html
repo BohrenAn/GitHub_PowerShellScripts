@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="refresh" content="300">
@@ -102,7 +101,6 @@ td.blue {background-color: #1565c0;}
     .summary-value { font-size: 28px; }
 }
 </style>
-</head>
 <body>
 <div class="panel">
 <h1>Issues Overview</h1>
@@ -114,7 +112,7 @@ td.blue {background-color: #1565c0;}
                     <td class="blue">&nbsp;</td>
                     <td class="summary-table">
                         <span class="summary-label">New Issues</span>
-                        <div class="summary-value">0</div>
+                        <div class="summary-value">(3)</div>
                     </td>
                 </tr>
             </table>
@@ -125,7 +123,7 @@ td.blue {background-color: #1565c0;}
                     <td class="red">&nbsp;</td>
                     <td class="summary-table">
                         <span class="summary-label">Open Issues</span>
-                        <div class="summary-value">5</div>
+                        <div class="summary-value">(7)</div>
                     </td>
                 </tr>
             </table>
@@ -136,7 +134,7 @@ td.blue {background-color: #1565c0;}
                     <td class="green" >&nbsp;</td>
                     <td class="summary-table">
                         <span class="summary-label">Closed Issues</span>
-                        <div class="summary-value">0</div>
+                        <div class="summary-value">(0)</div>
                     </td>
                 </tr>
             </table>
@@ -145,108 +143,149 @@ td.blue {background-color: #1565c0;}
 </table>
 </div>
 &nbsp;
+
+
 <div class="panel">
 <h1>Services Health</h1>
-<table>
-    <tr><th>Service</th><th>Status</th></tr>
-    <tr class='yellow'><td>Exchange Online</td><td>serviceDegradation</td></tr>
-    <tr class='green'><td>Microsoft Entra</td><td>serviceOperational</td></tr>
-    <tr class='green'><td>SharePoint Online</td><td>serviceOperational</td></tr>
-    <tr class='green'><td>Planner</td><td>serviceOperational</td></tr>
-    <tr class='green'><td>Microsoft Intune</td><td>serviceOperational</td></tr>
-    <tr class='green'><td>Microsoft OneDrive</td><td>serviceOperational</td></tr>
-    <tr class='yellow'><td>Microsoft Teams</td><td>serviceDegradation</td></tr>
-    <tr class='green'><td>Microsoft 365 for the web</td><td>serviceOperational</td></tr>
-    <tr class='green'><td>Microsoft 365 apps</td><td>serviceOperational</td></tr>
-    <tr class='green'><td>Microsoft Purview</td><td>serviceOperational</td></tr>
-</table>
+<table><tr><th>Service</th><th>Status</th></tr><tr class='yellow'><td>Exchange Online</td><td>serviceDegradation</td></td><tr class='green'><td>Microsoft Entra</td><td>serviceOperational</td></td><tr class='yellow'><td>SharePoint Online</td><td>serviceDegradation</td></td><tr class='green'><td>Planner</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft Intune</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft OneDrive</td><td>serviceOperational</td></td><tr class='yellow'><td>Microsoft Teams</td><td>serviceDegradation</td></td><tr class='green'><td>Microsoft 365 for the web</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft 365 apps</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft Purview</td><td>serviceOperational</td></td></table>
 </div>
-&nbsp;
+
 <h1>Issues</h1>
-<h2>New Issues (0)</h2>
-<p class="muted">No New Issues</p>
-<h2>Open Issues (5)</h2>
+<h2>New Issues (3)</h2>
 <div class="panel">
-<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1233142</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see that when selecting a meeting room when scheduling meetings, it changes from available to unavailable</td></tr><tr><td>Start</td><td>12/08/2025 03:04:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>05/15/2026 01:45:44</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>22</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see that when selecting a meeting room when scheduling meetings, it changes from available to unavailable
+<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1315837</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see repeated location prompts in Microsoft Teams for Mac</td></tr><tr><td>Start</td><td>05/11/2026 00:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/11/2026 18:59:20</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>14</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see repeated location prompts in Microsoft Teams for Mac
+
+User impact: Users may see repeated location prompts in Microsoft Teams for Mac.
+
+More info: This issue affects macOS versions 14, 15, and 26. Impacted users are unable to dismiss the following location prompt by clicking "Allow" or "Don't allow."
+
+"Microsoft Teams Modulehost would like to use your current location"
+
+Current status: We've resolved the issues in our deployment pipeline and have started to deploy our fix. We anticipate that this fix will completely saturate all affected environments by our next scheduled update.
+
+Scope of impact: This issue impacts some Microsoft Teams for Mac users who have location access enabled in Teams settings.
+
+Start time: Monday, May 11, 2026, at 12:00 AM UTC
+
+Root cause: A recent macOS security update exposed a location regression where the service doesnâ€™t store usersâ€™ permission selections for Teams as expected, resulting in repeated location prompts.
+
+Next update by: Wednesday, June 17, 2026, at 7:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1393502</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins may see stale data in the Microsoft Teams Call Quality Dashboard</td></tr><tr><td>Start</td><td>06/13/2026 01:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/16/2026 16:55:40</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Admins may see stale data in the Microsoft Teams Call Quality Dashboard
+
+User impact: Admins may see stale data in the Microsoft Teams Call Quality Dashboard.
+
+More info: Call Quality Dashboard information is up to date as of June 12, 2026. Data from past this date is affected. 
+
+Current status: We've identified that a spike in service load on infrastructure responsible for ingesting data to populate to the Call Quality Dashboard has resulted in impact. We're reviewing service health telemetry information to identify and isolate potential sources of this spike to assist our root cause investigation and next troubleshooting steps. 
+
+Scope of impact: This issue may affect any admin attempting to view up to date data in the Microsoft Teams Call Quality Dashboard. 
+
+Start time: Saturday, June 13, 2026, at 1:00 AM UTC
+
+Next update by: Wednesday, June 17, 2026, at 6:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1393859</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to search for locations for emergency calling in Microsoft Teams</td></tr><tr><td>Start</td><td>06/16/2026 23:42:23</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/17/2026 00:28:20</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Users are unable to search for locations for emergency calling in Microsoft Teams
+
+User impact: Users are unable to search for locations for emergency calling in Microsoft Teams.
+
+More info: Affected users may receive the following error message: "We couldn't find any matches".
+
+Current status: We suspect that a recent change related to emergency calling may be causing the issue and we're investigating this change to confirm our root cause theory, which will also aid in determining the next best steps towards a solution.
+
+Scope of impact: Users attempting to search for locations for emergency calling in Microsoft Teams may be impacted by this issue. This section may be updated as our investigation continues. 
+
+Next update by: Wednesday, June 17, 2026, at 8:00 PM UTC</td></tr></table>
+</div>
+<h2>Open Issues (7)</h2>
+<div class="panel">
+<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1233142</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see that when selecting a meeting room when scheduling meetings, it changes from available to unavailable</td></tr><tr><td>Start</td><td>12/08/2025 03:04:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/10/2026 20:51:18</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>24</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see that when selecting a meeting room when scheduling meetings, it changes from available to unavailable
 
 User impact: Users may see that after selecting a meeting room when scheduling meetings, it changes from available to unavailable.
 
-More info: While we are working to remediate the impact, admins can mitigate the issue by assigning the desired working hours and the time zone for the meeting rooms.
+More info: While we are working to remediate the impact, admins can circumvent the issue by assigning the desired working hours and the time zone for the meeting rooms.
 
-Current status: Our reviews and checks on the stability and reliability of the aforementioned fix are progressing, though taking an extended period of time as we continue our efforts to ensure it fully addresses impact. Additionally, we anticipate that we will be able to provide an estimated remediation timeline by our next scheduled update. 
+Current status: While performing internal testing of our solution to correct the problematic code, we determined a change was needed to ensure the fix fully remediates the impact. We've made this change to the fix and we're progressing with our validations ahead of deployment. We now anticipate our deployment will complete by June 26, 2026, and we'll continue to assess our projected timeline as internal testing continues.
 
 Scope of impact: Any users that are trying to select a meeting room when scheduling meetings outside the room's working hours in Exchange Online may be impacted. This information may be updated as our investigation continues.
 
-Start time: Monday, December 8, 2025, at 3:04 AM UTC
+Start time: Monday, December 08, 2025, at 3:04 AM UTC
 
 Root cause: A recent expansion of the feature logic used to book rooms for scheduled meetings contains a code complication which automatically sets the meeting rooms' default working hours to appear in Pacific Standard Time instead of their accurate time zone.
 
-Next update by: Thursday, May 28, 2026, at 10:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1286033</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may be unable to initiate screen sharing in 1:1 calls using the Microsoft Teams web client</td></tr><tr><td>Start</td><td>04/07/2026 12:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>05/18/2026 16:05:59</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>21</td></tr><tr><td>LatestMessage</td><td>Title: Some users may be unable to initiate screen sharing in 1:1 calls using the Microsoft Teams web client
+Next update by: Wednesday, June 17, 2026, at 10:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1386636</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to see the free/busy status of multiple cross-tenant mailboxes in Exchange Online</td></tr><tr><td>Start</td><td>05/14/2026 00:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/17/2026 03:05:13</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>3</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to see the free/busy status of multiple cross-tenant mailboxes in Exchange Online
 
-User impact: Users may be unable to initiate screen sharing in 1:1 calls using the Microsoft Teams web client.
+User impact: Users may be unable to see the free/busy status of multiple cross-tenant mailboxes in Exchange Online.
 
-More info: Specifically, only the first screen sharing session works; subsequent screen-sharing attempts may not be visible.
+More info: This impact occurs only when two or more mailbox statuses are requested.
 
-While we're working to remediate this issue, affected users can still perform screen sharing by:
+Current status: We've validated that the source of impact was a NetCore deployment, which introduced a regression where headers were being dropped during free/busy status requests for cross-tenant scenarios, resulting in back-end authentication requests failing. Our fix to address the regression is currently at 90 percent saturation in the affected environment, and we've reached out to affected users to begin testing for remediation.
 
-- Using the desktop or mobile apps
-- Adding another user to the call
-- Ending and restarting the call
+Scope of impact: Users attempting to access the free/busy status of multiple mailboxes at once may be impacted.
 
-Current status: The rollout of our solution to remediate impact is ongoing, and we anticipate it will complete by our next scheduled communication update on Tuesday, May 19, 2026, at 6:00 PM UTC. 
+Start time: Thursday, May 14, 2026, at 12:00 AM UTC
 
-Scope of impact: Some users initiating a second screen sharing session within a 1:1 call using the Microsoft Teams web client may be affected. This section may be updated as our investigation continues.
+Root cause: A NetCore deployment introduced a regression where headers were being dropped during free/busy status requests for cross-tenant scenarios, resulting in back-end authentication requests failing.
 
-Start time: Tuesday, April 07, 2026, at 12:00 PM UTC
+Next update by: Wednesday, June 17, 2026, at 8:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>SP1386381</td></tr><tr><td>Service</td><td>SharePoint Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to access Excel files through browser from SharePoint Online</td></tr><tr><td>Start</td><td>06/10/2026 14:50:49</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/15/2026 20:10:18</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Office Web Apps</td></tr><tr><td>MessageCount</td><td>10</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to access Excel files through browser from SharePoint Online
 
-Root cause: A recent service update introduced an incompatibility issue for Chromium-based browsers and the Microsoft Teams web client, resulting in impact.
+User impact: Users may be unable to access Excel files through browser from SharePoint Online.
 
-Next update by: Tuesday, May 19, 2026, at 6:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1303836</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may see incorrect characters in incoming Microsoft Teams call notifications when display names contain diacritics</td></tr><tr><td>Start</td><td>04/10/2026 05:30:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>05/12/2026 15:16:05</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Users may see incorrect characters in incoming Microsoft Teams call notifications when display names contain diacritics
+More info: Users can open the file in the Excel desktop app to circumvent impact.
 
-User impact: Users may see incorrect characters in incoming Microsoft Teams call notifications when display names contain diacritics.
+Current status: We're continuing to monitor the deployment of our fix, and we anticipate that we'll be ready to test for mitigation with a subset of affected users by our next scheduled update.
 
-More info: Users may see incorrect or corrupted characters in incoming Microsoft Teams call notification banners when display names contain European diacritical characters (e.g. ä, é, ü), resulting in names appearing with placeholder symbols.
+Scope of impact: Users accessing subsites with unique permissions not inherited from the parent site on SharePoint Online aren't able to access files in Excel for the web browser.
 
-Current status: We've confirmed that the fix deployment is proceeding as expected, with an estimated completion date of Thursday, 21 May 2026.
+Root cause: A code issue during the request flow for opening Excel files in SharePoint Online is causing errors, which is resulting in impact.
 
-Scope of impact: Impact is specific to some users receiving inbound Microsoft Teams calls notifications when display names contain diacritics.
+Next update by: Wednesday, June 17, 2026, at 9:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>SP1393483</td></tr><tr><td>Service</td><td>SharePoint Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins may be unable to configure search schema mappings in SharePoint Online</td></tr><tr><td>Start</td><td>06/16/2026 16:02:13</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/17/2026 03:41:20</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Tenant Admin</td></tr><tr><td>MessageCount</td><td>3</td></tr><tr><td>LatestMessage</td><td>Title: Admins may be unable to configure search schema mappings in SharePoint Online
 
-Start time: Friday, April 10, 2026, at 5:30 AM UTC
+User impact: Admins may be unable to configure search schema mappings in SharePoint Online.
 
-Estimated time to resolve: Thursday, 21 May 2026.
+Current status: Weâ€™re continuing our review of the internal reproduction of the issue to verify property metadata and check whether promoted properties and annotations are truly indexed and can be queried with filters to aid in determining the underlying cause of impact and our subsequent troubleshooting actions. Additionally, weâ€™re reaching out to a subset of affected users to validate a potential fix, and we anticipate that the results of this validation will expedite our investigative actions.
+ 
+Scope of impact: This issue may affect any admin attempting to configure search schema mappings in SharePoint Online. This section may be updated as our investigation proceeds.
+ 
+Next update by: Wednesday, June 17, 2026, at 11:30 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1315837</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see repeated location prompts in Microsoft Teams for Mac</td></tr><tr><td>Start</td><td>05/11/2026 00:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/11/2026 18:59:20</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>14</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see repeated location prompts in Microsoft Teams for Mac
 
-Root cause: A prior fix addressing corrupted text appearing when character encoding fails in call titles has unintentionally corrupted valid UTF-8 special characters in display names, causing improper character rendering in inbound call notifications and resulting in impact.
+User impact: Users may see repeated location prompts in Microsoft Teams for Mac.
 
-Next update by: Thursday, May 21, 2026, at 4:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1308375</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users with Technical Preview access may be unable to modify existing webinars in Microsoft Teams</td></tr><tr><td>Start</td><td>05/12/2026 09:17:36</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>05/18/2026 12:22:44</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Some users with Technical Preview access may be unable to modify existing webinars in Microsoft Teams
+More info: This issue affects macOS versions 14, 15, and 26. Impacted users are unable to dismiss the following location prompt by clicking "Allow" or "Don't allow."
 
-User impact: Users with Technical Preview access may be unable to modify existing webinars in Microsoft Teams.
+"Microsoft Teams Modulehost would like to use your current location"
 
-Current status: We're continuing to progress with revert the offending update and due to capacity restraints, the reversion is taking longer than expected. We're now expecting the reversion to complete by our next scheduled update.
+Current status: We've resolved the issues in our deployment pipeline and have started to deploy our fix. We anticipate that this fix will completely saturate all affected environments by our next scheduled update.
 
-Scope of impact: Impact is specific to some users who have early release or technical preview access, who are attempting to update existing webinars in Microsoft Virtual Events powered by Teams. This information may be updated as our investigation continues.
+Scope of impact: This issue impacts some Microsoft Teams for Mac users who have location access enabled in Teams settings.
 
-Start time: Friday, May 08, 2026, at 8:44 AM UTC
+Start time: Monday, May 11, 2026, at 12:00 AM UTC
 
-Root cause: A recent Microsoft Teams service update extending sensitivity-based access control to webinars inadvertently introduced a regression where updates to existing webinars are incorrectly treated as changes to event access type, resulting in impact.
+Root cause: A recent macOS security update exposed a location regression where the service doesnâ€™t store usersâ€™ permission selections for Teams as expected, resulting in repeated location prompts.
 
-Next update by: Tuesday, May 19, 2026, at 1:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1311440</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users with non-ANSI characters in their alias may be unable to launch the Microsoft Teams desktop client</td></tr><tr><td>Start</td><td>05/15/2026 10:10:24</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>05/15/2026 12:50:32</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Some users with non-ANSI characters in their alias may be unable to launch the Microsoft Teams desktop client
+Next update by: Wednesday, June 17, 2026, at 7:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1393502</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins may see stale data in the Microsoft Teams Call Quality Dashboard</td></tr><tr><td>Start</td><td>06/13/2026 01:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/16/2026 16:55:40</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Admins may see stale data in the Microsoft Teams Call Quality Dashboard
 
-User impact: Users with non-ANSI characters in their alias may be unable to launch the Microsoft Teams desktop client.
+User impact: Admins may see stale data in the Microsoft Teams Call Quality Dashboard.
 
-More info: Affected users may be unable to launch the Microsoft Teams desktop client due to failures during character encoding conversion.
+More info: Call Quality Dashboard information is up to date as of June 12, 2026. Data from past this date is affected. 
 
-As a workaround affected users may be able to use Microsoft Teams web client.
+Current status: We've identified that a spike in service load on infrastructure responsible for ingesting data to populate to the Call Quality Dashboard has resulted in impact. We're reviewing service health telemetry information to identify and isolate potential sources of this spike to assist our root cause investigation and next troubleshooting steps. 
 
-Current status: We’ve identified that a character encoding issue during Teams client start-up is causing failures for users with certain Unicode characters in their aliases. We're actively developing a fix and will validate it prior to deployment. We expect to provide estimated deployment timeline in our next scheduled update.
+Scope of impact: This issue may affect any admin attempting to view up to date data in the Microsoft Teams Call Quality Dashboard. 
 
-Scope of impact: Impact is specific to some users attempting to launch the Microsoft Teams desktop client.
+Start time: Saturday, June 13, 2026, at 1:00 AM UTC
 
-Root cause: A character encoding issue during Teams client start-up is causing failures for users with certain Unicode characters in their aliases.
+Next update by: Wednesday, June 17, 2026, at 6:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1393859</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to search for locations for emergency calling in Microsoft Teams</td></tr><tr><td>Start</td><td>06/16/2026 23:42:23</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/17/2026 00:28:20</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Users are unable to search for locations for emergency calling in Microsoft Teams
 
-Next update by: Tuesday, May 19, 2026, at 2:00 PM UTC</td></tr></table>
+User impact: Users are unable to search for locations for emergency calling in Microsoft Teams.
+
+More info: Affected users may receive the following error message: "We couldn't find any matches".
+
+Current status: We suspect that a recent change related to emergency calling may be causing the issue and we're investigating this change to confirm our root cause theory, which will also aid in determining the next best steps towards a solution.
+
+Scope of impact: Users attempting to search for locations for emergency calling in Microsoft Teams may be impacted by this issue. This section may be updated as our investigation continues. 
+
+Next update by: Wednesday, June 17, 2026, at 8:00 PM UTC</td></tr></table>
 </div>
 <h2>Closed Issues (0)</h2>
-<p class="muted">No Closed Issues</p>
+<div class="panel">
+No Closed Issues
 </div>
 </body>
 </html>

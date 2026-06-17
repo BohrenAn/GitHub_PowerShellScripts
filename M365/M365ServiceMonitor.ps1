@@ -14,6 +14,7 @@
 # V1.3 - 2026-04-28 - Multiple Recipients supported - Andres Bohren
 # V1.4 - 2026-05-18 - Added ConfigVariable AuthTokenWithoutModule See Function Get-AuthTokenWithoutModule for details - Andres Bohren
 # V1.5 - 2026-05-19 - Added Modern HTML / Page Reload - Andres Bohren
+# V1.6 - 2026-06-17 - Fixed Modern HTML for Outlook Classic - Andres Bohren
 ###############################################################################
 # Setup Notes
 ###############################################################################
@@ -110,6 +111,7 @@ $HTML = @"
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="refresh" content="300">
+<title>M365 Monitoring</title>
 <style>
 :root {
     --bg: #f4f7fb;
@@ -121,10 +123,6 @@ $HTML = @"
     --new: #1565c0;
     --open: #b54708;
     --closed: #027a48;
-}
-
-* {
-    box-sizing: border-box;
 }
 
 body {
@@ -152,41 +150,6 @@ h2 {
     font-size: 20px;
 }
 
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    margin: 8px 0 20px 0;
-}
-
-.summary-card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-left-width: 6px;
-    border-radius: 12px;
-    padding: 14px 16px;
-    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
-}
-
-.summary-card .label {
-    display: block;
-    font-size: 34px;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-    color: var(--muted);
-    margin-bottom: 6px;
-}
-
-.summary-card .value {
-    font-size: 34px;
-    line-height: 1;
-    font-weight: 700;
-}
-
-.summary-card.new { border-left-color: var(--new); }
-.summary-card.open { border-left-color: var(--open); }
-.summary-card.closed { border-left-color: var(--closed); }
-
 .panel {
     background: var(--surface);
     border: 1px solid var(--line);
@@ -202,8 +165,7 @@ table {
     background: #fff;
 }
 
-th,
-td {
+th, td {
     border: 1px solid var(--line);
     padding: 8px;
     text-align: left;
@@ -217,44 +179,68 @@ th {
 
 tr.yellow { background-color: #ffd84d; }
 tr.green { background-color: #4ade80; }
+tr.red { background-color: #b54708; }
+td.blue {background-color: #1565c0; }
 
+td.yellow { background-color: #ffd84d; }
+td.green { background-color: #4ade80; }
+td.red { background-color: #b54708; }
+td.blue {background-color: #1565c0;}
+
+.muted {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.summary-table { width: 100%; border-collapse: collapse; margin: 8px 0 20px 0; border: 0; background: transparent; }
+.summary-table td { border: 0; padding:10px 10px; }
+.summary-card-table { width: 100%; border-collapse: collapse; background: #ffffff; border: 1px solid #d0d5dd; }
+.summary-card-table td { border: 0; }
+.summary-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: #667085; margin: 0 0 6px 0; }
+.summary-value { font-size: 34px; line-height: 1; font-weight: 700; margin: 0; }
+
+@media (max-width: 900px) {
+    body { padding: 14px; }
+    .summary-col {
+        width: "33.33%";
+        padding:0 6px 12px 6px; 
+        border:0;
+    }
+    .summary-value { font-size: 28px; }
+}
 </style>
 <body>
-<div class="container">
-<h1>Services Health</h1>
-
-<!-- Outlook / Outlook Mobile safe summary cards (tables + inline-friendly styles) -->
-<table class="summary-table" role="presentation" cellpadding="0" cellspacing="0" border="0">
+<div class="panel">
+<h1>Issues Overview</h1>
+<table class="summary-table" >
     <tr>
-        <td class="summary-col" width="33.33%" valign="top" style="padding:0 6px 12px 0; border:0;">
-            <table class="summary-card-table" role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <td class="summary-col" >
+            <table class="summary-card-table" >
                 <tr>
-                    <td width="6" bgcolor="#1565c0" style="width:6px; font-size:0; line-height:0; padding:0; border:0;">&nbsp;</td>
-                    <td style="padding:14px 16px; border:0;">
+                    <td class="blue">&nbsp;</td>
+                    <td class="summary-table">
                         <span class="summary-label">New Issues</span>
                         <div class="summary-value">%NewIssueCount%</div>
                     </td>
                 </tr>
             </table>
         </td>
-
-        <td class="summary-col" width="33.33%" valign="top" style="padding:0 6px 12px 6px; border:0;">
-            <table class="summary-card-table" role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <td class="summary-col" >
+            <table class="summary-card-table" >
                 <tr>
-                    <td width="6" bgcolor="#b54708" style="width:6px; font-size:0; line-height:0; padding:0; border:0;">&nbsp;</td>
-                    <td style="padding:14px 16px; border:0;">
+                    <td class="red">&nbsp;</td>
+                    <td class="summary-table">
                         <span class="summary-label">Open Issues</span>
                         <div class="summary-value">%OpenIssueCount%</div>
                     </td>
                 </tr>
             </table>
         </td>
-
-        <td class="summary-col" width="33.33%" valign="top" style="padding:0 0 12px 6px; border:0;">
-            <table class="summary-card-table" role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <td class="summary-col" >
+            <table class="summary-card-table" >
                 <tr>
-                    <td width="6" bgcolor="#027a48" style="width:6px; font-size:0; line-height:0; padding:0; border:0;">&nbsp;</td>
-                    <td style="padding:14px 16px; border:0;">
+                    <td class="green" >&nbsp;</td>
+                    <td class="summary-table">
                         <span class="summary-label">Closed Issues</span>
                         <div class="summary-value">%ClosedIssueCount%</div>
                     </td>
@@ -264,6 +250,8 @@ tr.green { background-color: #4ade80; }
     </tr>
 </table>
 </div>
+&nbsp;
+
 
 <div class="panel">
 <h1>Services Health</h1>
