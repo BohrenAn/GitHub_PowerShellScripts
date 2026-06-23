@@ -50,8 +50,8 @@ Foreach ($SP in $ServicePrincipals)
             $ManagementScope = $EXORoleAssignment.CustomResourceScope
             If ($Null -ne $ManagementScope)
             {
-                #Write-Host "Management Scope: $ManagementScope" -ForegroundColor Cyan
-                $ManagementScopeDetails = Get-ManagementScope -Identity $ManagementScope.Name
+                Write-Host "Management Scope: $ManagementScope" -ForegroundColor Cyan
+                $ManagementScopeDetails = Get-ManagementScope -Identity "$ManagementScope"
                 [String]$RecipientFilter = $ManagementScopeDetails.RecipientFilter
                 Write-Host "Recipient Filter: $RecipientFilter" -ForegroundColor Cyan
             }
@@ -63,7 +63,8 @@ Foreach ($SP in $ServicePrincipals)
                 If ($null -ne $Group)
                 {
                     [String]$GroupDisplayName = $Group.DisplayName
-                    $GroupObjectID = $Group.ObjectId
+                    #$GroupObjectID = $Group.ExternalDirectoryObjectId
+                    Write-Host "GroupObjectID: $GroupObjectID" -ForegroundColor Cyan
                     $GroupMembers = Get-DistributionGroupMember -Identity $Group
                     [Array]$GroupMembersPrimarySmtpAddress = @()
                     Foreach ($GroupMember in $GroupMembers)
