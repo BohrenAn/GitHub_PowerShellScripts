@@ -15,6 +15,7 @@
 # V1.4 - 2026-05-18 - Added ConfigVariable AuthTokenWithoutModule See Function Get-AuthTokenWithoutModule for details - Andres Bohren
 # V1.5 - 2026-05-19 - Added Modern HTML / Page Reload - Andres Bohren
 # V1.6 - 2026-06-17 - Fixed Modern HTML for Outlook Classic - Andres Bohren
+# V1.7 - 2026-06-14 - Fixed Path issues and added date to HTML - Andres Bohren
 ###############################################################################
 # Setup Notes
 ###############################################################################
@@ -249,6 +250,7 @@ td.blue {background-color: #1565c0;}
         </td>
     </tr>
 </table>
+%date%
 </div>
 &nbsp;
 
@@ -284,7 +286,7 @@ Function Remove-OldLogFiles {
     )
 
     $CurrentDate = Get-Date
-    $Files = Get-ChildItem -Path ".\" -Filter *.log
+    $Files = Get-ChildItem -Path $PSScriptRoot -Filter *.log
 
     Foreach ($File in $Files) {
         $FileAge = ($CurrentDate - $File.CreationTime).Days
@@ -304,7 +306,7 @@ Function Write-Log {
     )
     $Date = $(get-date -format "dd.MM.yyyy HH:mm:ss")
     $ShortDate = (Get-Date).ToString('yyyy-MM-dd')
-    Add-Content -Path ".\M365ServiceMonitoring_$ShortDate.log" -Value ($Date + " " + $LogMessage)
+    Add-Content -Path "$PSScriptRoot\M365ServiceMonitoring_$ShortDate.log" -Value ($Date + " " + $LogMessage)
 }
 
 ###############################################################################
@@ -348,11 +350,6 @@ function Send-MailGraphApi {
 
     $Body = $BodyObject | ConvertTo-Json -Depth 6
 
-    #DEBUG
-    #Write-Host "URI: $URI" -ForegroundColor Magenta
-    #Write-Host "Headers: $Headers" -ForegroundColor Magenta
-    #Write-Host "Body: $Body" -ForegroundColor Magenta
-
     #Send Actual Mail
     $result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
     If ($null -ne $result)
@@ -365,7 +362,6 @@ function Send-MailGraphApi {
         Write-Host "Mail sending failed"
     }
 }
-
 
 ###############################################################################
 # Native Login with Certificate (Application Permission)
@@ -593,7 +589,7 @@ $result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentTy
 [Array]$APIOpenIssuesArray = $result.value | Where-Object { $ArrayServices -match $_.Service} #-AND $_.endDateTime -eq $null
 
 # Paginate to fetch all available records
-Write-host "DEBUG: Nextlink1: $($result.'@odata.NextLink')"
+#Write-host "DEBUG: Nextlink1: $($result.'@odata.NextLink')"
 [System.Uri]$NextLink = $($result.'@Odata.NextLink')
 
 While ($null -ne $NextLink) {
@@ -610,7 +606,7 @@ $OpenIssueCount = $OpenIssuesArray.Count
 $HTML = $HTML.Replace("%OpenIssueCount%", "($OpenIssueCount)")
 
 #Compare Open Issues with previous run
-If ((Test-Path -Path ".\OpenIssues.xml") -eq $false)
+If ((Test-Path -Path "$PSScriptRoot\OpenIssues.xml") -eq $false)
 {
     #File Not found
     Write-Log "OpenIssues.xml not found"
@@ -622,7 +618,7 @@ else {
     $CompareResult = Compare-Object -ReferenceObject $OpenIssuesArray -DifferenceObject $StoredOpenIssueArray #-IncludeEqual
 }
 #Save OpenIssues
-$OpenIssuesArray | Export-Clixml -Path ".\OpenIssues.xml"
+$OpenIssuesArray | Export-Clixml -Path "$PSScriptRoot\OpenIssues.xml"
 
 If ($OpenIssueCount -eq 0) 
     {
@@ -780,16 +776,20 @@ If ($ClosedIssuesCount -eq 0)
     $HTML = $HTML.Replace("%ClosedIssuesTable%", "$ClosedIssuesTable")
 }
 
+# Add date to HTML
+[string]$Date = get-date -f "yyyy-MM-dd hh:mm"
+$HTML = $HTML.Replace("%date%", "$Date")
+
 #EXPORT HTML
 Write-Log -LogMessage "Exporting HTML Report to M365monitoring.html."
 Write-Host "Exporting HTML Report to M365monitoring.html." -ForegroundColor Cyan
 
-$html | Set-Content -Path .\M365monitoring.html
+$html | Set-Content -Path "$PSScriptRoot\M365monitoring.html"
 
 If ($NewIssueCount -gt 0 -or $ClosedIssuesCount -gt 0)
 {
     #EXPORT HTML
-    $html | Set-Content -Path .\M365monitoring.html
+    $html | Set-Content -Path "$PSScriptRoot\M365monitoring.html"
 
     Write-Log -LogMessage "NEW or CLOSED Issues found for the selected Services."
     Write-Host "NEW or CLOSED Issues found for the selected Services." -ForegroundColor Yellow
