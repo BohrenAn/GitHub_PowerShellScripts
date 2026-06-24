@@ -2,6 +2,7 @@
 # Export Exchange ApplicationAccessPolicy
 # V0.1 27.05.2026 - Initial Version - Andres Bohren
 # V0.2 03.06.2026 - Updated to include Owner and Tags - Andres Bohren
+# V0.3 22.06.2026 - Updated to include GroupObjectID - Andres Bohren
 ###############################################################################
 # Reqired Modules:
 # - ExchangeOnlineManagement
@@ -27,7 +28,7 @@ Foreach ($AAPolicy in $AAPolicies)
 {
     $AppID = $AAPolicy.AppID
     Write-Host "AppID: $AppID" -ForegroundColor Green
-    $ObjectID = $AAPolicy.ScopeIdentityRaw.Split(";")[1]
+    $GroupObjectID = $AAPolicy.ScopeIdentityRaw.Split(";")[1]
 
     $EntraApp = Get-MgApplication -Filter "AppId eq '$AppID'" -Property Id,DisplayName,Tags
     [Array]$OwnerUPNArray = @()
@@ -56,14 +57,14 @@ Foreach ($AAPolicy in $AAPolicies)
     # Get Group
     $GroupDisplayName = ""
     [Array]$GroupMembersPrimarySmtpAddress = @()
-    $Group = Get-DistributionGroup -Identity $ObjectID -ErrorAction SilentlyContinue
+    $Group = Get-DistributionGroup -Identity $GroupObjectID -ErrorAction SilentlyContinue
     If ($Null -ne $Group)
     {
         $GroupDisplayName = $Group.DisplayName
         Write-Host "GroupDisplayName $GroupDisplayName" -ForegroundColor Magenta
         
         #Get Group Members
-        $GroupMembers = Get-DistributionGroupMember -Identity $ObjectID
+        $GroupMembers = Get-DistributionGroupMember -Identity $GroupObjectID
         If ($Null -ne $GroupMembers)
         {
             Foreach ($Member in $GroupMembers)
@@ -116,12 +117,13 @@ Foreach ($AAPolicy in $AAPolicies)
     $AppDetails = [PSCustomObject]@{
         AppID                             = $AppID
         AppDisplayName                    = $AppDisplayName
-        AppOwners                           = $OwnerUPNArray -join "#"
-        AppTags                             = $Tags -join "#"
-        GroupDisplayName                = $GroupDisplayName
+        AppOwners                         = $OwnerUPNArray -join "#"
+        AppTags                           = $Tags -join "#"
+        GroupDisplayName                  = $GroupDisplayName
+        GroupObjectId                     = $GroupObjectID
         GroupMembersPrimarySmtpAddress    = $GroupMembersPrimarySmtpAddress -join "#"
         ApplicationPermissions            = $ApplicationPermissions -join "#"
-        DelegatedPermissions            = $DelegatedPermissions -join "#"
+        DelegatedPermissions              = $DelegatedPermissions -join "#"
     }
 
     # Add AppDetails to ObjectArray
