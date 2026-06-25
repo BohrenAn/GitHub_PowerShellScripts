@@ -11,6 +11,11 @@
 # - Exchange Administrator (Exchange Online)
 # - Application.Read.All (Microsoft Graph)
 ###############################################################################
+# Install-PSResource -Name DllPickle -Scope CurrentUser
+Write-Host "Import DLLPickle Module"
+Import-Module DLLPickle
+$Null = Import-DPLibrary
+
 Write-Host "Connect to Exchange Online"
 Connect-ExchangeOnline -Showbanner:$false
 [Array]$AAPolicies = Get-ApplicationAccessPolicy

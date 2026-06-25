@@ -9,3 +9,10 @@
 # - Exchange Administrator (Exchange Online)
 # - Application.Read.All (Microsoft Graph)
 ###############################################################################
+
+PARAM (
+    [Parameter(Mandatory=$true)][string]$AppID,
+    [Parameter(Mandatory=$true)][string]$AppPermission,
+    [Parameter(Mandatory=$true)][string]$GroupObjectID
+)
+
