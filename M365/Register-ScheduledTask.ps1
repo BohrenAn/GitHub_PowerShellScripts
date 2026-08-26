@@ -17,6 +17,7 @@ Try {
     $Trigger = New-ScheduledTaskTrigger -Once -At $NextRun -RepetitionInterval $RepetitionInterval -RepetitionDuration $RepetitionDuration
     Write-Host "Registering Scheduled Task..."
     Register-ScheduledTask -TaskName "M365ServiceMonitor" -Action $Action -Trigger $Trigger -User "SYSTEM" #-RunLevel Highest
+    #Register-ScheduledTask -TaskName "M365ServiceMonitor" -Action $Action -Trigger $Trigger -User "NT AUTHORITY\NETWORKSERVICE"
     Write-Host "Scheduled Task Registered Successfully!" -ForegroundColor Green
     Write-Host "Run 'taskschd.msc' as Administrator to view the task." -ForegroundColor Green
 
