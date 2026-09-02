@@ -16,6 +16,7 @@
 # V1.5 - 2026-05-19 - Added Modern HTML / Page Reload - Andres Bohren
 # V1.6 - 2026-06-17 - Fixed Modern HTML for Outlook Classic - Andres Bohren
 # V1.7 - 2026-06-14 - Fixed Path issues and added date to HTML - Andres Bohren
+# V1.8 - 2026-09-02 - CertStore variable added to specify the certificate store location (CurrentUser / LocalMachine) - Andres Bohren
 ###############################################################################
 # Setup Notes
 ###############################################################################
@@ -89,7 +90,8 @@ Microsoft Copilot (Power Platform)
 # Entra App  Details
 $TenantId = "46bbad84-29f0-4e03-8d34-f6841a5071ad"
 $AppID = "29581967-458b-4c7a-a4f7-03fa440c0e13" #ServiceCommunications
-$CertificateThumbprint = "A3A07A3C2C109303CCCB011B10141A020C8AFDA3"  #CN=O365Powershell4
+$CertificateThumbprint = "FB40D47A0C0A23EA297B44A57272BCED352D0002"  #CN=O365Powershell5
+$CertStore = "LocalMachine" # CurrentUser / LocalMachine
 
 # Auth Token Without Module
 [bool]$AuthTokenWithoutModule = $true
@@ -372,14 +374,18 @@ function Get-AuthTokenWithoutModule {
         [Parameter(Mandatory = $true)][string]$TenantName,
         [Parameter(Mandatory = $true)][string]$AppId,
         [Parameter(Mandatory = $true)][string]$Thumbprint,
+        [Parameter(Mandatory = $true)][string]$CertStore,
         [Parameter(Mandatory = $true)][string]$Scope
     )
 
-    $Certificate = Get-Item "Cert:\CurrentUser\My\$Thumbprint" #O365Powershell4.cer
-    #$Scope = "6a8b4b39-c021-437c-b060-5a14a3fd65f3/.default" # Example: "https://graph.microsoft.com/.default"
+    $Certificate = Get-Item "Cert:\$CertStore\My\$Thumbprint"
 
     # Create base64 hash of certificate
     $CertificateBase64Hash = [System.Convert]::ToBase64String($Certificate.GetCertHash())
+    
+    #DEBUG
+    #Write-Log -LogMessage "DEBUG: Certificate Base64 Hash: $CertificateBase64Hash"
+    #Write-Host "DEBUG: Certificate Base64 Hash: $CertificateBase64Hash" -ForegroundColor Yellow
 
     # Create JWT timestamp for expiration
     $StartDate = (Get-Date "1970-01-01T00:00:00Z" ).ToUniversalTime()
@@ -471,6 +477,12 @@ function Get-AuthTokenWithoutModule {
 
     $Token = Invoke-RestMethod @PostSplat
     $AccessToken = $Token.access_token
+
+    If ($Null -ne $AccessToken) {
+        Write-Log -LogMessage "Access Token obtained"
+        Write-Host "Access Token obtained" -ForegroundColor Cyan
+    }
+
     return $AccessToken
 }
 
@@ -494,7 +506,7 @@ If ($AuthTokenWithoutModule -eq $true)
     Write-Log -LogMessage "Getting Access Token using native JWT creation without external module."
     Write-Host "Getting Access Token using native JWT creation without external module." -ForegroundColor Cyan
 
-    $AccessToken = Get-AuthTokenWithoutModule -TenantName $TenantId -AppId $AppID -Thumbprint $CertificateThumbprint -Scope "https://graph.microsoft.com/.default"
+    $AccessToken = Get-AuthTokenWithoutModule -TenantName $TenantId -AppId $AppID -Thumbprint $CertificateThumbprint -CertStore $CertStore -Scope "https://graph.microsoft.com/.default"
     #$AccessToken
     #Get-JWTDetails -token $AccessToken
 } else {
@@ -507,10 +519,16 @@ If ($AuthTokenWithoutModule -eq $true)
         # Get Access Token using MSAL.PS (PowerShell 5.1)
         ###############################################################################
         Import-Module MSAL.PS
-        $ClientCertificate = Get-Item Cert:\CurrentUser\My\$CertificateThumbprint
+        $ClientCertificate = Get-Item Cert:\$CertStore\My\$CertificateThumbprint
         $Scope = "https://graph.microsoft.com/.default"
         $Token = Get-MsalToken -clientID $AppID -ClientCertificate $ClientCertificate -tenantID $tenantID -Scope $Scope
         $AccessToken = $Token.AccessToken
+
+        If ($Null -ne $AccessToken) {
+            Write-Log -LogMessage "Access Token obtained"
+            Write-Host "Access Token obtained" -ForegroundColor Cyan
+        }
+
         #$AccessToken
         #Get-JWTDetails -token $AccessToken
 
@@ -525,7 +543,7 @@ If ($AuthTokenWithoutModule -eq $true)
         Write-Host "Getting Access Token using PSMSALNet." -ForegroundColor Cyan
 
         Import-Module PSMSALNet
-        $Certificate = Get-ChildItem -Path cert:\CurrentUser\my\$CertificateThumbprint
+        $Certificate = Get-ChildItem -Path cert:\$CertStore\my\$CertificateThumbprint
 
         $HashArguments = @{
             ClientId          = $AppID
@@ -535,6 +553,12 @@ If ($AuthTokenWithoutModule -eq $true)
         }
         $Token = Get-EntraToken -ClientCredentialFlowWithCertificate @HashArguments
         $AccessToken = $Token.AccessToken
+
+        If ($Null -ne $AccessToken) {
+            Write-Log -LogMessage "Access Token obtained"
+            Write-Host "Access Token obtained" -ForegroundColor Cyan
+        }
+
         #$AccessToken
         #Get-JWTDetails -token $AccessToken
     }
@@ -777,14 +801,14 @@ If ($ClosedIssuesCount -eq 0)
 }
 
 # Add date to HTML
-[string]$Date = get-date -f "yyyy-MM-dd hh:mm"
+[string]$Date = get-date -f "yyyy-MM-dd HH:mm"
 $HTML = $HTML.Replace("%date%", "$Date")
 
 #EXPORT HTML
 Write-Log -LogMessage "Exporting HTML Report to M365monitoring.html."
 Write-Host "Exporting HTML Report to M365monitoring.html." -ForegroundColor Cyan
 
-$html | Set-Content -Path "$PSScriptRoot\M365monitoring.html"
+$html | Set-Content -Path "$PSScriptRoot\M365monitoring.html" -Encoding UTF8
 
 If ($NewIssueCount -gt 0 -or $ClosedIssuesCount -gt 0)
 {

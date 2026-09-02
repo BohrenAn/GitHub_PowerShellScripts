@@ -1,3 +1,4 @@
 *.csv
 *.log
 .vscode/settings.json
+/M365/*.xml

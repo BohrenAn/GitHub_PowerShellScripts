@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -112,7 +112,7 @@ td.blue {background-color: #1565c0;}
                     <td class="blue">&nbsp;</td>
                     <td class="summary-table">
                         <span class="summary-label">New Issues</span>
-                        <div class="summary-value">(3)</div>
+                        <div class="summary-value">(0)</div>
                     </td>
                 </tr>
             </table>
@@ -141,147 +141,123 @@ td.blue {background-color: #1565c0;}
         </td>
     </tr>
 </table>
+2026-09-02 16:22
 </div>
 &nbsp;
 
 
 <div class="panel">
 <h1>Services Health</h1>
-<table><tr><th>Service</th><th>Status</th></tr><tr class='yellow'><td>Exchange Online</td><td>serviceDegradation</td></td><tr class='green'><td>Microsoft Entra</td><td>serviceOperational</td></td><tr class='yellow'><td>SharePoint Online</td><td>serviceDegradation</td></td><tr class='green'><td>Planner</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft Intune</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft OneDrive</td><td>serviceOperational</td></td><tr class='yellow'><td>Microsoft Teams</td><td>serviceDegradation</td></td><tr class='green'><td>Microsoft 365 for the web</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft 365 apps</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft Purview</td><td>serviceOperational</td></td></table>
+<table><tr><th>Service</th><th>Status</th></tr><tr class='yellow'><td>Exchange Online</td><td>serviceDegradation</td></td><tr class='yellow'><td>Microsoft Entra</td><td>serviceDegradation</td></td><tr class='yellow'><td>SharePoint Online</td><td>serviceDegradation</td></td><tr class='green'><td>Planner</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft Intune</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft OneDrive</td><td>serviceOperational</td></td><tr class='yellow'><td>Microsoft Teams</td><td>serviceDegradation</td></td><tr class='green'><td>Microsoft 365 for the web</td><td>serviceOperational</td></td><tr class='yellow'><td>Microsoft 365 apps</td><td>serviceDegradation</td></td><tr class='green'><td>Microsoft Purview</td><td>serviceOperational</td></td></table>
 </div>
 
 <h1>Issues</h1>
-<h2>New Issues (3)</h2>
+<h2>New Issues (0)</h2>
 <div class="panel">
-<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1315837</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see repeated location prompts in Microsoft Teams for Mac</td></tr><tr><td>Start</td><td>05/11/2026 00:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/11/2026 18:59:20</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>14</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see repeated location prompts in Microsoft Teams for Mac
-
-User impact: Users may see repeated location prompts in Microsoft Teams for Mac.
-
-More info: This issue affects macOS versions 14, 15, and 26. Impacted users are unable to dismiss the following location prompt by clicking "Allow" or "Don't allow."
-
-"Microsoft Teams Modulehost would like to use your current location"
-
-Current status: We've resolved the issues in our deployment pipeline and have started to deploy our fix. We anticipate that this fix will completely saturate all affected environments by our next scheduled update.
-
-Scope of impact: This issue impacts some Microsoft Teams for Mac users who have location access enabled in Teams settings.
-
-Start time: Monday, May 11, 2026, at 12:00 AM UTC
-
-Root cause: A recent macOS security update exposed a location regression where the service doesnâ€™t store usersâ€™ permission selections for Teams as expected, resulting in repeated location prompts.
-
-Next update by: Wednesday, June 17, 2026, at 7:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1393502</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins may see stale data in the Microsoft Teams Call Quality Dashboard</td></tr><tr><td>Start</td><td>06/13/2026 01:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/16/2026 16:55:40</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Admins may see stale data in the Microsoft Teams Call Quality Dashboard
-
-User impact: Admins may see stale data in the Microsoft Teams Call Quality Dashboard.
-
-More info: Call Quality Dashboard information is up to date as of June 12, 2026. Data from past this date is affected. 
-
-Current status: We've identified that a spike in service load on infrastructure responsible for ingesting data to populate to the Call Quality Dashboard has resulted in impact. We're reviewing service health telemetry information to identify and isolate potential sources of this spike to assist our root cause investigation and next troubleshooting steps. 
-
-Scope of impact: This issue may affect any admin attempting to view up to date data in the Microsoft Teams Call Quality Dashboard. 
-
-Start time: Saturday, June 13, 2026, at 1:00 AM UTC
-
-Next update by: Wednesday, June 17, 2026, at 6:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1393859</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to search for locations for emergency calling in Microsoft Teams</td></tr><tr><td>Start</td><td>06/16/2026 23:42:23</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/17/2026 00:28:20</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Users are unable to search for locations for emergency calling in Microsoft Teams
-
-User impact: Users are unable to search for locations for emergency calling in Microsoft Teams.
-
-More info: Affected users may receive the following error message: "We couldn't find any matches".
-
-Current status: We suspect that a recent change related to emergency calling may be causing the issue and we're investigating this change to confirm our root cause theory, which will also aid in determining the next best steps towards a solution.
-
-Scope of impact: Users attempting to search for locations for emergency calling in Microsoft Teams may be impacted by this issue. This section may be updated as our investigation continues. 
-
-Next update by: Wednesday, June 17, 2026, at 8:00 PM UTC</td></tr></table>
+No New Issues
 </div>
 <h2>Open Issues (7)</h2>
 <div class="panel">
-<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1233142</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see that when selecting a meeting room when scheduling meetings, it changes from available to unavailable</td></tr><tr><td>Start</td><td>12/08/2025 03:04:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/10/2026 20:51:18</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>24</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see that when selecting a meeting room when scheduling meetings, it changes from available to unavailable
+<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1440450</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may have been unable to run run-only workflows from Microsoft Teams</td></tr><tr><td>Start</td><td>2026-06-30T07:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-08-28T19:36:30.72Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>13</td></tr><tr><td>LatestMessage</td><td>Title: Users may have been unable to run run-only workflows from Microsoft Teams
 
-User impact: Users may see that after selecting a meeting room when scheduling meetings, it changes from available to unavailable.
+User impact: Users may be unable to run run-only workflows from Microsoft Teams.
 
-More info: While we are working to remediate the impact, admins can circumvent the issue by assigning the desired working hours and the time zone for the meeting rooms.
+More info: As a result of our initial fix deployment, users are now able to run run-only workflows through the "workflows" button in Microsoft Teams. However, running run-only workflows by hovering and selecting "More actions" > "Create workflows" is still an impacted scenario.
 
-Current status: While performing internal testing of our solution to correct the problematic code, we determined a change was needed to ensure the fix fully remediates the impact. We've made this change to the fix and we're progressing with our validations ahead of deployment. We now anticipate our deployment will complete by June 26, 2026, and we'll continue to assess our projected timeline as internal testing continues.
+Affected users are unable to run workflows in Teams when those workflows are configured to be executed by designated users without requiring those users to own or edit the workflow. Users receive the following error message:
 
-Scope of impact: Any users that are trying to select a meeting room when scheduling meetings outside the room's working hours in Exchange Online may be impacted. This information may be updated as our investigation continues.
+"Missing Trigger URI"
 
-Start time: Monday, December 08, 2025, at 3:04 AM UTC
+As a way to avoid this issue, impacted users can be granted Owner or Co-owner permissions for the affected workflow.
 
-Root cause: A recent expansion of the feature logic used to book rooms for scheduled meetings contains a code complication which automatically sets the meeting rooms' default working hours to appear in Pacific Standard Time instead of their accurate time zone.
+Current status: We’re continuing to validate and test the fix to confirm that it fully remediates the impact without introducing any unintended effects.
 
-Next update by: Wednesday, June 17, 2026, at 10:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1386636</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to see the free/busy status of multiple cross-tenant mailboxes in Exchange Online</td></tr><tr><td>Start</td><td>05/14/2026 00:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/17/2026 03:05:13</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>3</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to see the free/busy status of multiple cross-tenant mailboxes in Exchange Online
+Scope of impact: Users attempting to run run-only workflows from Microsoft Teams may be impacted. This section may be updated as the investigation progresses.
 
-User impact: Users may be unable to see the free/busy status of multiple cross-tenant mailboxes in Exchange Online.
+Start time: Tuesday, June 30, 2026, at 7:00 AM UTC
 
-More info: This impact occurs only when two or more mailbox statuses are requested.
+Root cause: A recent service update introduced a code regression that affects how Microsoft Teams processes shared workflow requests, preventing some users from running run-only workflows from Microsoft Teams.
 
-Current status: We've validated that the source of impact was a NetCore deployment, which introduced a regression where headers were being dropped during free/busy status requests for cross-tenant scenarios, resulting in back-end authentication requests failing. Our fix to address the regression is currently at 90 percent saturation in the affected environment, and we've reached out to affected users to begin testing for remediation.
+Next update by: Friday, September 4, 2026, at 8:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1459181</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to join shared channels using some links to messages in Microsoft Teams</td></tr><tr><td>Start</td><td>2026-08-21T23:42:31Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-08-28T19:33:49.89Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to join shared channels using some links to messages in Microsoft Teams
 
-Scope of impact: Users attempting to access the free/busy status of multiple mailboxes at once may be impacted.
+User impact: Users may be unable to join shared channels using some links to messages in Microsoft Teams.
 
-Start time: Thursday, May 14, 2026, at 12:00 AM UTC
+More info: This issue specifically affects links generated using the “Copy Link” option through the three dots menu located at the top right of the shared channel. Users can bypass this impact by generating links to channels using any alternate method, such as by right-clicking on the channel in the left rail menu or any specific message within the shared channel and choosing the “Copy Link” option there.
 
-Root cause: A NetCore deployment introduced a regression where headers were being dropped during free/busy status requests for cross-tenant scenarios, resulting in back-end authentication requests failing.
+Current status: The fix is continuing to deploy successfully, and affected users may begin experiencing recovery as deployment progresses. We expect the deployment to be fully completed by the end of the week of September 4, 2026.
 
-Next update by: Wednesday, June 17, 2026, at 8:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>SP1386381</td></tr><tr><td>Service</td><td>SharePoint Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to access Excel files through browser from SharePoint Online</td></tr><tr><td>Start</td><td>06/10/2026 14:50:49</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/15/2026 20:10:18</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Office Web Apps</td></tr><tr><td>MessageCount</td><td>10</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to access Excel files through browser from SharePoint Online
+Scope of impact: Users joining channels or generating channels links using the “Copy Link” options within the three dots menu located at the top right of shared Microsoft Teams channels may be impacted.
 
-User impact: Users may be unable to access Excel files through browser from SharePoint Online.
+Root cause: A recent update intended to improve the data pathways leveraged to facilitate channel link generation is causing the affected links to be malformed, leading to impact.
 
-More info: Users can open the file in the Excel desktop app to circumvent impact.
+Next update by: Thursday, September 3, 2026, at 9:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1462514</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users attempting to view their Microsoft Teams contact lists may experience latency</td></tr><tr><td>Start</td><td>2026-07-29T00:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-08-27T16:27:31.64Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Some users attempting to view their Microsoft Teams contact lists may experience latency
 
-Current status: We're continuing to monitor the deployment of our fix, and we anticipate that we'll be ready to test for mitigation with a subset of affected users by our next scheduled update.
+User impact: Users attempting to view their Microsoft Teams contact lists may experience latency.
 
-Scope of impact: Users accessing subsites with unique permissions not inherited from the parent site on SharePoint Online aren't able to access files in Excel for the web browser.
+More info: Users attempting to view their Microsoft Teams contact lists may experience latency and their contact list may appear for up to 15 minutes. 
 
-Root cause: A code issue during the request flow for opening Excel files in SharePoint Online is causing errors, which is resulting in impact.
+Current status: We’ve determined that a recent service update to improve the user interface of Microsoft Teams contact lists contained a code regression and is resulting in impact. We’ve developed a fix to correct the offending code regression, and we anticipate that the deployment process will begin prior to our next scheduled update, at which point we expect that a remediation timeline will be provided.  
 
-Next update by: Wednesday, June 17, 2026, at 9:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>SP1393483</td></tr><tr><td>Service</td><td>SharePoint Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins may be unable to configure search schema mappings in SharePoint Online</td></tr><tr><td>Start</td><td>06/16/2026 16:02:13</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/17/2026 03:41:20</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Tenant Admin</td></tr><tr><td>MessageCount</td><td>3</td></tr><tr><td>LatestMessage</td><td>Title: Admins may be unable to configure search schema mappings in SharePoint Online
+Scope of impact: Some users who are attempting to view their Microsoft Teams contact lists may be affected. This information may be updated as our investigation continues.
 
-User impact: Admins may be unable to configure search schema mappings in SharePoint Online.
+Start time: Wednesday, July 29, 2026, at 12:00 AM UTC
 
-Current status: Weâ€™re continuing our review of the internal reproduction of the issue to verify property metadata and check whether promoted properties and annotations are truly indexed and can be queried with filters to aid in determining the underlying cause of impact and our subsequent troubleshooting actions. Additionally, weâ€™re reaching out to a subset of affected users to validate a potential fix, and we anticipate that the results of this validation will expedite our investigative actions.
+Root cause: A recent service update to improve the user interface of Microsoft Teams contact lists contained a code regression and is resulting in impact.
+
+Next update by: Wednesday, September 2, 2026, at 9:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>SP1464785</td></tr><tr><td>Service</td><td>SharePoint Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may be unable to access SharePoint Online sites configured with Authentication Context</td></tr><tr><td>Start</td><td>2026-08-23T02:38:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-01T18:05:23.687Z</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Access Services</td></tr><tr><td>MessageCount</td><td>7</td></tr><tr><td>LatestMessage</td><td>Title: Some users may be unable to access SharePoint Online sites configured with Authentication Context
+
+User impact: Users may be unable to access SharePoint Online sites configured with Authentication Context.
+
+More info: Specifically, users are unable to access SharePoint Online sites configured with Authentication Context through sensitivity labels.
  
-Scope of impact: This issue may affect any admin attempting to configure search schema mappings in SharePoint Online. This section may be updated as our investigation proceeds.
+Users receive the following error message:
+"Server Error in '/' Application."
  
-Next update by: Wednesday, June 17, 2026, at 11:30 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1315837</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see repeated location prompts in Microsoft Teams for Mac</td></tr><tr><td>Start</td><td>05/11/2026 00:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/11/2026 18:59:20</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>14</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see repeated location prompts in Microsoft Teams for Mac
+As a workaround, users may be able to temporarily access the affected content by first clearing internet browser cookies and navigating to the root site collection before opening the direct link. Users can also open a new browser tab on the same session and access the site. The link may work as well.
 
-User impact: Users may see repeated location prompts in Microsoft Teams for Mac.
+Current status: We've identified that a recent SharePoint Online code change intended to update authentication processing resulted in Authentication Context requests not being processed as expected, preventing some users from accessing affected sites. We've developed a fix to revert the offending change and have initiated deployment to the affected environments. We're monitoring the deployment to ensure successful completion, and as the fix progresses, some users may experience impact relief. We'll provide a resolution timeline once available.
 
-More info: This issue affects macOS versions 14, 15, and 26. Impacted users are unable to dismiss the following location prompt by clicking "Allow" or "Don't allow."
+Scope of impact: Some users attempting to access SharePoint Online sites configured with Authentication Context through sensitivity labels may be impacted.
 
-"Microsoft Teams Modulehost would like to use your current location"
+Start time: Sunday, August 23, 2026, at 2:38 AM UTC
 
-Current status: We've resolved the issues in our deployment pipeline and have started to deploy our fix. We anticipate that this fix will completely saturate all affected environments by our next scheduled update.
+Root cause: A recent SharePoint Online code change intended to update authentication processing resulted in Authentication Context requests not being processed as expected, preventing some users from accessing affected sites.
 
-Scope of impact: This issue impacts some Microsoft Teams for Mac users who have location access enabled in Teams settings.
+Next update by: Wednesday, September 2, 2026, at 7:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1441488</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see unwanted add-ins appearing automatically across all Outlook clients</td></tr><tr><td>Start</td><td>2026-07-17T10:26:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-01T17:02:27.823Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>21</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see unwanted add-ins appearing automatically across all Outlook clients
 
-Start time: Monday, May 11, 2026, at 12:00 AM UTC
+User impact: Users may see unwanted add-ins appearing automatically across all Outlook clients.
 
-Root cause: A recent macOS security update exposed a location regression where the service doesnâ€™t store usersâ€™ permission selections for Teams as expected, resulting in repeated location prompts.
+More info: These add-ins are configured to be available to users by admins but aren’t expected to be automatically installed.
 
-Next update by: Wednesday, June 17, 2026, at 7:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1393502</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins may see stale data in the Microsoft Teams Call Quality Dashboard</td></tr><tr><td>Start</td><td>06/13/2026 01:00:00</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/16/2026 16:55:40</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Admins may see stale data in the Microsoft Teams Call Quality Dashboard
+Current status: We're coordinating with a subset of affected users who are performing the actions needed to remediate the impact to ensure that running the command and installing previously installed apps fully resolves the issue.
 
-User impact: Admins may see stale data in the Microsoft Teams Call Quality Dashboard.
+Scope of impact: Impact may occur for some users that may see unwanted add-ins appearing automatically across all Outlook clients. This section may be updated as the investigation progresses.
 
-More info: Call Quality Dashboard information is up to date as of June 12, 2026. Data from past this date is affected. 
+Start time: Friday, July 17, 2026, at 10:26 AM UTC
 
-Current status: We've identified that a spike in service load on infrastructure responsible for ingesting data to populate to the Call Quality Dashboard has resulted in impact. We're reviewing service health telemetry information to identify and isolate potential sources of this spike to assist our root cause investigation and next troubleshooting steps. 
+Root cause: A portion of the Exchange Online add-in sync pipeline isn't processing add-in state information as expected. This is causing incorrect EnabledStatus values being returned and Outlook automatically displaying add-ins configured as Available, which is resulting in impact.
 
-Scope of impact: This issue may affect any admin attempting to view up to date data in the Microsoft Teams Call Quality Dashboard. 
+Next update by: Friday, September 4, 2026, at 6:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1464935</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to connect to, or experience degraded functionality with Exchange Online</td></tr><tr><td>Start</td><td>2026-08-31T15:08:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-02T06:44:50.05Z</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Sign-in</td></tr><tr><td>MessageCount</td><td>35</td></tr><tr><td>LatestMessage</td><td>Our telemetry indicates service availability remains stable above 99 percent, and we expect the majority of users should no longer be seeing impact from this issue. Our continued focus is on balancing the implementation of our fixes across remaining portions of affected infrastructure to ensure persistent recovery, with added attention on ensuring withstanding recovery of scenarios dependent on REST and Graph API connection methods.
 
-Start time: Saturday, June 13, 2026, at 1:00 AM UTC
+This quick update is designed to give the latest information on this issue.
 
-Next update by: Wednesday, June 17, 2026, at 6:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1393859</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to search for locations for emergency calling in Microsoft Teams</td></tr><tr><td>Start</td><td>06/16/2026 23:42:23</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>06/17/2026 00:28:20</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Users are unable to search for locations for emergency calling in Microsoft Teams
+Next update by: Wednesday, September 2, 2026, at 4:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>OP1454727</td></tr><tr><td>Service</td><td>Microsoft 365 apps</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to sign in to OneNote using iOS devices</td></tr><tr><td>Start</td><td>2026-08-14T11:51:32.013Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-02T06:38:25.857Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Office Client issues</td></tr><tr><td>MessageCount</td><td>9</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to sign in to OneNote using iOS devices
 
-User impact: Users are unable to search for locations for emergency calling in Microsoft Teams.
+User impact: Users may be unable to sign in to OneNote using iOS devices.
 
-More info: Affected users may receive the following error message: "We couldn't find any matches".
+More info: Impact is specific to users with OneNote build 16.112.717.0 or higher.
+ 
+Whilst we work on remediation, impacted users may be able to utilize OneNote on the web or remove Authenticator so that authentication falls back to the in-app webview. Users may also be able to sign in to any other Microsoft 365 apps first (e.g. PowerPoint), then attempt to sign in again in OneNote.
 
-Current status: We suspect that a recent change related to emergency calling may be causing the issue and we're investigating this change to confirm our root cause theory, which will also aid in determining the next best steps towards a solution.
+Current status: Current status: We're progressing with the validation of our fix in our internal testing environment. Additionally, we're continuing to await confirmation from a subset of users who reported the issue and have received the fix to help with validating its efficacy so we can proceed with its full release.
 
-Scope of impact: Users attempting to search for locations for emergency calling in Microsoft Teams may be impacted by this issue. This section may be updated as our investigation continues. 
+Scope of impact: Any user attempting to sign in to OneNote build 16.112.717.0 or higher using iOS devices is impacted. This information may be updated as our investigation continues.
 
-Next update by: Wednesday, June 17, 2026, at 8:00 PM UTC</td></tr></table>
+Start time: Monday, July 20, 2026, at 4:36 AM UTC
+
+Root cause: A code change included in OneNote builds 16.112.717.0 and above, designed to change how authentication requests are routed, introduced an issue with OneNote iOS Authenticator broker sign-in and is causing impact.
+
+Next update by: Thursday, September 3, 2026, at 10:00 AM UTC</td></tr></table>
 </div>
 <h2>Closed Issues (0)</h2>
 <div class="panel">
