@@ -17,6 +17,7 @@
 # V1.6 - 2026-06-17 - Fixed Modern HTML for Outlook Classic - Andres Bohren
 # V1.7 - 2026-06-14 - Fixed Path issues and added date to HTML - Andres Bohren
 # V1.8 - 2026-09-02 - CertStore variable added to specify the certificate store location (CurrentUser / LocalMachine) - Andres Bohren
+# V1.9 - 2026-09-05 - Fixed issue with smart quotes in email body - Andres Bohren
 ###############################################################################
 # Setup Notes
 ###############################################################################
@@ -323,9 +324,6 @@ function Send-MailGraphApi {
         [Parameter(Mandatory = $true)][string]$MessageBody
     )
 
-    #Adjust new lines for JSON body
-    #$MessageBody = $MessageBody | ConvertTo-Json
-
     $URI = "https://graph.microsoft.com/v1.0/users/$MailSender/sendMail"
     $ContentType = "application/json"
     $Headers = @{"Authorization" = "Bearer " + $AccessToken }
@@ -339,6 +337,9 @@ function Send-MailGraphApi {
         }
     }
 
+    #Replace smart quotes with standard quotes
+    $MessageBody = $MessageBody -replace '[\u2018\u2019]', "'" -replace '[\u201C\u201D]', '"'
+
     $BodyObject = @{
         message = @{
             subject = $Subject
@@ -350,7 +351,17 @@ function Send-MailGraphApi {
         }
     }
 
-    $Body = $BodyObject | ConvertTo-Json -Depth 6
+    $Body = $BodyObject | ConvertTo-Json -Depth 7
+
+    <# Save the body to a file for debugging purposes depending on the PowerShell version
+    If ($PSVersion -lt 6) {
+        Write-Host "Body"
+        $Body | Set-Content $PSScriptroot\PS5Body.json
+    } else {
+        Write-Host "Body"
+        $Body | Set-Content $PSScriptroot\PS7Body.json
+    }
+    #>
 
     #Send Actual Mail
     $result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
@@ -812,22 +823,23 @@ $html | Set-Content -Path "$PSScriptRoot\M365monitoring.html" -Encoding UTF8
 
 If ($NewIssueCount -gt 0 -or $ClosedIssuesCount -gt 0)
 {
-    #EXPORT HTML
-    $html | Set-Content -Path "$PSScriptRoot\M365monitoring.html"
-
     Write-Log -LogMessage "NEW or CLOSED Issues found for the selected Services."
     Write-Host "NEW or CLOSED Issues found for the selected Services." -ForegroundColor Yellow
 
     #Send Email
     Write-Log -LogMessage "Sending Email Report to $MailRecipient."
-    Write-Host "Sending Email Report to $MailRecipient." -ForegroundColor Cyan  
+    Write-Host "Sending Email Report to $MailRecipient." -ForegroundColor Cyan
 
     If ($SendMailViaGraphAPI -eq $true)
     {
         #Send Mail via Graph API
+        Write-Log -LogMessage "Sending Email via Graph API."
+        Write-Host "Sending Email via Graph API." -ForegroundColor Cyan
         Send-MailGraphApi -MailSender $MailSender -MailRecipient $MailRecipient -Subject "M365 Service Monitoring - NEW or CLOSED Issues found" -MessageBody $HTML
     } Else {
         #Send Mail via SMTP Server
+        Write-Log -LogMessage "Sending Email via SMTP Server."
+        Write-Host "Sending Email via SMTP Server." -ForegroundColor Cyan
         $sendMailMessageSplat = @{
             From       = "$MailSender"
             To         = "$MailRecipient"
@@ -837,8 +849,7 @@ If ($NewIssueCount -gt 0 -or $ClosedIssuesCount -gt 0)
         }
         Send-MailMessage @sendMailMessageSplat -BodyAsHtml
     }
-}
-Else {
+} Else {
     Write-Log -LogMessage "No NEW or CLOSED Issues found selected Services."
     Write-Host "No NEW or CLOSED Issues found selected Services" -ForegroundColor Green
 }
