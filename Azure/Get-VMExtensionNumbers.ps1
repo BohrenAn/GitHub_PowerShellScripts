@@ -38,7 +38,7 @@ Function Get-VMExtensionNumbers {
             #Write-Host "Installed Version: $InstanceViewVersion"
 
             # Get Avaiable Versions
-            $URI = $test.split("resourceGroups/")[0] + "providers/Microsoft.Compute/locations/$Location/publishers/$Publisher/artifacttypes/vmextension/types/$ExtensionType/versions`?api-version=2025-11-01"
+            $URI = $ID.split("resourceGroups/")[0] + "providers/Microsoft.Compute/locations/$Location/publishers/$Publisher/artifacttypes/vmextension/types/$ExtensionType/versions`?api-version=2025-11-01"
             $Result = Invoke-AzRestMethod -Method "GET" -Path $URI
             $NewestVersion = ($Result.content | ConvertFrom-Json | Select-Object Name | Sort-Object {[version]$_.Name} -Descending).Name[0]
             #Write-Host "Newest Version: $NewestVersion"
@@ -54,5 +54,7 @@ Function Get-VMExtensionNumbers {
         return $VMExtensionArray
     }
 }
-$Result = Get-VMExtensionNumbers -ResourceGroupName rg-exolab -VMName EDGE01
-$Result | fl
+
+#Example Usage:
+#$Result = Get-VMExtensionNumbers -ResourceGroupName rg-exolab -VMName EDGE01
+#$Result | fl
