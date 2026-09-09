@@ -37,15 +37,17 @@ Function Get-FileName
 ###############################################################################
 # Main Script starts here
 ###############################################################################
+<#
 Write-Host "Import DLLPickle Module"
 Import-Module DLLPickle
 $Null = Import-DPLibrary
 
-Write-Host "Connect to Exchange Online"
-Connect-ExchangeOnline -Showbanner:$false
-
 Write-Host "Connect to Microsoft Graph"
 Connect-MgGraph -Scopes Application.Read.All -NoWelcome
+
+Write-Host "Connect to Exchange Online"
+Connect-ExchangeOnline -Showbanner:$false
+#>
 
 $FileName = Get-FileName -initialDirectory $PSScriptRoot
 If ($Null -eq $FileName)
@@ -54,10 +56,10 @@ If ($Null -eq $FileName)
     Exit
 }
 
-$CSV = Import-Csv -Path $FileName -Delimiter ";" -Encoding utf8
+$CSV = Import-Csv -Path $FileName -Delimiter ";" -Encoding UTF8
 
 $INT = 0
-Forach ($Line in $CSV)
+Foreach ($Line in $CSV)
 {
     $INT = $INT + 1
     $AppID = $Line.AppID
@@ -68,26 +70,5 @@ Forach ($Line in $CSV)
     Write-Host "AppPermission: $AppPermission" -ForegroundColor Green
     Write-Host "GroupObjectID: $GroupObjectID" -ForegroundColor Green
 
-    .\04_CreateEXORBACApplication.ps1 -AppID $AppID -AppPermission $AppPermission -GroupObjectID $GroupObjectID
+    .\04_CreateEXORBACApplication.ps1 -AppID $AppID -AppPermission $AppPermission -GroupObjectID $GroupObjectID -Verbose
 }
-
-
-
-###############################################################################
-# Get AzureAD Application with Microsoft.Graph PowerShell
-###############################################################################
-Connect-MgGraph -Scopes 'Application.Read.All'
-$ServicePrincipalDetails = Get-MgServicePrincipal -Filter "DisplayName eq 'Demo-EXO-RBAC'"
-$ServicePrincipalDetails
-
-###############################################################################
-# Create Exchange Service Principal
-###############################################################################
-Connect-ExchangeOnline
-New-ServicePrincipal -AppId $ServicePrincipalDetails.AppId -ServiceId $ServicePrincipalDetails.Id -DisplayName "EXO Serviceprincipal $($ServicePrincipalDetails.Displayname)"
-Get-ServicePrincipal | where {$_.AppId -eq "cd32481c-6da8-47a1-b55b-742d2c3af888"}
-
-###############################################################################
-#Get-ManagementRole
-###############################################################################
-Get-ManagementRole | where {$_.Name -like "Application*"}
