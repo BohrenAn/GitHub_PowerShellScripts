@@ -58,7 +58,7 @@ Foreach ($AAPolicy in $AAPolicies)
         }
 
         # Get Owner via Tags in App Manifest)
-        if ($Null -ne$EntraApp.Tags) 
+        if ($Null -ne $EntraApp.Tags) 
         {
             $TagOwners = $EntraApp.Tags | Where-Object { $_ -like "Owner*" }
              foreach ($Tag in $TagOwners) {
@@ -157,7 +157,7 @@ Foreach ($AAPolicy in $AAPolicies)
 
 #$ObjectArray
 Write-Host "Exporting to CSV"
-$ObjectArray | Export-Csv -Path "$PSScriptRoot\ApplicationAccessPolicies.csv" -Encoding UTF8
+$ObjectArray | Export-Csv -Path "$PSScriptRoot\ApplicationAccessPolicies.csv" -Delimiter ";" -Encoding UTF8 -NoTypeInformation
 
 $MultilineString = @"
 In Excel:

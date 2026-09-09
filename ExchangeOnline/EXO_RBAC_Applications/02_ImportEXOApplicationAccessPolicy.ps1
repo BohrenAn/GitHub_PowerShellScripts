@@ -58,6 +58,36 @@ If ($Null -eq $FileName)
 
 $CSV = Import-Csv -Path $FileName -Delimiter ";" -Encoding UTF8
 
+# Application Permissions in Exchange Online
+# Get-ManagementRole | where {$_.Name -match "Application "}
+$ExchangePermissions = [System.Collections.Generic.List[string]]::new()
+$ExchangePermissions.Add("MailboxItem.Export")
+$ExchangePermissions.Add("MailboxItem.ReadWrite")
+$ExchangePermissions.Add("Mail-Advanced.ReadWrite.All")
+$ExchangePermissions.Add("Mail.Read")
+$ExchangePermissions.Add("Mail.ReadBasic")
+$ExchangePermissions.Add("Mail.ReadWrite")
+$ExchangePermissions.Add("Mail.Send")
+$ExchangePermissions.Add("MailboxSettings.Read")
+$ExchangePermissions.Add("MailboxSettings.ReadWrite")
+$ExchangePermissions.Add("Calendars.Read")
+$ExchangePermissions.Add("Calendars.ReadWrite")
+$ExchangePermissions.Add("Contacts.Read")
+$ExchangePermissions.Add("Contacts.ReadWrite")
+$ExchangePermissions.Add("Mail Full Access")
+$ExchangePermissions.Add("Exchange Full Access")
+$ExchangePermissions.Add("EWS.AccessAsApp")
+$ExchangePermissions.Add("SMTP.SendAsApp")
+$ExchangePermissions.Add("MailboxConfigItem.Read")
+$ExchangePermissions.Add("MailboxConfigItem.ReadWrite")
+$ExchangePermissions.Add("MailTips.ReadBasic.All")
+$ExchangePermissions.Add("MailboxFolder.Read")
+$ExchangePermissions.Add("MailboxFolder.ReadWrite")
+$ExchangePermissions.Add("MailboxItem.Read")
+$ExchangePermissions.Add("ApplicationMailboxItem.ImportExport")
+
+
+# Loop through the CSV file and process each line
 $INT = 0
 Foreach ($Line in $CSV)
 {
@@ -66,9 +96,18 @@ Foreach ($Line in $CSV)
     $AppPermission = $Line.AppPermission
     $GroupObjectID = $Line.GroupObjectID
 
+    
     Write-Host "AppID: $AppID [$INT]" -ForegroundColor Green
     Write-Host "AppPermission: $AppPermission" -ForegroundColor Green
     Write-Host "GroupObjectID: $GroupObjectID" -ForegroundColor Green
 
-    .\04_CreateEXORBACApplication.ps1 -AppID $AppID -AppPermission $AppPermission -GroupObjectID $GroupObjectID -Verbose
+    # Only if its an EXO App Permission
+    If ($ExchangePermissions -match $AppPermission)
+    {
+        # Create the Exchange Online RBAC Application for the matching permission
+        Write-Host "Create Exchange Online RBAC Application"
+        .\04_CreateEXORBACApplication.ps1 -AppID $AppID -AppPermission $AppPermission -GroupObjectID $GroupObjectID -Verbose
+    }
+
+    
 }
