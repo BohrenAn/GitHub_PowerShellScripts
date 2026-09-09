@@ -3,6 +3,7 @@
 # V0.1 27.05.2026 - Initial Version - Andres Bohren
 # V0.2 03.06.2026 - Updated to include Owner and Tags - Andres Bohren
 # V0.3 22.06.2026 - Updated to include GroupObjectID - Andres Bohren
+# V0.4 09.09.2026 - Updated to include AppOwnersTags - Andres Bohren
 ###############################################################################
 # Reqired Modules:
 # - ExchangeOnlineManagement
@@ -16,11 +17,18 @@ Write-Host "Import DLLPickle Module"
 Import-Module DLLPickle
 $Null = Import-DPLibrary
 
-Write-Host "Connect to Exchange Online"
-Connect-ExchangeOnline -Showbanner:$false
+# Check Exchange Online Connection
+$Connection = Get-ConnectionInformation -ErrorAction SilentlyContinue
+if ($Connection) {
+    Write-Host "Already connected to Exchange Online"
+} else {
+    Write-Host "Connect to Exchange Online"
+    Connect-ExchangeOnline -Showbanner:$false
+}
 [Array]$AAPolicies = Get-ApplicationAccessPolicy
 
 Write-Host "Connect to Microsoft Graph"
+Disconnect-MgGraph -ErrorAction SilentlyContinue
 Connect-MgGraph -Scopes Application.Read.All -NoWelcome
 
 # Get All Graph Application Permissions
@@ -39,8 +47,8 @@ Foreach ($AAPolicy in $AAPolicies)
     [Array]$OwnerUPNArray = @()
     IF ($Null -ne $EntraApp)
     {
-        [Array]$Tags = $EntraApp.Tags
-
+        
+        # Get Owners via Graph API
         [Array]$OwnerArray = Get-MgApplicationOwner -ApplicationId $EntraApp.Id
         Foreach ($Owner in $OwnerArray)
         {
@@ -48,6 +56,18 @@ Foreach ($AAPolicy in $AAPolicies)
             Write-Host "OwnerUPN: $OwnerUPN" -ForegroundColor Yellow
             $OwnerUPNArray += $OwnerUPN
         }
+
+        # Get Owner via Tags in App Manifest)
+        if ($Null -ne $EntraApp.Tags) 
+        {
+            $TagOwners = $EntraApp.Tags | Where-Object { $_ -like "Owner*" }
+             foreach ($Tag in $TagOwners) {
+                $AppOwnersTags += $Tag
+            }
+        } else {
+            $AppOwnersTags = @()
+        }
+
     }
 
     $SP = Get-MgServicePrincipal -Filter "appId eq '$AppID'" -ErrorAction SilentlyContinue
@@ -123,7 +143,7 @@ Foreach ($AAPolicy in $AAPolicies)
         AppID                             = $AppID
         AppDisplayName                    = $AppDisplayName
         AppOwners                         = $OwnerUPNArray -join "#"
-        AppTags                           = $Tags -join "#"
+        AppOwnersTags                     = $AppOwnersTags -join "#"
         GroupDisplayName                  = $GroupDisplayName
         GroupObjectId                     = $GroupObjectID
         GroupMembersPrimarySmtpAddress    = $GroupMembersPrimarySmtpAddress -join "#"
@@ -137,7 +157,7 @@ Foreach ($AAPolicy in $AAPolicies)
 
 #$ObjectArray
 Write-Host "Exporting to CSV"
-$ObjectArray | Export-Csv -Path "$PSScriptRoot\ApplicationAccessPolicies.csv" -Encoding UTF8
+$ObjectArray | Export-Csv -Path "$PSScriptRoot\ApplicationAccessPolicies.csv" -Delimiter ";" -Encoding UTF8 -NoTypeInformation
 
 $MultilineString = @"
 In Excel:
