@@ -123,7 +123,7 @@ td.blue {background-color: #1565c0;}
                     <td class="red">&nbsp;</td>
                     <td class="summary-table">
                         <span class="summary-label">Open Issues</span>
-                        <div class="summary-value">(6)</div>
+                        <div class="summary-value">(5)</div>
                     </td>
                 </tr>
             </table>
@@ -141,7 +141,7 @@ td.blue {background-color: #1565c0;}
         </td>
     </tr>
 </table>
-2026-09-06 10:07
+2026-09-10 07:07
 </div>
 &nbsp;
 
@@ -156,9 +156,9 @@ td.blue {background-color: #1565c0;}
 <div class="panel">
 No New Issues
 </div>
-<h2>Open Issues (6)</h2>
+<h2>Open Issues (5)</h2>
 <div class="panel">
-<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1440450</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may have been unable to run run-only workflows from Microsoft Teams</td></tr><tr><td>Start</td><td>2026-06-30T07:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-04T19:03:11.407Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>14</td></tr><tr><td>LatestMessage</td><td>Title: Users may have been unable to run run-only workflows from Microsoft Teams
+<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1440450</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may have been unable to run run-only workflows from Microsoft Teams</td></tr><tr><td>Start</td><td>2026-06-30T07:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-10T00:20:15.783Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>15</td></tr><tr><td>LatestMessage</td><td>Title: Users may have been unable to run run-only workflows from Microsoft Teams
 
 User impact: Users may be unable to run run-only workflows from Microsoft Teams.
 
@@ -170,7 +170,7 @@ Affected users are unable to run workflows in Teams when those workflows are con
 
 As a way to avoid this issue, impacted users can be granted Owner or Co-owner permissions for the affected workflow.
 
-Current status: We’re continuing to perform final validations to ensure the fix fully remediates the impact without introducing any unintended effects. We’ll provide a resolution timeline once available.
+Current status: We're completing validation of our fix and preparing for deployment. Once validation activities are complete, we'll begin deployment and provide a more specific resolution timeline in the next scheduled update.
 
 Scope of impact: Users attempting to run run-only workflows from Microsoft Teams may be impacted. This section may be updated as the investigation progresses. This information may be updated as our investigation continues.
 
@@ -178,55 +178,19 @@ Start time: Tuesday, June 30, 2026, at 7:00 AM UTC
 
 Root cause: A recent service update introduced a code regression that affects how Microsoft Teams processes shared workflow requests, preventing some users from running run-only workflows from Microsoft Teams.
 
-Next update by: Thursday, September 10, 2026, at 1:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1459181</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to join shared channels using some links to messages in Microsoft Teams</td></tr><tr><td>Start</td><td>2026-08-21T23:42:31Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-03T21:00:17.067Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>5</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to join shared channels using some links to messages in Microsoft Teams
+Next update by: Tuesday, September 15, 2026, at 1:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1459181</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to join shared channels using some links to messages in Microsoft Teams</td></tr><tr><td>Start</td><td>2026-08-21T23:42:31Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-08T19:44:14.877Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>6</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to join shared channels using some links to messages in Microsoft Teams
 
 User impact: Users may be unable to join shared channels using some links to messages in Microsoft Teams.
 
 More info: This issue specifically affects links generated using the “Copy Link” option through the three dots menu located at the top right of the shared channel. Users can bypass this impact by generating links to channels using any alternate method, such as by right-clicking on the channel in the left rail menu or any specific message within the shared channel and choosing the “Copy Link” option there.
 
-Current status: We're continuing to monitor as the fix deploys and we expected most users will see relief from this issue by the end of September 4, 2026, but it may take until the end of September 7, 2026 to see complete remediation.
+Current status: Many users should see remediation from this issue as the deployment continues to make it to all affected areas. We have an updated timeline for its completeness and now anticipate that all areas should have the deployment by our next communication time. 
 
 Scope of impact: Users joining channels or generating channels links using the “Copy Link” options within the three dots menu located at the top right of shared Microsoft Teams channels may be impacted.
 
 Root cause: A recent update intended to improve the data pathways leveraged to facilitate channel link generation is causing the affected links to be malformed, leading to impact.
 
-Next update by: Tuesday, September 8, 2026, at 9:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1462514</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users attempting to view their Microsoft Teams contact lists may experience latency</td></tr><tr><td>Start</td><td>2026-07-29T00:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-02T20:06:54.043Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>3</td></tr><tr><td>LatestMessage</td><td>Title: Some users attempting to view their Microsoft Teams contact lists may experience latency
-
-User impact: Users attempting to view their Microsoft Teams contact lists may experience latency.
-
-More info: Users attempting to view their Microsoft Teams contact lists may experience latency and their contact list may not appear for up to 15 minutes.
-
-Current status: The deployment of the code fix has begun, and we anticipate it being fully deployed to all affected environments by the time of our next communication.
-
-Scope of impact: Some users who are attempting to view their Microsoft Teams contact lists may be affected. This information may be updated as our investigation continues.
-
-Start time: Wednesday, July 29, 2026, at 12:00 AM UTC
-
-Root cause: A recent service update to improve the user interface of Microsoft Teams contact lists contained a code regression and is resulting in impact.
-
-Next update by: Monday, September 7, 2026, at 9:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1441488</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see unwanted add-ins appearing automatically across all Outlook clients</td></tr><tr><td>Start</td><td>2026-07-17T10:26:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-04T17:26:54.073Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>22</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see unwanted add-ins appearing automatically across all Outlook clients
-
-User impact: Users may see unwanted add-ins appearing automatically across all Outlook clients.
-
-More info: These add-ins are configured to be available to users by admins but aren’t expected to be automatically installed. To bypass this issue, affected users can run the “Set-App -Identity <application id> -OrganizationApp -PrivateCatalog -DefaultStateForUser Disabled” command to remove add-ins that are unintentionally appearing.
-
-Current status: We’ve verified with a subset of affected users that performing the identified workaround successfully mitigates the impact. We’re preparing a permanent fix for deployment, which we expect will take several weeks to saturate. We’ll provide a resolution timeline once available.
-
-Scope of impact: Impact may occur for some users that may see unwanted add-ins appearing automatically across all Outlook clients. This section may be updated as the investigation progresses.
-
-Start time: Friday, July 17, 2026, at 10:26 AM UTC
-
-Root cause: A portion of the Exchange Online add-in sync pipeline isn't processing add-in state information as expected. This is causing incorrect EnabledStatus values being returned and Outlook automatically displaying add-ins configured as Available, which is resulting in impact.
-
-Next update by: Friday, September 11, 2026, at 6:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1465910</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to load themes in Outlook on the web</td></tr><tr><td>Start</td><td>2026-09-02T06:01:52Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-04T04:04:39.69Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>6</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to load themes in Outlook on the web
-
-User impact: Users may be unable to load themes in Outlook on the web.
-
-Current status: We've received confirmation from a large portion of affected users that impact is resolved; however, some users are still reporting that impact persists for them. We're working to gather and review new HTTP Archive format (HAR) trace logs from affected users to help understand why impact still persists for them.
-
-Scope of impact: Impact is specific to users attempting to load themes in Outlook on the web. This information may be updated as our investigation continues.
-
-Next update by: Monday, September 7, 2026, at 9:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>OP1454727</td></tr><tr><td>Service</td><td>Microsoft 365 apps</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to sign in to OneNote using iOS devices</td></tr><tr><td>Start</td><td>2026-08-14T11:51:32.013Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-03T09:55:10.72Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Office Client issues</td></tr><tr><td>MessageCount</td><td>10</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to sign in to OneNote using iOS devices
+Next update by: Thursday, September 17, 2026, at 9:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>OP1454727</td></tr><tr><td>Service</td><td>Microsoft 365 apps</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to sign in to OneNote using iOS devices</td></tr><tr><td>Start</td><td>2026-08-14T11:51:32.013Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-03T09:55:10.72Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Office Client issues</td></tr><tr><td>MessageCount</td><td>10</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to sign in to OneNote using iOS devices
 
 User impact: Users may be unable to sign in to OneNote using iOS devices.
 
@@ -242,7 +206,29 @@ Start time: Monday, July 20, 2026, at 4:36 AM UTC
 
 Root cause: A code change included in OneNote builds 16.112.717.0 and above, designed to change how authentication requests are routed, introduced an issue with OneNote iOS Authenticator broker sign-in and is causing impact.
 
-Next update by: Thursday, September 17, 2026, at 10:00 AM UTC</td></tr></table>
+Next update by: Thursday, September 17, 2026, at 10:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1441488</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see unwanted add-ins appearing automatically across all Outlook clients</td></tr><tr><td>Start</td><td>2026-07-17T10:26:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-08T09:36:43.443Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>22</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see unwanted add-ins appearing automatically across all Outlook clients
+
+User impact: Users may see unwanted add-ins appearing automatically across all Outlook clients.
+
+More info: These add-ins are configured to be available to users by admins but aren’t expected to be automatically installed. To bypass this issue, admins can run the “Set-App -Identity <application id> -OrganizationApp -PrivateCatalog -DefaultStateForUser Disabled” command to remove add-ins that are unintentionally appearing.
+
+Current status: We’ve verified with a subset of affected users that performing the identified workaround successfully mitigates the impact. We’re preparing a permanent fix for deployment, which we expect will take several weeks to saturate. We’ll provide a resolution timeline once available.
+
+Scope of impact: Impact may occur for some users that may see unwanted add-ins appearing automatically across all Outlook clients. This section may be updated as the investigation progresses.
+
+Start time: Friday, July 17, 2026, at 10:26 AM UTC
+
+Root cause: A portion of the Exchange Online add-in sync pipeline isn't processing add-in state information as expected. This is causing incorrect EnabledStatus values being returned and Outlook automatically displaying add-ins configured as Available, which is resulting in impact.
+
+Next update by: Friday, September 11, 2026, at 6:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1465910</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to load themes in Outlook on the web</td></tr><tr><td>Start</td><td>2026-09-02T06:01:52Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-08T07:12:40.407Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>8</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to load themes in Outlook on the web
+
+User impact: Users may be unable to load themes in Outlook on the web.
+
+Current status: We're awaiting a response from your organization with HAR logs from affected users who continue to experience impact, as the issue persists despite the rollback. These logs will help us further investigate the remaining impact.
+
+Scope of impact: Some users attempting to load themes in Outlook on the web may be impacted.
+
+Next update by: Thursday, September 10, 2026, at 9:00 AM UTC</td></tr></table>
 </div>
 <h2>Closed Issues (0)</h2>
 <div class="panel">
