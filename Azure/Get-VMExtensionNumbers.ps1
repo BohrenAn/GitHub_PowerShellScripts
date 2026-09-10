@@ -10,8 +10,19 @@ Function Get-VMExtensionNumbers {
         [parameter(Mandatory=$true)][String]$VMName
     )
 
+    # Check if the specified subscription exists in the current context
+    $Subscriptions = Get-AzSubscription -WarningAction SilentlyContinue
+    If ($Subscriptions.Id -notcontains $SubscriptionId)
+    {
+        #Throw "SubscriptionId $SubscriptionId not found."
+        Write-Host "SubscriptionId $SubscriptionId not found in current context." -ForegroundColor Red
+        return
+    } else {
+        # Set the Azure context to the specified subscription
+        $Null = Set-AzContext -SubscriptionId $SubscriptionId
+    }
+
     # Check if Machine is running
-    $Null = Set-AzContext -SubscriptionId $SubscriptionId
     $AZVM = Get-AzVM -ResourceGroupName $ResourceGroupName -Name $VMName -Status
     $DisplayStatus = ($AZVM.Statuses | Where-Object {$_.Code -match "PowerState/"}).DisplayStatus
     If ($DisplayStatus -eq "VM deallocated")
