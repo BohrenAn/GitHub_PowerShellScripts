@@ -122,11 +122,10 @@ New-AzCommunicationService -ResourceGroupName $RGName -Name $ACSName -DataLocati
 # Get ACS
 Get-AzCommunicationService -ResourceGroupName $RGName
 
-# Connect ECS with ACS
-$ACSName = "IcewolfACS"
-$EmailServiceName = "IcewolfECS"
+# Connect Domain
+$ECSName = "IcewolfECS"
+$DomainName = "ecs.icewolf.ch"
 $RGName = "RG_ACS"
-New-AzEmailServiceDomain -Name $ACSName -EmailServiceName $EmailServiceName -ResourceGroupName $RGName -DomainManagement CustomerManaged
 
 
 # Send Email
@@ -158,14 +157,25 @@ https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/email
 Communication and Email Service Owner
 
 
+# Add Azure Permission "Communication and Email Service Owner" to Entra Application
+$RGName = "RG_ACS"
+$AppID = "2fcec215-1585-4634-8965-de3a7782c6c9"
+
+# Get the Service Principal Object ID from the App ID
+$SP = Get-AzADServicePrincipal -ApplicationId $AppID
+
+# Assign the role on the Resource Group
+New-AzRoleAssignment -ObjectId $SP.Id -RoleDefinitionName "Communication and Email Service Owner" -ResourceGroupName $RGName
+
+
 # Reister SMTP Username
 $ACSName = "IcewolfACS"
 $RGName = "RG_ACS"
 $AppID = "2fcec215-1585-4634-8965-de3a7782c6c9"
 $TenantID = "46bbad84-29f0-4e03-8d34-f6841a5071ad"
-New-AzCommunicationServiceSmtpUsername -CommunicationServiceName $ACSName -ResourceGroupName $RGName -SmtpUsername "smtpuser1" -EntraApplicationId $AppId -TenantId $TenantId -Username "app1@ecs.icewolf.ch"
+New-AzCommunicationServiceSmtpUsername -CommunicationServiceName $ACSName -ResourceGroupName $RGName -SmtpUsername "donotreply" -EntraApplicationId $AppId -TenantId $TenantId -Username "donotreply@ecs.icewolf.ch"
 
 
 $Password = ConvertTo-SecureString -AsPlainText -Force -String 'YourAppClientSecret'
-$Cred = New-Object -TypeName PSCredential -ArgumentList 'app1@ecs.icewolf.ch', $Password
-Send-MailMessage -From 'donotreply@ecs.icewolf.ch' -To 'a.bohren@icewolf.ch' -Subject 'Test mail' -Body 'test' -SmtpServer 'smtp.azurecomm.net' -Port 587 -Credential $Cred -UseSsl
+$Cred = New-Object -TypeName PSCredential -ArgumentList 'donotreply@ecs.icewolf.ch', $Password
+Send-MailMessage -From 'donotreply@ecs.icewolf.ch' -To 'a.bohren@icewolf.ch' -Subject 'Test mail' -Body 'test' -SmtpServer 'smtp.azurecomm.net' -Port 587 -Credential $Cred -UseSsl -WarningAction SilentlyContinue
