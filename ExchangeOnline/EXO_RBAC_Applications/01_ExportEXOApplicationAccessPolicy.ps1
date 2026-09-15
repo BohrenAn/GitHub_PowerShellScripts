@@ -2,8 +2,9 @@
 # Export Exchange ApplicationAccessPolicy
 # V0.1 27.05.2026 - Initial Version - Andres Bohren
 # V0.2 03.06.2026 - Updated to include Owner and Tags - Andres Bohren
-# V0.3 22.06.2026 - Updated to include GroupObjectID - Andres Bohren
+# V0.3 22.06.2026 - Updated to include ScopeObjectID - Andres Bohren
 # V0.4 09.09.2026 - Updated to include AppOwnersTags - Andres Bohren
+# V0.5 15.09.2026 - Fixed NonExisting Apps / Changed Variables to Scope - Andres Bohren
 ###############################################################################
 # Reqired Modules:
 # - ExchangeOnlineManagement
@@ -13,9 +14,19 @@
 # - Application.Read.All (Microsoft Graph)
 ###############################################################################
 # Install-PSResource -Name DllPickle -Scope CurrentUser
-Write-Host "Import DLLPickle Module"
-Import-Module DLLPickle
-$Null = Import-DPLibrary
+#Write-Host "Import DLLPickle Module"
+#Import-Module DLLPickle
+#$Null = Import-DPLibrary
+
+#$TenantId = "TenantName.onmicrosoft.com"
+#$AppID = "8b47c606-291f-4c20-8221-02791d8e2823"
+#$CertificateThumbprint = "7E8432FCDE36868735484C560CCDCB2FF00AF5F4"
+
+# Connect to Microsoft Graph
+Write-Host "Connect to Microsoft Graph"
+Disconnect-MgGraph -ErrorAction SilentlyContinue
+Connect-MgGraph -Scopes Application.Read.All -NoWelcome
+#Connect-MgGraph -ClientId $AppID -CertificateThumbprint $CertificateThumbprint -TenantId $TenantId -NoWelcome
 
 # Check Exchange Online Connection
 $Connection = Get-ConnectionInformation -ErrorAction SilentlyContinue
@@ -24,24 +35,37 @@ if ($Connection) {
 } else {
     Write-Host "Connect to Exchange Online"
     Connect-ExchangeOnline -Showbanner:$false
+    #Connect-ExchangeOnline -AppID $AppID -CertificateThumbprint $CertificateThumbprint -Organization $TenantId -ShowBanner:$false
 }
-[Array]$AAPolicies = Get-ApplicationAccessPolicy
 
-Write-Host "Connect to Microsoft Graph"
-Disconnect-MgGraph -ErrorAction SilentlyContinue
-Connect-MgGraph -Scopes Application.Read.All -NoWelcome
 
 # Get All Graph Application Permissions
 $uri = "https://graph.microsoft.com/v1.0/servicePrincipals(appId='00000003-0000-0000-c000-000000000000')?`$select=id,appId,displayName,appRoles,oauth2PermissionScopes,resourceSpecificApplicationPermissions"
 $AllPermissions = Invoke-MgGraphRequest -uri $uri -Method "GET"
 
+# Get all Application Access Policies in Exchange Online
+[Array]$AAPolicies = Get-ApplicationAccessPolicy
+
 # Loop through Application Access Policies
 [Array]$ObjectArray = @()
 Foreach ($AAPolicy in $AAPolicies)
 {
+
+    #Reset Variables
+    $AppID = ""
+    $AppDisplayName = ""
+    $OwnerUPNArray = @()
+    $AppOwnersTags = @()
+    $ScopeDisplayName = ""
+    $ScopeObjectID = ""
+    $ScopeObjectType = ""
+    $ScopeMembersPrimarySmtpAddress = @()
+    $ApplicationPermissions = @()
+    $DelegatedPermissions = @()
+
     $AppID = $AAPolicy.AppID
     Write-Host "AppID: $AppID" -ForegroundColor Green
-    $GroupObjectID = $AAPolicy.ScopeIdentityRaw.Split(";")[1]
+    $ScopeObjectID = $AAPolicy.ScopeIdentityRaw.Split(";")[1]
 
     $EntraApp = Get-MgApplication -Filter "AppId eq '$AppID'" -Property Id,DisplayName,Tags
     [Array]$OwnerUPNArray = @()
@@ -53,7 +77,7 @@ Foreach ($AAPolicy in $AAPolicies)
         Foreach ($Owner in $OwnerArray)
         {
             $OwnerUPN = $Owner.AdditionalProperties.userPrincipalName
-            Write-Host "OwnerUPN: $OwnerUPN" -ForegroundColor Yellow
+            #Write-Host "OwnerUPN: $OwnerUPN" -ForegroundColor Yellow
             $OwnerUPNArray += $OwnerUPN
         }
 
@@ -68,39 +92,56 @@ Foreach ($AAPolicy in $AAPolicies)
             $AppOwnersTags = @()
         }
 
+        # Get Service Principal
+        $SP = Get-MgServicePrincipal -Filter "appId eq '$AppID'" -ErrorAction SilentlyContinue
+        If ($Null -ne $SP)
+        {
+            $AppDisplayName = $SP.AppDisplayName
+            Write-Host "AppDisplayName: $AppDisplayName" -ForegroundColor Green
+        } else {
+            Write-Host "Could not find ServicePrincipal" -ForegroundColor Red
+        }
+
+    } else {
+        Write-Host "APP $APPID does not EXIST" -ForegroundColor Yellow
+        $AppDisplayName = "ENTRA APP DELETED"
     }
 
-    $SP = Get-MgServicePrincipal -Filter "appId eq '$AppID'" -ErrorAction SilentlyContinue
-    If ($Null -ne $SP)
-    {
-        $AppDisplayName = $SP.AppDisplayName
-        Write-Host "AppDisplayName: $AppDisplayName" -ForegroundColor Green
-    } else {
-        Write-Host "Could not find ServicePrincipal" -ForegroundColor Red
-    }
-    
-    # Get Group
-    $GroupDisplayName = ""
-    [Array]$GroupMembersPrimarySmtpAddress = @()
-    $Group = Get-DistributionGroup -Identity $GroupObjectID -ErrorAction SilentlyContinue
+    # Get Scope Object
+    $ScopeDisplayName = ""
+    [Array]$ScopeMembersPrimarySmtpAddress = @()
+    $Group = Get-DistributionGroup -Identity $ScopeObjectID -ErrorAction SilentlyContinue
     If ($Null -ne $Group)
     {
-        $GroupDisplayName = $Group.DisplayName
-        Write-Host "GroupDisplayName $GroupDisplayName" -ForegroundColor Magenta
+        $ScopeDisplayName = $Group.DisplayName
+        $ScopeObjectType = "Group"
+        Write-Host "ScopeDisplayName $ScopeDisplayName" -ForegroundColor Magenta
         
         #Get Group Members
-        $GroupMembers = Get-DistributionGroupMember -Identity $GroupObjectID
+        $GroupMembers = Get-DistributionGroupMember -Identity $ScopeObjectID
         If ($Null -ne $GroupMembers)
         {
             Foreach ($Member in $GroupMembers)
             {
                 $PrimarySmtpAddress = $Member.PrimarySmtpAddress
                 Write-Host "PrimarySmtpAddress: $PrimarySmtpAddress" -ForegroundColor Cyan
-                $GroupMembersPrimarySmtpAddress += $PrimarySmtpAddress
+                $ScopeMembersPrimarySmtpAddress += $PrimarySmtpAddress
             }
         }
     } else {
-        Write-Host "No Group found" -ForegroundColor Red
+        # Check if it's a User
+        $MgUser = Get-MgUser -UserId $ScopeObjectID
+        If ($Null -ne $MgUser)
+        {
+            Write-Host "Restriction Object > USER" -ForegroundColor Yellow
+            $ScopeObjectType = "User"
+            $ScopeDisplayName = $MgUser.DisplayName
+            $ScopeObjectID = $MgUser.id
+            $ScopeMembersPrimarySmtpAddress = $MgUser.Mail
+        } else {
+
+            Write-Host "Restriction Object not found (Group / User) " -ForegroundColor Red
+        }
     }
     
     [Array]$DelegatedPermissions = @()
@@ -111,11 +152,8 @@ Foreach ($AAPolicy in $AAPolicies)
         $Permissions = Get-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $SP.Id
         Foreach ($Permission in $Permissions)
         {
-            
-            $AppRoleId = $Permission.AppRoleId
-            #Write-Host "AppRoleId: $AppRoleId)"
-            
             #Application Permissions
+            $AppRoleId = $Permission.AppRoleID
             $AppPermission = ($AllPermissions.appRoles | Where-Object {$_.id -eq "$AppRoleId"}).value
             If ($Null -ne $AppPermission)
             {
@@ -144,9 +182,10 @@ Foreach ($AAPolicy in $AAPolicies)
         AppDisplayName                    = $AppDisplayName
         AppOwners                         = $OwnerUPNArray -join "#"
         AppOwnersTags                     = $AppOwnersTags -join "#"
-        GroupDisplayName                  = $GroupDisplayName
-        GroupObjectId                     = $GroupObjectID
-        GroupMembersPrimarySmtpAddress    = $GroupMembersPrimarySmtpAddress -join "#"
+        ScopeDisplayName                  = $ScopeDisplayName
+        ScopeObjectID                     = $ScopeObjectID
+        ScopeObjectType                   = $ScopeObjectType
+        ScopeMembersPrimarySmtpAddress    = $ScopeMembersPrimarySmtpAddress -join "#"
         ApplicationPermissions            = $ApplicationPermissions -join "#"
         DelegatedPermissions              = $DelegatedPermissions -join "#"
     }
@@ -164,5 +203,3 @@ In Excel:
 Ctrl + H. In the "Find what" box, type the character "#" in "Replace with", use the keyboard shortcut Ctrl + J for a line break
 "@
 Write-Host $MultilineString -ForegroundColor Green
-
-
