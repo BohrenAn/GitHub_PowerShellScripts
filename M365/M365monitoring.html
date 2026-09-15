@@ -141,7 +141,7 @@ td.blue {background-color: #1565c0;}
         </td>
     </tr>
 </table>
-2026-09-10 07:07
+2026-09-13 23:52
 </div>
 &nbsp;
 
@@ -206,13 +206,13 @@ Start time: Monday, July 20, 2026, at 4:36 AM UTC
 
 Root cause: A code change included in OneNote builds 16.112.717.0 and above, designed to change how authentication requests are routed, introduced an issue with OneNote iOS Authenticator broker sign-in and is causing impact.
 
-Next update by: Thursday, September 17, 2026, at 10:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1441488</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see unwanted add-ins appearing automatically across all Outlook clients</td></tr><tr><td>Start</td><td>2026-07-17T10:26:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-08T09:36:43.443Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>22</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see unwanted add-ins appearing automatically across all Outlook clients
+Next update by: Thursday, September 17, 2026, at 10:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1441488</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see unwanted add-ins appearing automatically across all Outlook clients</td></tr><tr><td>Start</td><td>2026-07-17T10:26:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-11T17:14:57.693Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>23</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see unwanted add-ins appearing automatically across all Outlook clients
 
 User impact: Users may see unwanted add-ins appearing automatically across all Outlook clients.
 
 More info: These add-ins are configured to be available to users by admins but aren’t expected to be automatically installed. To bypass this issue, admins can run the “Set-App -Identity <application id> -OrganizationApp -PrivateCatalog -DefaultStateForUser Disabled” command to remove add-ins that are unintentionally appearing.
 
-Current status: We’ve verified with a subset of affected users that performing the identified workaround successfully mitigates the impact. We’re preparing a permanent fix for deployment, which we expect will take several weeks to saturate. We’ll provide a resolution timeline once available.
+Current status: We're deploying our permanent fix to the affected environments, and we currently estimate the deployment will complete by Monday, September 21, 2026. We'll continue to monitor the deployment to ensure that our remediation timeline is accurate.
 
 Scope of impact: Impact may occur for some users that may see unwanted add-ins appearing automatically across all Outlook clients. This section may be updated as the investigation progresses.
 
@@ -220,15 +220,15 @@ Start time: Friday, July 17, 2026, at 10:26 AM UTC
 
 Root cause: A portion of the Exchange Online add-in sync pipeline isn't processing add-in state information as expected. This is causing incorrect EnabledStatus values being returned and Outlook automatically displaying add-ins configured as Available, which is resulting in impact.
 
-Next update by: Friday, September 11, 2026, at 6:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1465910</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to load themes in Outlook on the web</td></tr><tr><td>Start</td><td>2026-09-02T06:01:52Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-08T07:12:40.407Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>8</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to load themes in Outlook on the web
+Next update by: Wednesday, September 16, 2026, at 6:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1465910</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to load themes in Outlook on the web</td></tr><tr><td>Start</td><td>2026-09-02T06:01:52Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-11T05:03:35.35Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>11</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to load themes in Outlook on the web
 
 User impact: Users may be unable to load themes in Outlook on the web.
 
-Current status: We're awaiting a response from your organization with HAR logs from affected users who continue to experience impact, as the issue persists despite the rollback. These logs will help us further investigate the remaining impact.
+Current status: We’re continuing our efforts with a subset of affected users to gather additional details regarding the expected theme configuration as well as if users are able to reproduce the issue so we can determine our next troubleshooting steps. 
 
-Scope of impact: Some users attempting to load themes in Outlook on the web may be impacted.
+Scope of impact: Some users attempting to load themes in Outlook on the web may be impacted. This information may be updated as our investigation continues.
 
-Next update by: Thursday, September 10, 2026, at 9:00 AM UTC</td></tr></table>
+Next update by: Monday, September 14, 2026, at 7:00 AM UTC</td></tr></table>
 </div>
 <h2>Closed Issues (0)</h2>
 <div class="panel">
