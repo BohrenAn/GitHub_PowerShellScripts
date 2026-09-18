@@ -371,8 +371,11 @@ function Send-MailGraphApi {
         Write-Host "Mail has been sucessufully sent"
     }
     Else {
+        Write-Host "Error occurred: $Error[0].Exception.Message"
+        Write-Log -LogMessage "Error occurred: $Error[0].Exception.Message"
         Write-Log -LogMessage "Mail sending failed"
         Write-Host "Mail sending failed"
+
     }
 }
 
