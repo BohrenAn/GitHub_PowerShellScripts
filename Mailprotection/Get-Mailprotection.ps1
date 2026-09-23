@@ -63,15 +63,17 @@
 # - Fixed Bug in MTA-STS Removal of line breaks
 # Version 1.23 10.12.2025
 # - Fix for CVE-2025-54100 https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2025-54100
+# Version 1.24 23.09.2026
+# - Added Logic for detecting SPF Loops in Include Mechanism
 # Backlog / Whishlist
 # - Open Mail Relay Check
 # - Parameter for DKIM Selector
 ###############################################################################
 
 <#PSScriptInfo
-.VERSION 1.23
+.VERSION 1.24
 .GUID 3bd03c2d-6269-4df1-b8e5-216a86f817bb
-.AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://twitter.com/andresbohren
+.AUTHOR Andres Bohren Contact: a.bohren@icewolf.ch https://www.linkedin.com/in/andres-bohren/
 .COMPANYNAME icewolf.ch
 .COPYRIGHT Free to copy, inspire, etc...
 .TAGS DNSSEC, MX, Reverse Lookup, STARTTLS, SPF, DKIM, DMARC, DANE, MTA-STS, TLSRPT, BIMI, CAA, Autodiscover, Lyncdiscover, Teamsfederation, M365, TenantID, Security.txt, Decentralized Identifiers (DID), Model Context Protocol (MCP)
@@ -82,9 +84,8 @@
 .REQUIREDSCRIPTS
 .EXTERNALSCRIPTDEPENDENCIES
 .RELEASENOTES
-    Version 1.23
-    - Fix for CVE-2025-54100
-    https://msrc.microsoft.com/update-guide/en-US/vulnerability/CVE-2025-54100
+    Version 1.24
+    - Added Logic for detecting SPF Loops in Include Mechanism
 #>
 
 <#
@@ -192,8 +193,13 @@ PARAM (
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             Position = 1)]
-        [string]$Domain
+        [string]$Domain,
+        [int]$InternalDNSQueryCount = 0
     )
+
+        $InternalDNSQueryCount = $InternalDNSQueryCount + 1
+        Write-Host "Starting SPF Lookup for Domain: $Domain with InternalDNSQueryCount: $InternalDNSQueryCount"
+
         $DNSQueryCount = 0
         $json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$Domain&type=TXT"
         $SPFRecord = $json.Answer.data | Where-Object {$_ -like "V=SPF1*"}
@@ -219,8 +225,18 @@ PARAM (
                     {
                         Write-Verbose "Include Record: $Entry"
                         $Include = $Entry.Replace("include:","")
-                        $Count = Get-SPFLookupCount -Domain "$Include"
-                        $DNSQueryCount = $DNSQueryCount + $Count + 1
+
+                        # Detect the loop before making another DNS request
+                        if ($Domain -eq $Include) 
+                        {
+                            Write-Host "Recursive SPF include loop detected for domain $Domain including $Include" -ForegroundColor Red
+                            #throw "Recursive SPF include loop detected: $Domain includes $Include"
+                            $DNSQueryCount = $DNSQueryCount + 1
+                            return $DNSQueryCount
+                        } else {
+                            $Count = Get-SPFLookupCount -Domain "$Include" -InternalDNSQueryCount $DNSQueryCount
+                            $DNSQueryCount = $DNSQueryCount + $Count + 1
+                        }
                     }
 
                     If ($Entry -like "redirect=*")

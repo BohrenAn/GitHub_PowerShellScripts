@@ -123,7 +123,7 @@ td.blue {background-color: #1565c0;}
                     <td class="red">&nbsp;</td>
                     <td class="summary-table">
                         <span class="summary-label">Open Issues</span>
-                        <div class="summary-value">(8)</div>
+                        <div class="summary-value">(6)</div>
                     </td>
                 </tr>
             </table>
@@ -141,14 +141,14 @@ td.blue {background-color: #1565c0;}
         </td>
     </tr>
 </table>
-2026-09-18 08:37
+2026-09-23 08:37
 </div>
 &nbsp;
 
 
 <div class="panel">
 <h1>Services Health</h1>
-<table><tr><th>Service</th><th>Status</th></tr><tr class='yellow'><td>Exchange Online</td><td>serviceDegradation</td></td><tr class='yellow'><td>Microsoft Entra</td><td>serviceDegradation</td></td><tr class='green'><td>SharePoint Online</td><td>serviceOperational</td></td><tr class='green'><td>Planner</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft Intune</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft OneDrive</td><td>serviceOperational</td></td><tr class='yellow'><td>Microsoft Teams</td><td>serviceDegradation</td></td><tr class='green'><td>Microsoft 365 for the web</td><td>serviceOperational</td></td><tr class='yellow'><td>Microsoft 365 apps</td><td>serviceDegradation</td></td><tr class='yellow'><td>Microsoft Purview</td><td>serviceDegradation</td></td></table>
+<table><tr><th>Service</th><th>Status</th></tr><tr class='yellow'><td>Exchange Online</td><td>serviceDegradation</td></td><tr class='yellow'><td>Microsoft Entra</td><td>serviceDegradation</td></td><tr class='green'><td>SharePoint Online</td><td>serviceOperational</td></td><tr class='green'><td>Planner</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft Intune</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft OneDrive</td><td>serviceOperational</td></td><tr class='yellow'><td>Microsoft Teams</td><td>serviceDegradation</td></td><tr class='green'><td>Microsoft 365 for the web</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft 365 apps</td><td>serviceOperational</td></td><tr class='yellow'><td>Microsoft Purview</td><td>serviceDegradation</td></td></table>
 </div>
 
 <h1>Issues</h1>
@@ -156,7 +156,7 @@ td.blue {background-color: #1565c0;}
 <div class="panel">
 No New Issues
 </div>
-<h2>Open Issues (8)</h2>
+<h2>Open Issues (6)</h2>
 <div class="panel">
 <table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1440450</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may have been unable to run run-only workflows from Microsoft Teams</td></tr><tr><td>Start</td><td>2026-06-30T07:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-14T23:21:15.52Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>16</td></tr><tr><td>LatestMessage</td><td>Title: Users may have been unable to run run-only workflows from Microsoft Teams
 
@@ -178,82 +178,61 @@ Start time: Tuesday, June 30, 2026, at 7:00 AM UTC
 
 Root cause: A recent service update introduced a code regression that affects how Microsoft Teams processes shared workflow requests, preventing some users from running run-only workflows from Microsoft Teams.
 
-Next update by: Saturday, September 26, 2026, at 1:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>OP1470668</td></tr><tr><td>Service</td><td>Microsoft 365 apps</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to copy, paste, drag, or duplicate cells and worksheets in Microsoft Excel</td></tr><tr><td>Start</td><td>2026-09-11T12:36:11.263Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-17T19:40:16.547Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Office Client issues</td></tr><tr><td>MessageCount</td><td>5</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to copy, paste, drag, or duplicate cells and worksheets in Microsoft Excel
+Next update by: Saturday, September 26, 2026, at 1:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1473611</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users' Microsoft Teams and Microsoft 365 Copilot Chat retention policy deletions in the clients may be delayed</td></tr><tr><td>Start</td><td>2026-09-07T07:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-22T19:30:49.333Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Some users' Microsoft Teams and Microsoft 365 Copilot Chat retention policy deletions in the clients may be delayed
 
-User impact: Users may be unable to copy, paste, drag, or duplicate cells and worksheets in Microsoft Excel.
+User impact: Users' Microsoft Teams and Copilot Chat retention policy deletions in the clients may take up to 21 days.
 
-More info: This issue may specifically impact some users utilizing Microsoft Excel 2024, 2021, 2019, and 2016.
+More info: This affects users in Europe with Microsoft Purview retention policies configured for Microsoft Teams and Copilot Chat, and message deletions in Microsoft Teams and Copilot Chat may take up to 21 days to process, rather than the up to 7 days set by the retention policy. The compliance copy for Microsoft Teams and Copilot Chat is deleted according to the configured retention policy Service Level Agreement (SLA).
 
-Current status: Our fix has completed for Microsoft Excel 2021 and 2024. We're still in the process of validating both a temporary workaround and permanent fix for the 2016, 2019, and Office Online Server (OOS) versions of Excel. We'll provide the documentation on the workaround and timeline for the long-term fix as soon as they become available.
+Current status: The backlog is continuing to progress, and users should start seeing reduced impact. We'll continue to monitor the ongoing progress of the backlog and provide an estimated remediation timeline as soon as one becomes available. 
 
-Scope of impact: Some users attempting to copy, paste, drag, or duplicate cells and worksheets in Microsoft Excel may be impacted. This section may be updated as our investigation continues.
-
-Root cause: A code regression contained within a recent service update is causing impact.
-
-Next update by: Monday, September 21, 2026, at 7:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1473611</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users' Microsoft Teams and Microsoft 365 Copilot Chat retention policy deletions in the clients may be delayed</td></tr><tr><td>Start</td><td>2026-09-07T07:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-17T18:59:58.037Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>1</td></tr><tr><td>LatestMessage</td><td>Title: Some users' Microsoft Teams and Microsoft 365 Copilot Chat retention policy deletions in the clients may be delayed
-
-User impact: Users' Microsoft Teams and Copilot Chat retention policy deletions in the clients may take up to 14 days.
-
-More info: This affects users in Europe with Microsoft Purview retention policies configured for Microsoft Teams and Copilot Chat, and message deletions in Microsoft Teams and Copilot Chat may take up to 14 days to process, rather than the up to 7 days set by the retention policy. The compliance copy for Microsoft Teams and Copilot Chat is deleted according to the configured retention policy Service Level Agreement (SLA).
-
-Current status: We’ve determined that a large increase in deletion requests generated by Purview policies created a processing backlog, resulting in delays when deleting Microsoft Teams and Copilot chat messages. We’ve added processing capability to reduce these delays; however, users may continue to experience delayed chat message deletion while we process the remaining backlog. 
-
-Scope of impact: Impact is primarily to users in Europe who have a Microsoft Purview retention policy configured for Microsoft Teams and Copilot Chat; however, multi-geo and organizations primarily hosted in other regions may also experience impact. 
+Scope of impact: Impact is primarily to users in Europe who have a Microsoft Purview retention policy configured for Microsoft Teams and Copilot Chat; however, multi-geo and organizations primarily hosted in other regions may also experience impact.
 
 Start time: Monday, September 7, 2026, at 7:00 AM UTC
 
-Root cause: A large increase in Purview deletion requests created a backlog which is increasing the processing time for deleting chat messages as per configured Purview policies. 
+Root cause: A large increase in Purview deletion requests created a backlog which is increasing the processing time for deleting chat messages as per configured Purview policies.
 
-Next update by: Friday, September 18, 2026, at 8:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1459181</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to join shared channels using some links to messages in Microsoft Teams</td></tr><tr><td>Start</td><td>2026-08-21T23:42:31Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-17T20:22:04.2Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>7</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to join shared channels using some links to messages in Microsoft Teams
+Next update by: Thursday, September 24, 2026, at 1:30 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1476742</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see Microsoft Teams display an incorrect timezone despite the correct device time</td></tr><tr><td>Start</td><td>2026-09-22T12:18:33.217Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-22T12:31:38.81Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>1</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see Microsoft Teams display an incorrect timezone despite the correct device time
 
-User impact: Users may be unable to join shared channels using some links to messages in Microsoft Teams.
+User impact: Users may see Microsoft Teams display an incorrect timezone despite the correct device time.
 
-More info: This issue specifically affects links generated using the “Copy Link” option through the three dots menu located at the top right of the shared channel. Users can bypass this impact by generating links to channels using any alternate method, such as by right-clicking on the channel in the left rail menu or any specific message within the shared channel and choosing the “Copy Link” option there.
+More info: Teams displays the wrong timezone despite the operating system reflecting the correct time. As a workaround, users can set the device to a different timezone than the impacted timezone (Casablanca, Morocco). 
 
-Current status: The deployment of our fix is nearing completion but is taking additional time. We now anticipate the deployment will complete by Friday, September 18, 2026.
+Current status: We're reviewing service monitoring telemetry to isolate the source of the issue and establish a fix.
 
-Scope of impact: Users joining channels or generating channels links using the “Copy Link” options within the three dots menu located at the top right of shared Microsoft Teams channels may be impacted.
+Scope of impact: Some users located in Morocco who are attempting to see the correct timezone in Microsoft Teams may be impacted.
 
-Start time: Wednesday, July 1, 2026, at 12:00 AM UTC
-
-Root cause: A recent update intended to improve the data pathways leveraged to facilitate channel link generation is causing the affected links to be malformed, leading to impact.
-
-Next update by: Friday, September 18, 2026, at 9:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1473059</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users are unable to access Outlook on the web from a specific Outlook link </td></tr><tr><td>Start</td><td>2026-09-15T15:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-17T18:47:48.36Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Networking Issues</td></tr><tr><td>MessageCount</td><td>3</td></tr><tr><td>LatestMessage</td><td>Title: Users are unable to access Outlook on the web from a specific Outlook link 
-
-User impact: Users are unable to access Outlook on the web from a specific Outlook link. 
-
-More info:  Users are unable to access Outlook on the web from a specific link within Outlook.
-
-Users can access Outlook on the web by navigating to a direct URL with /mail/ appended. 
-As an example, some users can navigate to "https://outlook.office365.com/mail/" to 
-successfully access the client.
-Department of Defense customers: https://webmail.apps.mil/mail/
-
-GCCH customers: https://outlook.office365.us/mail/
-
-Current status: Our change reversion is approximately 82 percent complete, and our established timeline expects it will have completed by our next scheduled communication update.‌
-
-Scope of impact: This issue may prevent any user attempting to access Outlook on the web from the specific link in the More Info portion of this communication. This information may be updated as our investigation continues.
-
-Start time: Tuesday, September 15, 2026, at 3:00 PM UTC
-
-Root cause: A recent code change is producing a code regression that is preventing users from accessing Outlook on the web from a specific link within Outlook.
-
-Next update by: Friday, September 18, 2026, at 9:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1441488</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see unwanted add-ins appearing automatically across all Outlook clients</td></tr><tr><td>Start</td><td>2026-07-17T10:26:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-16T17:00:19.863Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>25</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see unwanted add-ins appearing automatically across all Outlook clients
+Next update by: Wednesday, September 23, 2026, at 5:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1441488</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see unwanted add-ins appearing automatically across all Outlook clients</td></tr><tr><td>Start</td><td>2026-07-17T10:26:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-22T18:19:52.27Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>27</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see unwanted add-ins appearing automatically across all Outlook clients
 
 User impact: Users may see unwanted add-ins appearing automatically across all Outlook clients.
 
 More info: These add-ins are configured to be available to users by admins but aren’t expected to be automatically installed. To bypass this issue, admins can run the “Set-App -Identity <application id> -OrganizationApp -PrivateCatalog -DefaultStateForUser Disabled” command to remove add-ins that are unintentionally appearing.
 
-Current status: Our fix deployment is approximately 65 percent complete, and we've validated it remains on track to complete by Monday, September 21, 2026. 
+Current status: We've completed our final validations in our internal testing environment and are proceeding with enabling the fix for all affected users. We anticipate some users to start seeing remediation, and we anticipate impact to be fully resolved by Monday, October 5, 2026.
 
-Scope of impact: Impact may occur for some users that may see unwanted add-ins appearing automatically across all Outlook clients. This section may be updated as the investigation progresses.
+Scope of impact: Impact may occur for some users that are viewing their add-ins across all Outlook clients. This section may be updated as the investigation progresses.
 
 Start time: Friday, July 17, 2026, at 10:26 AM UTC
 
+Estimated time to resolve: We anticipate impact to be resolved by Monday, October 5, 2026. 
+
 Root cause: A portion of the Exchange Online add-in sync pipeline isn't processing add-in state information as expected. This is causing incorrect EnabledStatus values being returned and Outlook automatically displaying add-ins configured as Available, which is resulting in impact.
 
-Next update by: Monday, September 21, 2026, at 6:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>MP1471821</td></tr><tr><td>Service</td><td>Microsoft Purview</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview</td></tr><tr><td>Start</td><td>2026-09-14T16:41:47.403Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-14T17:21:42.767Z</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Microsoft Purview</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview
+Next update by: Thursday, September 24, 2026, at 7:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1476802</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may be unable to open the account view in Outlook on the web</td></tr><tr><td>Start</td><td>2026-09-22T14:06:31.073Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-22T22:06:14.737Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>3</td></tr><tr><td>LatestMessage</td><td>Title: Some users may be unable to open the account view in Outlook on the web
+
+User impact: Users may be unable to open the account view in Outlook on the web.
+
+More info: When attempting to access the account page, the authentication flow fails with the following error: 'AADSTS90002: Tenant 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX' not found. Check to make sure you have the correct tenant ID and are signing into the correct cloud. Check with your subscription administrator, this may happen if there are no active subscriptions for the tenant.'
+
+Current status: We've identified that a code misconfiguration was introduced by a service change intended to modernize the Outlook on the web header, resulting in impact. We've developed and validated a fix to address the code misconfiguration, which we're preparing to deploy to the affected environment. We anticipate the deployment of our fix will begin by our next scheduled communications update.
+
+Scope of impact: Some users attempting to open the account view in Outlook on the web may be impacted. This section may be updated as our investigation continues.
+
+Start time: Tuesday, September 22, 2026, at 12:44 PM UTC
+
+Root cause: A code misconfiguration was introduced by a recent service change intended to modernize the Outlook on the web header, resulting in impact.
+
+Next update by: Wednesday, September 23, 2026, at 6:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>MP1471821</td></tr><tr><td>Service</td><td>Microsoft Purview</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview</td></tr><tr><td>Start</td><td>2026-09-14T16:41:47.403Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-22T22:28:47.01Z</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Microsoft Purview</td></tr><tr><td>MessageCount</td><td>3</td></tr><tr><td>LatestMessage</td><td>Title: Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview
 
 User impact: Admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview.
 
@@ -261,7 +240,7 @@ More info: Impact is limited to Communications Compliance policies with more tha
 
 We advise admins to keep classifiers to a maximum of four during this time and we anticipate the limit to be remediated by Monday, October 5, 2026.
 
-Current status: We've received reports from a subset of affected admins who have reported receiving size limitation failures when creating or updating Communications Compliance policies in Microsoft Purview. We've isolated that a recent update introduced operations with larger data size included a code issue, causing size limitation issues. We've created a code fix to address the issue, which we anticipate being fully deployed by Monday, October 5, 2026. During this time, we advise users to keep Communications Compliance policies limited to under four classifiers in order to avoid impact.
+Current status: We've completed internal validations for our solution and have begun its deployment. Our fix deployment timeline projects the deployment will remediate the impact by Monday, October 5, 2026. Until this time, we advise users to keep Communications Compliance policies limited to under four classifiers in order to avoid impact.
 
 Scope of impact: Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview with more than four classifiers. This section may be updated as the investigation progresses.
 
@@ -269,21 +248,7 @@ Estimated time to resolve: We anticipate impact to be remediated by Monday, Octo
 
 Root cause: A recent update introduced operations with larger data size included a code error, causing size limitation issues.
 
-Next update by: Monday, September 28, 2026, at 6:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1473520</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may encounter issues with the auto compose feature in Outlook mobile app for iOS</td></tr><tr><td>Start</td><td>2026-09-15T00:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-17T16:49:20.383Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>2</td></tr><tr><td>LatestMessage</td><td>Title: Users may encounter issues with the auto compose feature in the Outlook mobile app for iOS client
-
-User impact: Users may encounter issues with the auto compose feature in the Outlook mobile app for iOS client.
-
-More info: Impact is specific to directory searches, and suggestions when composing email messages from the Outlook app for IOS. 
-
-Current status: We've identified that a recent update to a search component that facilitates directory and suggestion requests contains a code error, resulting in impact. We've developed a fix and are monitoring as it progresses. 
-
-Scope of impact: Impact is limited to approximately 10 percent of users performing directory searches or expecting suggestions within Outlook mobile on iOS. 
-
-Start time: Tuesday, September 15, 2026, at 12:00 AM UTC
-
-Root cause: A recent update to a search component that facilitates directory and suggestion requests contains a code error, resulting in impact.
-
-Next update by: Friday, September 18, 2026, at 3:00 PM UTC</td></tr></table>
+Next update by: Tuesday, September 29, 2026, at 6:00 PM UTC</td></tr></table>
 </div>
 <h2>Closed Issues (0)</h2>
 <div class="panel">
