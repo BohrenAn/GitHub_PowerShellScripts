@@ -104,7 +104,7 @@ $CertStore = "LocalMachine" # CurrentUser / LocalMachine
 [string]$MailSender = "postmaster@icewolf.ch"
 [array]$MailRecipient = "a.bohren@icewolf.ch","postmaster@icewolf.ch"
 [string]$SMTPServer = "smtprelay.corp.icewolf.ch"
-[bool]$SendMailViaGraphAPI = $true
+[bool]$SendMailViaGraphAPI = $false
 
 ### END Configuration Section ###
 
