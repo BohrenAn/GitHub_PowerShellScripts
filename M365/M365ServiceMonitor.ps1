@@ -18,6 +18,7 @@
 # V1.7 - 2026-06-14 - Fixed Path issues and added date to HTML - Andres Bohren
 # V1.8 - 2026-09-02 - CertStore variable added to specify the certificate store location (CurrentUser / LocalMachine) - Andres Bohren
 # V1.9 - 2026-09-05 - Fixed issue with smart quotes in email body - Andres Bohren
+# V2.0 - 2026-10-06 - Fixed issue with service health overview retrieval and Logging - Andres Bohren
 ###############################################################################
 # Setup Notes
 ###############################################################################
