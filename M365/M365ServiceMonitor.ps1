@@ -104,7 +104,7 @@ $CertStore = "LocalMachine" # CurrentUser / LocalMachine
 [string]$MailSender = "postmaster@icewolf.ch"
 [array]$MailRecipient = "a.bohren@icewolf.ch","postmaster@icewolf.ch"
 [string]$SMTPServer = "smtprelay.corp.icewolf.ch"
-[bool]$SendMailViaGraphAPI = $false
+[bool]$SendMailViaGraphAPI = $true
 
 ### END Configuration Section ###
 
@@ -367,10 +367,9 @@ function Send-MailGraphApi {
     $result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
     If ($null -ne $result)
     {
-        Write-Log -LogMessage "Mail sending failed"
+        Write-Log -LogMessage "Mail has been sucessufully sent"
         Write-Host "Mail has been sucessufully sent"
-    }
-    Else {
+    } Else {
         Write-Host "Error occurred: $Error[0].Exception.Message"
         Write-Log -LogMessage "Error occurred: $Error[0].Exception.Message"
         Write-Log -LogMessage "Mail sending failed"
@@ -652,7 +651,7 @@ If ((Test-Path -Path "$PSScriptRoot\OpenIssues.xml") -eq $false)
 }
 else {
     Write-Host "Compare Open Issues"
-    $StoredOpenIssueArray = Import-Clixml -Path ".\OpenIssues.xml"
+    $StoredOpenIssueArray = Import-Clixml -Path "$PSScriptRoot\OpenIssues.xml"
     $CompareResult = Compare-Object -ReferenceObject $OpenIssuesArray -DifferenceObject $StoredOpenIssueArray #-IncludeEqual
 }
 #Save OpenIssues
@@ -845,7 +844,7 @@ If ($NewIssueCount -gt 0 -or $ClosedIssuesCount -gt 0)
         Write-Host "Sending Email via SMTP Server." -ForegroundColor Cyan
         $sendMailMessageSplat = @{
             From       = "$MailSender"
-            To         = "$MailRecipient"
+            To         = $MailRecipient
             Subject    = "M365 Service Monitoring - NEW or CLOSED Issues found"
             Body       = "$HTML"
             SmtpServer = "$SMTPServer"

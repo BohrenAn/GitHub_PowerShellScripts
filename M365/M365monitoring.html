@@ -112,7 +112,7 @@ td.blue {background-color: #1565c0;}
                     <td class="blue">&nbsp;</td>
                     <td class="summary-table">
                         <span class="summary-label">New Issues</span>
-                        <div class="summary-value">(0)</div>
+                        <div class="summary-value">(1)</div>
                     </td>
                 </tr>
             </table>
@@ -141,7 +141,7 @@ td.blue {background-color: #1565c0;}
         </td>
     </tr>
 </table>
-2026-10-02 10:52
+2026-10-06 15:50
 </div>
 &nbsp;
 
@@ -152,53 +152,48 @@ td.blue {background-color: #1565c0;}
 </div>
 
 <h1>Issues</h1>
-<h2>New Issues (0)</h2>
+<h2>New Issues (1)</h2>
 <div class="panel">
-No New Issues
+<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1483540</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may intermittently be unable to access their calendars in Outlook on the web and the new Outlook desktop client</td></tr><tr><td>Start</td><td>2026-09-30T16:54:26.19Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-05T03:15:03.92Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>5</td></tr><tr><td>LatestMessage</td><td>Title: Users may be intermittently unable to access their calendars in Outlook on the web and the new Outlook desktop client
+
+User impact: Users may be intermittently unable to access their calendars in Outlook on the web and the new Outlook desktop client.
+
+More info: Impacted users may receive the following error message:
+
+“Can’t retrieve calendar events right now. Refresh the browser and try again.”
+
+As a workaround, impacted users can access their calendar in the classic Outlook desktop client or through Microsoft Teams.
+
+Current status: We’ve identified that the issue is related to the calendar cache state following a refresh, where the event-loading process may continue referencing outdated calendar data after the folder information is updated.  We’ve implemented and merged a fix to ensure the refreshed calendar data is correctly used when loading subsequent events. The fix is expected to reach affected users by October 9, 2026.
+
+Scope of impact: Some users attempting to access their calendars through Outlook on the web or the new Outlook desktop client may intermittently be impacted.
+
+Estimated time to resolve: Friday October 9, 2026
+
+Root cause: The issue is related to the calendar cache state following a refresh, where the event-loading process may continue referencing outdated calendar data after the folder information is updated.
+
+Next update by: Friday, October 9, 2026, at 5:30 PM UTC</td></tr></table>
 </div>
 <h2>Open Issues (9)</h2>
 <div class="panel">
-<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1440450</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to run run-only workflows from Microsoft Teams</td></tr><tr><td>Start</td><td>2026-06-30T07:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-02T00:37:33.33Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>19</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to run run-only workflows from Microsoft Teams
+<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1486352</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users' audio quality may be degraded during Microsoft Teams calls that have video or screensharing enabled</td></tr><tr><td>Start</td><td>2026-10-02T22:58:23.35Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-06T00:50:00.957Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>5</td></tr><tr><td>LatestMessage</td><td>Title: Users' audio quality may be degraded during Microsoft Teams calls that have video or screensharing enabled
 
-User impact: Users may be unable to run run-only workflows from Microsoft Teams.
+User impact: Users' audio quality may be degraded during Microsoft Teams calls that have video or screensharing enabled.
 
-More info: As a result of our initial fix deployment, users are now able to run run-only workflows through the "workflows" button in Microsoft Teams. However, running run-only workflows by hovering and selecting "More actions" > "Create workflows" is still an impacted scenario.
+More info: Impact is specific to Microsoft Teams builds 26225.1806 and newer and may occur when users are on a call or meeting that uses video or screensharing. Users may be able to avoid degraded audio by disabling video or screenshare.
 
-Affected users are unable to run workflows in Teams when those workflows are configured to be executed by designated users without requiring those users to own or edit the workflow. Users receive the following error message:
+Current status: While investigating the most effective method of restoring expected audio performance in Microsoft Teams calls when video or screen sharing is enabled, we've determined that the impact appears to be less widespread than initially understood. We're reviewing service health telemetry to identify affected users, better understand the scope of impact, and determine potential mitigation and recovery actions.
 
-"Missing Trigger URI"
+Scope of impact: Any user that's joined a Microsoft Teams meeting or call that has video or screensharing enabled may be impacted. This information may be updated as our investigation continues.
 
-As a way to avoid this issue, impacted users can be granted Owner or Co-owner permissions for the affected workflow.
+Root cause: A recent Microsoft Teams service update introduced an issue in which users' audio quality may be degraded.
 
-Current status: The deployment of our fix is taking longer than initially projected and is currently 50 percent complete. We’re monitoring its progress to ensure it completes as expected and resolves the issue by our next scheduled update.
 
-Scope of impact: Users attempting to run run-only workflows from Microsoft Teams may be impacted. This section may be updated as the investigation progresses.
-
-Start time: Tuesday, June 30, 2026, at 7:00 AM UTC
-
-Root cause: A recent service update introduced a code regression that affects how Microsoft Teams processes shared workflow requests, preventing some users from running run-only workflows from Microsoft Teams.
-
-Next update by: Tuesday, October 6, 2026, at 1:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>MP1471821</td></tr><tr><td>Service</td><td>Microsoft Purview</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview</td></tr><tr><td>Start</td><td>2026-09-14T16:41:47.403Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-29T16:35:01.517Z</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Microsoft Purview</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview
-
-User impact: Admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview.
-
-More info: Impact is limited to Communications Compliance policies with more than four classifiers.
-
-We advise admins to keep classifiers to a maximum of four during this time and we anticipate the limit to be remediated by Monday, October 5, 2026.
-
-Current status: We've continuing to monitor the deployment of our fix which remains scheduled to complete by Monday, October 5, 2026.
-
-Scope of impact: Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview with more than four classifiers. This section may be updated as the investigation progresses.
-
-Estimated time to resolve: We anticipate impact to be remediated by Monday, October 5, 2026.
-
-Root cause: A service update which intended to add operations with larger data sizes introduced a code error, causing size limitation issues.
-
-Next update by: Tuesday, October 6, 2026, at 6:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1483625</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users' recordings of presentations using PowerPoint Live in Microsoft Teams may be missing some slides</td></tr><tr><td>Start</td><td>2026-09-28T13:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-01T17:42:57.963Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>13</td></tr><tr><td>LatestMessage</td><td>Title: Users' recordings of presentations using PowerPoint Live in Microsoft Teams may be missing some slides
+Next update by: Tuesday, October 6, 2026, at 9:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1483625</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users' recordings of presentations using PowerPoint Live in Microsoft Teams may be missing some slides</td></tr><tr><td>Start</td><td>2026-09-28T13:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-06T09:40:15.053Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>16</td></tr><tr><td>LatestMessage</td><td>Title: Users' recordings of presentations using PowerPoint Live in Microsoft Teams may be missing some slides
 
 User impact: Users' recordings of presentations using PowerPoint Live in Microsoft Teams may be missing some slides.
 
-Current status: Following out latest traffic optimizations and subsequent service restarts, we're monitoring a vast reduction in failures on the affected subset of networking service infrastructure. While impact is expected to be resolved for a majority of users, we're conducting a period of service health monitoring to verify if any additional mitigation efforts will be required. 
+Current status: We're continuing to implement additional optimizations and traffic management controls to mitigate impact. We expect this to be complete by our next scheduled update.
 
 Scope of impact: Users recording PowerPoint Live in Microsoft Teams presentations may be impacted. This information may be updated as our investigation continues.
 
@@ -206,13 +201,41 @@ Start time: Monday, September 28, 2026, at 1:00 PM UTC
 
 Root cause: A subset of networking service infrastructure that helps facilitate access to PowerPoint Live content has fallen below our manageable service performance thresholds, resulting in impact.
 
-Next update by: Friday, October 2, 2026, at 10:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1476742</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see Microsoft Teams display an incorrect time zone despite the correct device time</td></tr><tr><td>Start</td><td>2026-09-22T10:38:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-29T19:41:28.233Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>6</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see Microsoft Teams display an incorrect time zone despite the correct device time
+Next update by: Tuesday, October 6, 2026, at 4:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1489450</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may encounter intermittent VDI2 optimization loss when using Microsoft Teams in a Citrix VDI environment</td></tr><tr><td>Start</td><td>2026-10-06T13:19:30.807Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-06T13:20:51.25Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>1</td></tr><tr><td>LatestMessage</td><td>Title: Some users may encounter intermittent VDI2 optimization loss when using Microsoft Teams in a Citrix VDI environment
+
+User impact: Users may encounter intermittent VDI2 optimization loss when using Microsoft Teams in a Citrix VDI environment.
+
+More info: Users may experience audio and video quality degradation, and unavailability of certain features.
+
+As a workaround, users can restart Teams to resolve the issue.
+
+Current status: We're reviewing service monitoring telemetry to isolate the source of the issue and establish a fix.
+
+Scope of impact: Some users who are attempting to utilize VDI2 optimization loss when using Microsoft Teams in a Citrix VDI environment may be impacted.
+
+Next update by: Tuesday, October 6, 2026, at 5:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1488543</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users conferenced into a Microsoft Teams emergency call may not be automatically muted or able to mute themselves</td></tr><tr><td>Start</td><td>2026-09-25T20:09:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-05T22:15:44.643Z</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Some users conferenced into a Microsoft Teams emergency call may not be automatically muted or able to mute themselves
+
+User impact: Users conferenced into a Microsoft Teams emergency call may not be automatically muted or able to mute themselves.
+
+More info: Users conferenced into a Microsoft Teams emergency call are also unable to mute themselves and would need to leave the call.
+
+Current status: We've initiated deployment of our code change to address the code mismatch causing users to not be automatically muted as expected or being able to mute themselves in emergency calls. We anticipate deployment to be completed by Monday, October 12, 2026, and we aim to provide updates on our timeline to remediation as deployment progresses.
+
+Scope of impact: Users conferenced into a Microsoft Teams emergency call and attempting to mute their audio are affected by this issue. This section may be updated as the investigation progresses.
+
+Start time: Friday, September 25, 2026, at 8:09 PM UTC
+
+Estimated time to resolve: We anticipate impact to be resolved by Monday, October 12, 2026.
+
+Root cause: A code mismatch in the components utilized when marking a Microsoft Teams emergency call as a multi-party call is causing the code to mute participants to not be enabled as expected.
+
+Next update by: Friday, October 9, 2026, at 11:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1476742</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see Microsoft Teams display an incorrect time zone despite the correct device time</td></tr><tr><td>Start</td><td>2026-09-22T10:38:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-02T13:30:17.723Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>7</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see Microsoft Teams display an incorrect time zone despite the correct device time
 
 User impact: Users may see Microsoft Teams display an incorrect time zone despite the correct device time. 
 
 More info: Teams displays the wrong time zone despite the operating system reflecting the correct time. As a workaround, users can set the device to a different time zone than the impacted time zone (Casablanca, Morocco).
 
-Current status: We've verified that our fix to address impact on Windows devices has completed deployment; however, our solution to address the Microsoft Teams impact for Mac requires more time to deploy. Our secondary solution is approximately 75 percent deployed, and we'll provide an updated timeline for completing it once it’s available.
+Current status: We’re continuing to deploy the secondary solution affected. We’re monitoring this rollout and evaluating its progress toward broader availability so we can confirm when the updated experience has reached all affected users
 
 Scope of impact: Some users located in Morocco who are attempting to see the correct time zone in Microsoft Teams may be impacted. This information may be updated as our investigation continues.
 
@@ -220,17 +243,17 @@ Start time: Tuesday, September 22, 2026, at 10:38 AM UTC
 
 Root cause: A recent Morocco time zone change wasn’t reflected in a shared web component used by the affected Microsoft applications, resulting in the impact.
 
-Next update by: Friday, October 2, 2026, at 2:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1479349</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online</td></tr><tr><td>Start</td><td>2026-09-25T15:52:36.097Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-28T23:56:12.197Z</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>E-Mail timely delivery</td></tr><tr><td>MessageCount</td><td>6</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online
+Next update by: Thursday, October 8, 2026, at 3:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1479349</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online</td></tr><tr><td>Start</td><td>2026-09-25T15:52:36.097Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-05T23:32:54.97Z</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>E-Mail timely delivery</td></tr><tr><td>MessageCount</td><td>8</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online
 
 User impact: Users may be unable to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online.
 
 More info: As a temporary alternative, impacted users may reply or reply all to email messages through user inboxes.
 
-Current status: We've initialized our fix deployment to the affected environment and anticipate the impact should be fully remediated by our next scheduled update.
+Current status: Our fix deployment is nearing completion, and most affected users should now be experiencing recovery. We’ll continue monitoring the deployment to ensure it completes and restores service for all affected users.
 
 Scope of impact: This issue impacts any user attempting to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online. This information may be updated as our investigation continues.
 
-Next update by: Tuesday, October 6, 2026, at 1:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1477761</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins experience intermittent failures adding, modifying or removing members from Exchange Online distribution groups</td></tr><tr><td>Start</td><td>2026-06-09T21:43:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-01T15:57:48.497Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Management and Provisioning</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Admins experience intermittent failures adding, modifying or removing members from Exchange Online distribution groups
+Next update by: Wednesday, October 7, 2026, at 1:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1477761</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins experience intermittent failures adding, modifying or removing members from Exchange Online distribution groups</td></tr><tr><td>Start</td><td>2026-06-09T21:43:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-01T15:57:48.497Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Management and Provisioning</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Admins experience intermittent failures adding, modifying or removing members from Exchange Online distribution groups
 
 User impact: Admins experience intermittent failures adding, modifying or removing members from Exchange Online distribution groups.
 
@@ -248,53 +271,41 @@ Start time: Tuesday, June 9, 2026, at 9:43 PM UTC
 
 Root cause: A conflict between a configuration and a recent update is preventing admins from adding or removing users from distribution groups for on-premises configurations.
 
-Next update by: Thursday, October 8, 2026, at 5:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1441488</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may see unwanted add-ins appearing automatically across all Outlook clients</td></tr><tr><td>Start</td><td>2026-07-17T10:26:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-30T17:41:42.71Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>30</td></tr><tr><td>LatestMessage</td><td>Title: Some users may see unwanted add-ins appearing automatically across all Outlook clients
+Next update by: Thursday, October 8, 2026, at 5:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>MP1471821</td></tr><tr><td>Service</td><td>Microsoft Purview</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview</td></tr><tr><td>Start</td><td>2026-09-14T16:41:47.403Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-09-29T16:35:01.517Z</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Microsoft Purview</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview
 
-User impact: Users may see unwanted add-ins appearing automatically across all Outlook clients.
+User impact: Admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview.
 
-More info: These add-ins are configured to be available to users by admins but aren’t expected to be automatically installed. To bypass this issue, admins can run the “Set-App -Identity <application id> -OrganizationApp -PrivateCatalog -DefaultStateForUser Disabled” command to remove add-ins that are unintentionally appearing.
+More info: Impact is limited to Communications Compliance policies with more than four classifiers.
 
-Current status: Our deployment is taking longer than initially expected and we now anticipate deployment to be fully completed by Monday, October 5, 2026. We anticipate the majority of users to be remediated at this time while we complete our deployment.
+We advise admins to keep classifiers to a maximum of four during this time and we anticipate the limit to be remediated by Monday, October 5, 2026.
 
-Scope of impact: Impact may occur for some users that are viewing their add-ins across all Outlook clients. This section may be updated as the investigation progresses.
+Current status: We've continuing to monitor the deployment of our fix which remains scheduled to complete by Monday, October 5, 2026.
 
-Start time: Friday, July 17, 2026, at 10:26 AM UTC
+Scope of impact: Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview with more than four classifiers. This section may be updated as the investigation progresses.
 
-Estimated time to resolve: We anticipate impact to be resolved by Monday, October 5, 2026. 
+Estimated time to resolve: We anticipate impact to be remediated by Monday, October 5, 2026.
 
-Root cause: A portion of the Exchange Online add-in sync pipeline isn't processing add-in state information as expected. This is causing incorrect EnabledStatus values being returned and Outlook automatically displaying add-ins configured as Available, which is resulting in impact.
+Root cause: A service update which intended to add operations with larger data sizes introduced a code error, causing size limitation issues.
 
-Next update by: Monday, October 5, 2026, at 7:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1478331</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users’ email messages may not be quarantined and fail to be stored in the quarantine folder</td></tr><tr><td>Start</td><td>2026-09-24T11:38:38.977Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-01T22:11:50.68Z</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>E-Mail timely delivery</td></tr><tr><td>MessageCount</td><td>10</td></tr><tr><td>LatestMessage</td><td>Title: Some users’ email messages may not be quarantined and fail to be stored in the quarantine folder
+Next update by: Tuesday, October 6, 2026, at 6:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1483540</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may intermittently be unable to access their calendars in Outlook on the web and the new Outlook desktop client</td></tr><tr><td>Start</td><td>2026-09-30T16:54:26.19Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-05T03:15:03.92Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>5</td></tr><tr><td>LatestMessage</td><td>Title: Users may be intermittently unable to access their calendars in Outlook on the web and the new Outlook desktop client
 
-User impact: Users’ email messages may not be quarantined and might fail to be stored in the quarantine folder.
+User impact: Users may be intermittently unable to access their calendars in Outlook on the web and the new Outlook desktop client.
 
-More info: The following error appears in message trace: '‎550 5.1.10 Failed to deliver to Quarantine store‎'. 
+More info: Impacted users may receive the following error message:
 
-Current status: We're continuing to monitor the deployment of our fix, which has reached 88 percent saturation to the affected environment. We anticipate the deployment will complete by our next scheduled communications update.
+“Can’t retrieve calendar events right now. Refresh the browser and try again.”
 
-Scope of impact: This issue may impact users attempting to have email messages quarantined in Exchange Online. This section may be updated as the investigation progresses.
+As a workaround, impacted users can access their calendar in the classic Outlook desktop client or through Microsoft Teams.
 
-Start time: Wednesday, September 23, 2026, at 12:56 AM UTC
+Current status: We’ve identified that the issue is related to the calendar cache state following a refresh, where the event-loading process may continue referencing outdated calendar data after the folder information is updated.  We’ve implemented and merged a fix to ensure the refreshed calendar data is correctly used when loading subsequent events. The fix is expected to reach affected users by October 9, 2026.
 
-Estimated time to resolve: We anticipate the fix will complete deployment by Friday, October 2, 2026, at 7:00 PM UTC.
+Scope of impact: Some users attempting to access their calendars through Outlook on the web or the new Outlook desktop client may intermittently be impacted.
 
-Root cause: A recent service-side update introduced a code error that has caused this impacting event.
+Estimated time to resolve: Friday October 9, 2026
 
-Next update by: Friday, October 2, 2026, at 7:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1478163</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to update calendar delegates in the classic Outlook desktop client </td></tr><tr><td>Start</td><td>2026-09-23T07:13:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-02T01:01:13.54Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Management and Provisioning</td></tr><tr><td>MessageCount</td><td>17</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to update calendar delegates in the classic Outlook desktop client 
+Root cause: The issue is related to the calendar cache state following a refresh, where the event-loading process may continue referencing outdated calendar data after the folder information is updated.
 
-User impact: Users may be unable to update calendar delegates in the classic Outlook desktop client.
-
-More info: As a workaround, affected users can manage delegate changes through Outlook on the web.
-
-Current status: We're still monitoring the deployment of our fix, and more time is needed to ensure it fully saturates across all affected environments before confirming impact remediation. We will share an updated estimate of completion once one becomes available. 
-
-Scope of impact: Impact is specific to users that are unable to update calendar delegates in the classic Outlook desktop client. This information may be updated as our investigation continues.
-
-Start time: Wednesday, September 23, 2026, at 7:13 AM UTC
-
-Root cause: A recent update to the service contained a regression, resulting in this impact.
-
-Next update by: Saturday, October 3, 2026, at 2:00 AM UTC</td></tr></table>
+Next update by: Friday, October 9, 2026, at 5:30 PM UTC</td></tr></table>
 </div>
 <h2>Closed Issues (0)</h2>
 <div class="panel">
