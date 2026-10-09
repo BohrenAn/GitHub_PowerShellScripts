@@ -13,37 +13,37 @@ No ApplicationAccessPolicy = Impersonation to All Mailboxes!
 Permission: full_access_as_app
 Manifest:
 "requiredResourceAccess": [
- {
- "resourceAppId": "00000002-0000-0ff1-ce00-000000000000",
- "resourceAccess": [
-  {
-   "id": "dc890d15-9560-4a4c-9b7f-a736ec74ec40",
-   "type": "Role"
-  }
-  ]
- }
+{
+    "resourceAppId": "00000002-0000-0ff1-ce00-000000000000",
+    "resourceAccess": [
+    {
+        "id": "dc890d15-9560-4a4c-9b7f-a736ec74ec40",
+        "type": "Role"
+    }
+    ]
+}
 ],
 #>
 
 
 Param (
-	[Parameter(Mandatory=$true)][string]$TargetMailbox
+    [Parameter(Mandatory=$true)][string]$TargetMailbox
 )
 
-#Enable TLS 1.2 for PowerShell Session
+# Enable TLS 1.2 for PowerShell Session
 Write-Host "Set TLS 1.2 for PowerShell Session" 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-#Variables
+# Variables
 Write-Host "Getting Access Token"
 Import-Module MSAL.PS
-$TenantId = "icewolfch.onmicrosoft.com"
+$TenantID = "icewolfch.onmicrosoft.com"
 $AppID = "9c954d5f-1fc7-485c-958c-23f436ea06ab"
 $RedirectUri = "https://login.microsoftonline.com/common/oauth2/nativeclient"
 $Scope = "https://outlook.office365.com/.default"
 [string]$EWSURL = "https://outlook.office365.com/EWS/Exchange.asmx"
 
-#Authenticate with Certificate
+# Authenticate with Certificate
 Clear-MsalTokenCache
 $CertificateThumbprint = "07EFF3918F47995EB53B91848F69B5C0E78622FD"
 $Certificate = Get-ChildItem -Path cert:\CurrentUser\my\$CertificateThumbprint
@@ -59,15 +59,14 @@ Write-Host "Connect to EWS"
 [string]$EwsApiDll = "C:\Program Files\PackageManagement\NuGet\Packages\Microsoft.Exchange.WebServices.2.2.0\lib\40\Microsoft.Exchange.WebServices.dll"
 Import-Module -Name $EwsApiDll
 
-#Connect to Exchange
-#Create EWS Object and connect with OAuth
+# Connect to Exchange
+# Create EWS Object and connect with OAuth
 $EWService = New-Object Microsoft.Exchange.WebServices.Data.ExchangeService([Microsoft.Exchange.WebServices.Data.ExchangeVersion]::Exchange2013_SP1)
 $EWService.Url = $EWSURL
 $OAuthCredentials = New-Object Microsoft.Exchange.WebServices.Data.OAuthCredentials($AccessToken)
 $EWService.Credentials = $OAuthCredentials
 
-	
-#Connect to another Mailbox
+# Connect to another Mailbox
 $EWService.ImpersonatedUserId = new-object Microsoft.Exchange.WebServices.Data.ImpersonatedUserId([Microsoft.Exchange.WebServices.Data.ConnectingIdType]::SmtpAddress, $TargetMailbox) 
 
 <#
@@ -81,7 +80,7 @@ $Folders | Format-List DisplayName, id
 #>
 
 ###############################################################################
-#Associated Items
+# Associated Items
 ###############################################################################
 Write-Host "Getting Accociated Items"
 $ItemView = New-Object Microsoft.Exchange.WebServices.Data.ItemView(1000)
@@ -110,10 +109,10 @@ Set-MailboxCalendarConfiguration -Identity $UPN -WeekStartDay Monday -WorkDays W
 $Mailboxes = Get-Mailbox
 Foreach ($MBX in $Mailboxes)
 {
-	$UPN = $MBX.UserPrincipalName
-	Write-Host "Working on: $UPN"
-	Set-MailboxRegionalConfiguration -Identity $UPN  -TimeZone "W. Europe Standard Time" -DateFormat "dd.MM.yyyy" -TimeFormat "HH:mm" -Language "de-CH" -ErrorAction Stop
-	Set-MailboxCalendarConfiguration -Identity $UPN -WeekStartDay Monday -WorkDays Weekdays -WorkingHoursStartTime 08:00:00 -WorkingHoursEndTime 17:00:00 -WorkingHoursTimeZone "W. Europe Standard Time" -ShowWeekNumbers $True -ErrorAction Stop
+    $UPN = $MBX.UserPrincipalName
+    Write-Host "Working on: $UPN"
+    Set-MailboxRegionalConfiguration -Identity $UPN  -TimeZone "W. Europe Standard Time" -DateFormat "dd.MM.yyyy" -TimeFormat "HH:mm" -Language "de-CH" -ErrorAction Stop
+    Set-MailboxCalendarConfiguration -Identity $UPN -WeekStartDay Monday -WorkDays Weekdays -WorkingHoursStartTime 08:00:00 -WorkingHoursEndTime 17:00:00 -WorkingHoursTimeZone "W. Europe Standard Time" -ShowWeekNumbers $True -ErrorAction Stop
 }
 #>
 
