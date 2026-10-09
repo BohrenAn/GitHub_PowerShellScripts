@@ -388,7 +388,7 @@ function Get-AuthTokenWithoutModule {
         [Parameter(Mandatory = $true)][string]$TenantName,
         [Parameter(Mandatory = $true)][string]$AppId,
         [Parameter(Mandatory = $true)][string]$Thumbprint,
-        [Parameter(Mandatory = $true)][string]$CertStore,
+        [Parameter(Mandatory = $true)][ValidateSet('CurrentUser', 'LocalMachine')][string]$CertStore,
         [Parameter(Mandatory = $true)][string]$Scope
     )
 
