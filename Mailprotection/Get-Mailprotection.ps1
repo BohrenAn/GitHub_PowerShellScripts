@@ -198,7 +198,7 @@ PARAM (
     )
 
         $InternalDNSQueryCount = $InternalDNSQueryCount + 1
-        Write-Host "Starting SPF Lookup for Domain: $Domain with InternalDNSQueryCount: $InternalDNSQueryCount"
+        Write-Verbose "Starting SPF Lookup for Domain: $Domain with InternalDNSQueryCount: $InternalDNSQueryCount"
 
         $DNSQueryCount = 0
         $json = Invoke-RestMethod -URI "https://dns.google/resolve?name=$Domain&type=TXT"
@@ -229,7 +229,7 @@ PARAM (
                         # Detect the loop before making another DNS request
                         if ($Domain -eq $Include) 
                         {
-                            Write-Host "Recursive SPF include loop detected for domain $Domain including $Include" -ForegroundColor Red
+                            Write-Host "Recursive SPF include loop detected for domain $Domain including $Include" -ForegroundColor Yellow
                             #throw "Recursive SPF include loop detected: $Domain includes $Include"
                             $DNSQueryCount = $DNSQueryCount + 1
                             return $DNSQueryCount
