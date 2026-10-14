@@ -123,7 +123,7 @@ td.blue {background-color: #1565c0;}
                     <td class="red">&nbsp;</td>
                     <td class="summary-table">
                         <span class="summary-label">Open Issues</span>
-                        <div class="summary-value">(6)</div>
+                        <div class="summary-value">(7)</div>
                     </td>
                 </tr>
             </table>
@@ -141,14 +141,14 @@ td.blue {background-color: #1565c0;}
         </td>
     </tr>
 </table>
-2026-10-09 11:37
+2026-10-14 21:37
 </div>
 &nbsp;
 
 
 <div class="panel">
 <h1>Services Health</h1>
-<table><tr><th>Service</th><th>Status</th></tr><tr class='yellow'><td>Exchange Online</td><td>serviceDegradation</td></td><tr class='yellow'><td>Microsoft Entra</td><td>serviceDegradation</td></td><tr class='green'><td>SharePoint Online</td><td>serviceOperational</td></td><tr class='green'><td>Planner</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft Intune</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft OneDrive</td><td>serviceOperational</td></td><tr class='yellow'><td>Microsoft Teams</td><td>serviceDegradation</td></td><tr class='yellow'><td>Microsoft 365 for the web</td><td>serviceDegradation</td></td><tr class='yellow'><td>Microsoft 365 apps</td><td>serviceDegradation</td></td><tr class='yellow'><td>Microsoft Purview</td><td>serviceDegradation</td></td></table>
+<table><tr><th>Service</th><th>Status</th></tr><tr class='yellow'><td>Exchange Online</td><td>serviceDegradation</td></td><tr class='yellow'><td>Microsoft Entra</td><td>serviceDegradation</td></td><tr class='green'><td>SharePoint Online</td><td>serviceOperational</td></td><tr class='green'><td>Planner</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft Intune</td><td>serviceOperational</td></td><tr class='green'><td>Microsoft OneDrive</td><td>serviceOperational</td></td><tr class='yellow'><td>Microsoft Teams</td><td>serviceDegradation</td></td><tr class='green'><td>Microsoft 365 for the web</td><td>serviceOperational</td></td><tr class='yellow'><td>Microsoft 365 apps</td><td>serviceDegradation</td></td><tr class='yellow'><td>Microsoft Purview</td><td>serviceDegradation</td></td></table>
 </div>
 
 <h1>Issues</h1>
@@ -156,53 +156,55 @@ td.blue {background-color: #1565c0;}
 <div class="panel">
 No New Issues
 </div>
-<h2>Open Issues (6)</h2>
+<h2>Open Issues (7)</h2>
 <div class="panel">
-<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>MP1471821</td></tr><tr><td>Service</td><td>Microsoft Purview</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview</td></tr><tr><td>Start</td><td>2026-09-14T16:41:47.403Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-06T17:47:50.377Z</td></tr><tr><td>Classification</td><td>incident</td></tr><tr><td>FeatureGroup</td><td>Microsoft Purview</td></tr><tr><td>MessageCount</td><td>5</td></tr><tr><td>LatestMessage</td><td>Title: Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview
+<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>OP1505951</td></tr><tr><td>Service</td><td>Microsoft 365 apps</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may be unable to create or publish assignments in Microsoft OneNote </td></tr><tr><td>Start</td><td>2026-10-13T09:25:24Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-14T17:43:10.797Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Office Client issues</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Some users may be unable to create or publish assignments in Microsoft OneNote 
 
-User impact: Admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview.
+User impact: Users may be unable to create or publish assignments in OneNote. 
 
-More info: Impact is limited to Communications Compliance policies with more than four classifiers.
+Current status: While our fix is continuing to deploy at a rate slower than originally anticipated, we're observing some reduction in the associated errors. However, our analysis of the infrastructure to which the fix has been deployed shows some portions aren't updating as expected, which is preventing the full remediation of the impact. We're analyzing these affected portions of infrastructure to determine whether there are any other actions necessary to totally resolve the issue.
 
-We advise admins to keep classifiers to a maximum of four during this time.
+Scope of impact: Impact is specific to some users attempting to create or publish assignments in Microsoft OneNote.
 
-Current status: We've completed the deployment to over 90 percent of the affected infrastructure. While most admins should see relief, we expect the release to complete by the next scheduled update.
+Start time: Sunday, October 11, 2026, at 12:10 PM UTC
 
-Scope of impact: Some admins may receive failures creating or updating Communications Compliance policies in Microsoft Purview with more than four classifiers. This section may be updated as the investigation progresses.
+Root cause: A recent update to the authentication flow utilized in this event contained an issue, which is resulting in this issue.
 
-Root cause: A service update which intended to add operations with larger data sizes introduced a code error, causing size limitation issues.
+Next update by: Friday, October 16, 2026, at 6:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1492872</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to download webinar registration details from the Events app in Microsoft Teams</td></tr><tr><td>Start</td><td>2026-10-09T18:56:09.9Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-13T17:38:51.823Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>10</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to download webinar registration details from the Events app in Microsoft Teams
 
-Next update by: Monday, October 12, 2026, at 6:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1488543</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users conferenced into a Microsoft Teams emergency call may not be automatically muted or able to mute themselves</td></tr><tr><td>Start</td><td>2026-09-25T20:09:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-06T22:39:24.01Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Some users conferenced into a Microsoft Teams emergency call may not be automatically muted or able to mute themselves
+User impact: Users may be unable to download webinar registration details from the Events app in Microsoft Teams.
 
-User impact: Users conferenced into a Microsoft Teams emergency call may not be automatically muted or able to mute themselves.
+More info: Specifically, this impacts users who have the AllowEngagementReport meeting policy set to Off, as they're unable to download webinar registration details in Microsoft Teams Events because the Download option doesn’t appear.
 
-More info: Users conferenced into a Microsoft Teams emergency call are also unable to mute themselves and would need to leave the call.
+Current status: After receiving reports that some affected users are still impacted by this issue, we've found that the fix hadn't completed deployment as expected. The deployment of our fix is still in progress, and we'll continue to monitor its progress to ensure it completes and resolves the issue for all users.
 
-Current status: We've initiated deployment of our code change to address the code mismatch causing users to not be automatically muted as expected or being able to mute themselves in emergency calls. We anticipate deployment to be completed by Monday, October 12, 2026, and we aim to provide updates on our timeline to remediation as deployment progresses.
+Scope of impact: Impact may occur for users whose assigned meeting policy has AllowEngagementReport set to Off, preventing them from downloading webinar registration details from the Events app in Microsoft Teams. This information may be updated as our investigation continues.
 
-Scope of impact: Users conferenced into a Microsoft Teams emergency call and attempting to mute their audio are affected by this issue. This section may be updated as the investigation progresses.
+Root cause: A recent service update introduced a regression that causes the registration report download option to become unavailable when the engagement reporting policy is disabled, despite the report being independent of this policy.
 
-Start time: Friday, September 25, 2026, at 8:09 PM UTC
+Next update by: Thursday, October 15, 2026, at 7:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1504581</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users' Microsoft Teams contact cards may not fully display Out of office text</td></tr><tr><td>Start</td><td>2026-10-12T21:18:48.69Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-12T23:56:40.737Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>3</td></tr><tr><td>LatestMessage</td><td>Title: Users' Microsoft Teams contact cards may not fully display Out of office text
 
-Estimated time to resolve: We anticipate impact to be resolved by Monday, October 12, 2026.
+User impact: Users' Microsoft Teams contact cards may not fully display Out of office text.
 
-Root cause: A code mismatch in the components utilized when marking a Microsoft Teams emergency call as a multi-party call is causing the code to mute participants to not be enabled as expected.
+More info: Selecting “See more” may not display the full Out of office message. Users may hover over the message to see the full text in a tool tip.
 
-Next update by: Friday, October 9, 2026, at 11:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1489450</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Some users may encounter intermittent VDI2 optimization loss when using Microsoft Teams in a Citrix VDI environment</td></tr><tr><td>Start</td><td>2026-10-06T13:19:30.807Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-08T14:22:58.873Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>5</td></tr><tr><td>LatestMessage</td><td>Title: Some users may encounter intermittent VDI2 optimization loss when using Microsoft Teams in a Citrix VDI environment
+Current status: We've identified that a recent service change to the Microsoft Teams contact cards introduced a code regression in which the user interface (UI) of the Out of office text contains an invalid value and is causing impact. We're deploying a fix to correct the value and remediate the impact. We'll provide a timeline for the completion of the deployment as one becomes available.
 
-User impact: Users may encounter intermittent VDI2 optimization loss when using Microsoft Teams in a Citrix VDI environment.
+Scope of impact: Any user attempting to view Out of office text on Microsoft Teams contact cards may be impacted.
 
-More info: Users may experience audio and video quality degradation, and unavailability of certain features.
+Root cause: A recent service change to the Microsoft Teams contact cards introduced a code regression in which the user interface (UI) of the Out of office text contains an invalid value and is causing impact.
 
-As a workaround, users can restart Teams to resolve the issue.
+Next update by: Monday, October 19, 2026, at 9:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>MP1507695</td></tr><tr><td>Service</td><td>Microsoft Purview</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins may encounter delays in accessing audit log data results in Microsoft Purview</td></tr><tr><td>Start</td><td>2026-10-14T16:14:28.423Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-14T16:46:57.053Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Microsoft Purview</td></tr><tr><td>MessageCount</td><td>1</td></tr><tr><td>LatestMessage</td><td>Title: Admins may encounter delays in accessing audit log data results in Microsoft Purview
 
-Current status: We’re proceeding to validate the fix before deploying it to the affected infrastructure. Once available, we’ll provide a deployment timeline. 
+User impact: Admins may encounter delays in accessing audit log data results in Microsoft Purview.
 
-Scope of impact: Some users who are attempting to utilize VDI2 optimization loss when using Microsoft Teams in a Citrix VDI environment may be impacted.
+More info: Affected users are encountering delays when accessing audit log data from the Microsoft Purview portal, Microsoft Graph API, or PowerShell.
 
-Root cause: A recent configuration update to the VDI Bridge component responsible for VDI optimisation introduced a regression, resulting in impact.
+Current status: Our monitoring identified an increase in processing latency with Microsoft Purview audit log data. We've analyzed service telemetry and determined that a dependent service isn't processing requests as efficiently as expected, resulting in impact. We've taken action to rebalance load and improve throughput. While most users should see relief, we're continuing to monitor as the remaining backlog of events are processed, and we'll provide a complete remediation timeline once available.
 
-Next update by: Friday, October 9, 2026, at 4:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1477761</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins experience intermittent failures adding, modifying or removing members from Exchange Online distribution groups</td></tr><tr><td>Start</td><td>2026-06-09T21:43:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-08T15:57:50.55Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Management and Provisioning</td></tr><tr><td>MessageCount</td><td>5</td></tr><tr><td>LatestMessage</td><td>Title: Admins experience intermittent failures adding, modifying or removing members from Exchange Online distribution groups
+Scope of impact: Any admin accessing audit log data from Microsoft Purview may be affected.
+
+Next update by: Wednesday, October 21, 2026, at 6:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1477761</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins experience intermittent failures adding, modifying or removing members from Exchange Online distribution groups</td></tr><tr><td>Start</td><td>2026-06-09T21:43:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-08T15:57:50.55Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Management and Provisioning</td></tr><tr><td>MessageCount</td><td>5</td></tr><tr><td>LatestMessage</td><td>Title: Admins experience intermittent failures adding, modifying or removing members from Exchange Online distribution groups
 
 User impact: Admins experience intermittent failures adding, modifying or removing members from Exchange Online distribution groups.
 
@@ -220,13 +222,13 @@ Start time: Tuesday, June 9, 2026, at 9:43 PM UTC
 
 Root cause: A conflict between a configuration and a recent update is preventing admins from adding or removing users from distribution groups for on-premises configurations.
 
-Next update by: Thursday, October 15, 2026, at 5:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1479349</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online</td></tr><tr><td>Start</td><td>2026-09-25T15:52:36.097Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-08T06:26:01.55Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail timely delivery</td></tr><tr><td>MessageCount</td><td>10</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online
+Next update by: Thursday, October 15, 2026, at 5:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1479349</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may be unable to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online</td></tr><tr><td>Start</td><td>2026-09-08T23:00:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-14T18:48:17.37Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail timely delivery</td></tr><tr><td>MessageCount</td><td>12</td></tr><tr><td>LatestMessage</td><td>Title: Users may be unable to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online
 
 User impact: Users may be unable to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online.
 
 More info: As a temporary alternative, impacted users may reply or reply all to email messages through user inboxes.
 
-Current status: We've validated that the previously identified recent change that removed an attribute component from the service process that requires that attribute, has led to impact. We're continuing to monitor our fix deployment; however, this process is taking longer than anticipated. The current fix saturation is at roughly 90 percent, and we'll provide a timeline of completion once it becomes available.
+Current status: Our monitoring of the deployment is ongoing as it propagates through earlier deployment rings prior to beginning saturation to affected customers’ environments. We'll provide a projected timeline for remediation based on the rate of progress as one becomes available.
 
 Scope of impact: This issue impacts any user attempting to reply or reply-all to email messages sent to Microsoft 365 groups in Exchange Online. This information may be updated as our investigation continues.
 
@@ -234,25 +236,25 @@ Start time: Tuesday, September 8, 2026, at 11:00 PM UTC
 
 Root cause: A recent change made to the service removed an attribute component from the service process that requires that attribute, leading to impact.
 
-Next update by: Tuesday, October 13, 2026, at 1:00 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1483540</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may intermittently be unable to access their calendars in Outlook on the web and the new Outlook desktop client</td></tr><tr><td>Start</td><td>2026-09-30T16:54:26.19Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-05T03:15:03.92Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>5</td></tr><tr><td>LatestMessage</td><td>Title: Users may be intermittently unable to access their calendars in Outlook on the web and the new Outlook desktop client
+Next update by: Wednesday, October 14, 2026, at 8:30 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1483540</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may intermittently be unable to access their calendars in Outlook on the web and the new Outlook desktop client</td></tr><tr><td>Start</td><td>2026-07-07T17:33:00Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-12T08:34:59.7Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail and calendar access</td></tr><tr><td>MessageCount</td><td>8</td></tr><tr><td>LatestMessage</td><td>Title: Users may intermittently be unable to access their calendars in Outlook on the web and the new Outlook desktop client
 
-User impact: Users may be intermittently unable to access their calendars in Outlook on the web and the new Outlook desktop client.
+User impact: Users may intermittently be unable to access their calendars in Outlook on the web and the new Outlook desktop client.
 
 More info: Impacted users may receive the following error message:
 
 “Can’t retrieve calendar events right now. Refresh the browser and try again.”
 
-As a workaround, impacted users can access their calendar in the classic Outlook desktop client or through Microsoft Teams.
+As a workaround, impacted users can access their calendar in the classic Outlook desktop client.
 
-Current status: We’ve identified that the issue is related to the calendar cache state following a refresh, where the event-loading process may continue referencing outdated calendar data after the folder information is updated.  We’ve implemented and merged a fix to ensure the refreshed calendar data is correctly used when loading subsequent events. The fix is expected to reach affected users by October 9, 2026.
+Current status: We’ve completed deployment of the fix to the initially affected service environment and expect this has remediated impact for users in that environment. The fix is continuing to propagate across the remaining affected environment, with this process expected to take approximately one additional week to complete. We’ll continue monitoring the deployment as it progresses to confirm that impact is fully remediated.  
 
 Scope of impact: Some users attempting to access their calendars through Outlook on the web or the new Outlook desktop client may intermittently be impacted.
 
-Estimated time to resolve: Friday October 9, 2026
+Start time: Tuesday, July 7, 2026, at 5:33 PM UTC
 
 Root cause: The issue is related to the calendar cache state following a refresh, where the event-loading process may continue referencing outdated calendar data after the folder information is updated.
 
-Next update by: Friday, October 9, 2026, at 5:30 PM UTC</td></tr></table>
+Next update by: Monday, October 19, 2026, at 10:00 AM UTC</td></tr></table>
 </div>
 <h2>Closed Issues (0)</h2>
 <div class="panel">

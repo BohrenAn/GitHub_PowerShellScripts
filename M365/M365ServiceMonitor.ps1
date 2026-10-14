@@ -708,7 +708,7 @@ If ($OpenIssueCount -eq 0)
 ### New Issues
 ###############################################################################
 [array]$NewIssuesIds = (($CompareResult | Where-Object { $_.SideIndicator -eq "<=" }).InputObject).id
-[array]$NewIssuesArray = $APIOpenIssuesArray | Where-Object { $NewIssuesIds -match $_.id }
+[array]$NewIssuesArray = $APIOpenIssuesArray | Where-Object { $NewIssuesIds -contains $_.id }
 
 $NewIssueCount = $NewIssuesArray.Count
 $HTML = $HTML.Replace("%NewIssueCount%", "($NewIssueCount)")
@@ -763,7 +763,7 @@ If ($NewIssueCount -eq 0)
 ### Closed Issues
 ###############################################################################
 [array]$ClosedIssuesIds = (($CompareResult | Where-Object { $_.SideIndicator -eq "=>" }).InputObject).id
-[array]$ClosedIssuesArray = $APIOpenIssuesArray | Where-Object { $ClosedIssuesIds -match $_.id }
+[array]$ClosedIssuesArray = $APIOpenIssuesArray | Where-Object { $ClosedIssuesIds -contains $_.id }
 
 $ClosedIssuesCount = $ClosedIssuesArray.Count
 $HTML = $HTML.Replace("%ClosedIssueCount%", "($ClosedIssuesCount)")
