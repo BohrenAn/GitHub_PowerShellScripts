@@ -643,6 +643,7 @@ While ($null -ne $NextLink) {
 $OpenIssueCount = $OpenIssuesArray.Count
 $HTML = $HTML.Replace("%OpenIssueCount%", "($OpenIssueCount)")
 
+<#
 #Compare Open Issues with previous run
 If ((Test-Path -Path "$PSScriptRoot\OpenIssues.xml") -eq $false)
 {
@@ -655,6 +656,30 @@ else {
     $StoredOpenIssueArray = Import-Clixml -Path "$PSScriptRoot\OpenIssues.xml"
     $CompareResult = Compare-Object -ReferenceObject $OpenIssuesArray -DifferenceObject $StoredOpenIssueArray #-IncludeEqual
 }
+#>
+
+#Compare Open Issues with previous run - by ID only
+If ((Test-Path -Path "$PSScriptRoot\OpenIssues.xml") -eq $false)
+{
+    Write-Log "OpenIssues.xml not found"
+    Write-Host "OpenIssues.xml not found"
+    $StoredOpenIssueIds = @()
+}
+else {
+    Write-Host "Compare Open Issues by ID"
+    $StoredOpenIssueArray = Import-Clixml -Path "$PSScriptRoot\OpenIssues.xml"
+    $StoredOpenIssueIds = @($StoredOpenIssueArray | Select-Object -ExpandProperty id)
+}
+
+# Get current open issue IDs
+$CurrentOpenIssueIds = @($OpenIssuesArray | Select-Object -ExpandProperty id)
+
+# Find truly new issues (in current but not in stored)
+[array]$NewIssuesIds = $CurrentOpenIssueIds | Where-Object { $_ -notin $StoredOpenIssueIds }
+
+# Find truly closed issues (in stored but not in current)
+[array]$ClosedIssuesIds = $StoredOpenIssueIds | Where-Object { $_ -notin $CurrentOpenIssueIds }
+
 #Save OpenIssues
 $OpenIssuesArray | Export-Clixml -Path "$PSScriptRoot\OpenIssues.xml"
 
@@ -708,7 +733,8 @@ If ($OpenIssueCount -eq 0)
 ### New Issues
 ###############################################################################
 [array]$NewIssuesIds = (($CompareResult | Where-Object { $_.SideIndicator -eq "<=" }).InputObject).id
-[array]$NewIssuesArray = $APIOpenIssuesArray | Where-Object { $NewIssuesIds -contains $_.id }
+#[array]$NewIssuesArray = $APIOpenIssuesArray | Where-Object { $NewIssuesIds -contains $_.id }
+[array]$NewIssuesArray = $OpenIssuesArray | Where-Object { $NewIssuesIds -contains $_.id }
 
 $NewIssueCount = $NewIssuesArray.Count
 $HTML = $HTML.Replace("%NewIssueCount%", "($NewIssueCount)")
@@ -763,6 +789,7 @@ If ($NewIssueCount -eq 0)
 ### Closed Issues
 ###############################################################################
 [array]$ClosedIssuesIds = (($CompareResult | Where-Object { $_.SideIndicator -eq "=>" }).InputObject).id
+#[array]$ClosedIssuesArray = $APIOpenIssuesArray | Where-Object { $ClosedIssuesIds -contains $_.id }
 [array]$ClosedIssuesArray = $APIOpenIssuesArray | Where-Object { $ClosedIssuesIds -contains $_.id }
 
 $ClosedIssuesCount = $ClosedIssuesArray.Count
