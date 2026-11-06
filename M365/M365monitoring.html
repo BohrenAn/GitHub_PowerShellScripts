@@ -141,7 +141,7 @@ td.blue {background-color: #1565c0;}
         </td>
     </tr>
 </table>
-2026-11-02 17:52
+2026-11-06 09:37
 </div>
 &nbsp;
 
@@ -158,13 +158,13 @@ No New Issues
 </div>
 <h2>Open Issues (3)</h2>
 <div class="panel">
-<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1504581</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users' Microsoft Teams contact cards may not fully display Out of office text</td></tr><tr><td>Start</td><td>2026-10-12T21:18:48.69Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-30T20:08:20.09Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>7</td></tr><tr><td>LatestMessage</td><td>Title: Users' Microsoft Teams contact cards may not fully display Out of office text
+<table><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1504581</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users' Microsoft Teams contact cards may not fully display Out of office text</td></tr><tr><td>Start</td><td>2026-10-12T21:18:48.69Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-11-04T20:18:42.603Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>8</td></tr><tr><td>LatestMessage</td><td>Title: Users' Microsoft Teams contact cards may not fully display Out of office text
 
 User impact: Users' Microsoft Teams contact cards may not fully display Out of office text.
 
 More info: Selecting “See more” may not display the full Out of office message. Users may hover over the message to see the full text in a tool tip.
 
-Current status: We're continuing to address the deployment blocker to allow our remediation deployment to resume and resolve the remaining impact. The majority of the impact has already been resolved, and we'll provide an updated resolution timeline once available.
+Current status: We've addressed the deployment blocker and our fix deployment to the remaining affected environments has resumed. We estimate that this deployment will complete and have resolved the remaining impact by our next scheduled communications update.
 
 Scope of impact: Any user attempting to view Out of office text on Microsoft Teams contact cards may be impacted. This section may be updated as our investigation continues.
 
@@ -172,31 +172,31 @@ Start time: Wednesday, October 7, 2026, at 1:15 AM UTC
 
 Root cause: A recent service change to the Microsoft Teams contact cards introduced a code regression in which the user interface (UI) of the Out of office text contains an invalid value and is causing impact.
 
-Next update by: Wednesday, November 4, 2026, at 9:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>TM1489031</td></tr><tr><td>Service</td><td>Microsoft Teams</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may see Microsoft Teams on the web displayed in English</td></tr><tr><td>Start</td><td>2026-10-06T04:38:30.307Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-28T21:58:11.063Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Teams Components</td></tr><tr><td>MessageCount</td><td>7</td></tr><tr><td>LatestMessage</td><td>Title: Users may see Microsoft Teams on the web displayed in English
-
-User impact: Users may see Microsoft Teams on the web displayed in English.
-
-More info: Impact may affect any user that doesn't have English set as their preferred language.
-
-Current status: After verifying that expediting our solution wouldn't be viable in this situation, we're monitoring our fix deployment. We'll provide an estimated timeline for the completion of the deployment and the remediation of the impact once it has become available. 
-
-Scope of impact: Any user may see Microsoft Teams on the web displayed in English when it isn’t their preferred language. This information may be updated as our investigation continues.
-
-Start time: Monday, September 28, 2026, at 7:30 PM UTC
-
-Root cause: A redirection issue is incorrectly applying English language settings when users access Microsoft Teams on the web.
-
-Next update by: Wednesday, November 4, 2026, at 11:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>MP1507695</td></tr><tr><td>Service</td><td>Microsoft Purview</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins may encounter delays in accessing audit log data results in Microsoft Purview Audit</td></tr><tr><td>Start</td><td>2026-10-14T16:14:28.423Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-10-29T05:11:25.123Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Microsoft Purview</td></tr><tr><td>MessageCount</td><td>4</td></tr><tr><td>LatestMessage</td><td>Title: Admins may encounter delays in accessing audit log data results in Microsoft Purview Audit
+Next update by: Monday, November 9, 2026, at 10:00 PM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>MP1507695</td></tr><tr><td>Service</td><td>Microsoft Purview</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Admins may encounter delays in accessing audit log data results in Microsoft Purview Audit</td></tr><tr><td>Start</td><td>2026-10-14T16:14:28.423Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-11-05T05:58:17.797Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>Microsoft Purview</td></tr><tr><td>MessageCount</td><td>5</td></tr><tr><td>LatestMessage</td><td>Title: Admins may encounter delays in accessing audit log data results in Microsoft Purview Audit
 
 User impact: Admins may encounter delays in accessing audit log data results in Microsoft Purview Audit.
 
 More info: Affected users are encountering delays when accessing audit log data from the Microsoft Purview Audit portal, Microsoft Graph API, or PowerShell.
 
-Current status: Our efforts to process the backlog of affected events are ongoing. In parallel, we're monitoring relevant telemetry to verify improvement in system health. However, due to the complexity of this issue, more time will be required to confirm a timeline for remediation.
+Current status: The processing of the backlog of affected events is progressing as expected and we'll continue to monitor it along with relevant telemetry to ensure the service is recovering.
 
 Scope of impact: Any admin accessing audit log data from Microsoft Purview Audit may be affected. This information may be updated as our investigation continues.
 
-Next update by: Thursday, November 5, 2026, at 7:30 AM UTC</td></tr></table>
+Next update by: Thursday, November 12, 2026, at 6:30 AM UTC</td></tr><tr><th>Property</th><th>Value</th></tr><tr><td>ID</td><td>EX1490154</td></tr><tr><td>Service</td><td>Exchange Online</td></tr><tr><td>Status</td><td>serviceDegradation</td></tr><tr><td>Title</td><td>Users may receive duplicate email messages sent to mailboxes using Exchange Online SMTP forwarding</td></tr><tr><td>Start</td><td>2026-10-07T08:32:32.76Z</td></tr><tr><td>End</td><td></td></tr><tr><td>LastModification</td><td>2026-11-05T20:11:16.48Z</td></tr><tr><td>Classification</td><td>advisory</td></tr><tr><td>FeatureGroup</td><td>E-Mail timely delivery</td></tr><tr><td>MessageCount</td><td>22</td></tr><tr><td>LatestMessage</td><td>Title: Users may receive duplicate email messages sent to mailboxes using Exchange Online SMTP forwarding
+
+User impact: Users may receive duplicate email messages sent to mailboxes using Exchange Online SMTP forwarding.
+
+More info: Messages sent to mailboxes configured with Exchange Online SMTP forwarding and 'DeliverAndForward' may be delivered more than once to external recipients. This may result in duplicate tickets, updates, workflows, or notifications in downstream systems.
+
+Current status: We've validated our fix's efficacy in remediating the impact, and we're preparing to deploy the fix to the remaining affected environment. We'll aim to provide a timeline for the deployment to complete by our next scheduled communications update.
+
+Scope of impact: Any user expecting email messages in an Exchange Online mailbox configured with SMTP forwarding may be impacted. This information may be updated as our investigation continues.
+
+Start time: Wednesday, September 30, 2026, at 9:36 PM UTC
+
+Root cause: A recent service update is causing abnormal headers to be generated during the forwarding process, resulting in the duplicate email messages being created.
+
+Next update by: Monday, November 9, 2026, at 8:30 PM UTC</td></tr></table>
 </div>
 <h2>Closed Issues (0)</h2>
 <div class="panel">
