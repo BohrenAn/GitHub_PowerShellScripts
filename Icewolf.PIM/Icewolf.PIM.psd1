@@ -86,25 +86,25 @@ AliasesToExport = @()
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
 
-	PSData = @{
+    PSData = @{
 
-		# Tags applied to this module. These help with module discovery in online galleries.
-		Tags = @('Entra ID', 'PIM', 'PIM Groups', 'Privileged Identity Management')
+        # Tags applied to this module. These help with module discovery in online galleries.
+        Tags = @('Entra ID', 'PIM', 'PIM Groups', 'Privileged Identity Management')
 
-		# A URL to the license for this module.
-		# LicenseUri = ''
+        # A URL to the license for this module.
+        # LicenseUri = ''
 
-		# A URL to the main website for this project.
-		ProjectUri = 'https://github.com/BohrenAn/GitHub_PowerShellScripts/Icewolf.PIM'
+        # A URL to the main website for this project.
+        ProjectUri = 'https://github.com/BohrenAn/GitHub_PowerShellScripts/Icewolf.PIM'
 
-		# A URL to an icon representing this module.
-		#IconUri = 'https://raw.githubusercontent.com/fabrisodotps1/M365PSProfile/develop/M365PSProfile.png'
+        # A URL to an icon representing this module.
+        #IconUri = 'https://raw.githubusercontent.com/fabrisodotps1/M365PSProfile/develop/M365PSProfile.png'
 
- 		# Set to a prerelease string value if the release should be a prerelease.
- 		#Prerelease = 'Preview2'
+        # Set to a prerelease string value if the release should be a prerelease.
+        #Prerelease = 'Preview2'
 
-		# ReleaseNotes of this module
-		ReleaseNotes = '
+        # ReleaseNotes of this module
+        ReleaseNotes = '
 ---------------------------------------------------------------------------------------------
 Whats new in this release:
 V0.1.0
