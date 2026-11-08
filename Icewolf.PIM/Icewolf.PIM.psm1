@@ -235,32 +235,62 @@ Function Enable-PIM {
         #$policy
 
         
-        Write-Progress -Activity "Fetching all active Entra ID roles" -Id 0
-        [array]$myActiveRoles = Get-MgRoleManagementDirectoryRoleAssignmentSchedule -ExpandProperty RoleDefinition -All -Filter "principalId eq '$currentUser'" -ErrorAction Stop
-        Write-Progress -Id 0 -Completed
+        #Write-Progress -Activity "Fetching all active Entra ID roles" -Id 0
+        #[array]$myActiveRoles = Get-MgRoleManagementDirectoryRoleAssignmentSchedule -ExpandProperty RoleDefinition -All -Filter "principalId eq '$currentUser'" -ErrorAction Stop
+        #Write-Progress -Id 0 -Completed
 
-        $Int = 0 
-        Foreach ($Role in $MyRoles) {
-            $Int = $Int + 1
-            $RoleDisplayName = $Role.RoleDefinition.DisplayName
-            Write-Host "$($int). $RoleDisplayName"
+        #$Int = 0 
+        #Foreach ($Role in $MyRoles) {
+        #    $Int = $Int + 1
+        #    $RoleDisplayName = $Role.RoleDefinition.DisplayName
+        #    Write-Host "$($int). $RoleDisplayName"
+        #}
+
+                # PowerShell
+        $activationCandidates = $myRoles | Sort-Object { $_.RoleDefinition.DisplayName }
+
+        if (-not $activationCandidates) {
+            Write-Host "No eligible roles available for activation."
+            return
         }
 
+        # Show numbered menu from SAME array
+        $menuIndex = 1
+        foreach ($item in $activationCandidates) {
+            Write-Host "$menuIndex. $($item.RoleDefinition.DisplayName)"
+            $menuIndex++
+        }
+
+        $selection = Read-Host "Enter role number to activate"
+        if (-not [int]::TryParse($selection, [ref]$null)) {
+            Write-Warning "Invalid selection."
+            return
+        }
+
+        $selectedIndex = [int]$selection - 1
+        if ($selectedIndex -lt 0 -or $selectedIndex -ge $activationCandidates.Count) {
+            Write-Warning "Selection out of range."
+            return
+        }
+
+        $SelectedRole = $activationCandidates[$selectedIndex]
+
+
         # Prompt the user to select a number
-        $selectedNumber = Read-Host "Select a number to proceed"
+        #$selectedNumber = Read-Host "Select a number to proceed"
 
         # Does it need justification for activation?
-        $requirements = Get-PimRoleActivationRequirements -RoleId $Role.RoleDefinitionId
+        $Requirements = Get-PimRoleActivationRequirements -RoleId $SelectedRole.RoleDefinitionId
         
         $Justification = ""
-        if ($requirements.JustificationRequired) {
+        if ($Requirements.JustificationRequired) {
             do {
                 $Justification = Read-Host "Justification (required)"
             } while ([string]::IsNullOrWhiteSpace($Justification))
         }
 
         # Get the maximum activation hours for the role
-        $maxActivationHours = Get-PimRoleMaxActivationHours -RoleId $Role.RoleDefinitionId
+        $maxActivationHours = Get-PimRoleMaxActivationHours -RoleId $SelectedRole.RoleDefinitionId
 
         $durationMinutes = if ($null -ne $maxActivationHours -and [double]$maxActivationHours -gt 0) {
         [int][math]::Floor(([double]$maxActivationHours) * 60)
@@ -272,9 +302,9 @@ Function Enable-PIM {
         # Setup parameters for activation
         $params = @{
             Action           = "selfActivate"
-            PrincipalId      = $Role.PrincipalId
-            RoleDefinitionId = $Role.RoleDefinitionId
-            DirectoryScopeId = $Role.DirectoryScopeId
+            PrincipalId      = $currentUser
+            RoleDefinitionId = $SelectedRole.RoleDefinitionId
+            DirectoryScopeId = if ([string]::IsNullOrWhiteSpace($SelectedRole.DirectoryScopeId)) { "/" } else { $SelectedRole.DirectoryScopeId }
             Justification    = $Justification
             ScheduleInfo     = @{
                 StartDateTime = Get-Date
@@ -288,13 +318,19 @@ Function Enable-PIM {
         Write-Debug "Params: $params"
 
         # Activate the role
-        $Request = New-MgRoleManagementDirectoryRoleAssignmentScheduleRequest -BodyParameter $params
+        $Request = New-MgRoleManagementDirectoryRoleAssignmentScheduleRequest -BodyParameter $params -ErrorAction Stop
+        if (-not $Request -or [string]::IsNullOrWhiteSpace($Request.Id)) {
+            throw "Activation request failed: no request Id returned."
+        }
 
         Do {
-            $RequestStatus = Get-MgRoleManagementDirectoryRoleAssignmentScheduleRequest -UnifiedRoleAssignmentScheduleRequestId $Request.Id
+            $RequestStatus = Get-MgRoleManagementDirectoryRoleAssignmentScheduleRequest -UnifiedRoleAssignmentScheduleRequestId $Request.Id -ErrorAction Stop
             Write-Host "Request Status: $($RequestStatus.Status)" -ForegroundColor Green
             Start-Sleep -Seconds 5
-        } while ($RequestStatus.Status -ne "Provisioned")
+        } while ($RequestStatus.Status -in @("PendingApproval", "PendingProvisioning", "InProgress"))
+        if ($RequestStatus.Status -ne "Provisioned") {
+            throw "Activation request failed: final status is $($RequestStatus.Status)"
+        }
     }
 }
 
@@ -355,37 +391,62 @@ Function Get-PIMStatus {
     }
     else {
 
-        # Get all available roles
-        Write-Host "Getting Eligible Roles"
-        $myRoles = Get-MgRoleManagementDirectoryRoleEligibilitySchedule -ExpandProperty RoleDefinition -All -Filter "principalId eq '$currentuser'"
-        #$DisplayNames =  $myRoles.RoleDefinition.DisplayName
-
-        $Int = 0 
-        $RoleArray = @()
-        Foreach ($Role in $MyRoles) {
-            $Int = $Int + 1
-            $Filter = "Roledefinitionid eq '" + $Role.Roledefinitionid + "'"
-            Write-Verbose "Filter: $Filter"
-
-            $RoleStatus = Get-MgRoleManagementDirectoryRoleAssignmentScheduleInstance -Filter $Filter -Top 1
-            $RoleDisplayName = $Role.RoleDefinition.DisplayName
-            $AssignmentType = $RoleStatus.AssignmentType
-            $StartDateTime = $RoleStatus.StartDateTime
-            $EndDateTime = $RoleStatus.EndDateTime
-            #Write-Host "$($int). $RoleDisplayName Status: $AssignmentType Start: $StartDateTime End: $EndDateTime"
-
-
-            $MyRoleObject = [PSCustomObject]@{
-                #RoleStatus      = $RoleStatus
-                RoleDisplayName = $RoleDisplayName
-                AssignmentType  = $AssignmentType
-                StartDateTime   = $StartDateTime
-                EndDateTime     = $EndDateTime
+        # PowerShell
+        Write-Host "Getting Assigned/Activated Roles"
+        $eligibleRoles = Get-MgRoleManagementDirectoryRoleEligibilitySchedule -ExpandProperty RoleDefinition -All -Filter "principalId eq '$currentuser'"
+        $assignedInstances = Get-MgRoleManagementDirectoryRoleAssignmentScheduleInstance -ExpandProperty RoleDefinition -All -Filter "principalId eq '$currentuser'"
+        
+        $roleMap = @{}
+        
+        # Seed with eligible roles
+        foreach ($role in $eligibleRoles) {
+            $key = $role.RoleDefinitionId
+            if (-not $roleMap.ContainsKey($key)) {
+                $roleMap[$key] = [PSCustomObject]@{
+                    RoleDefinitionId = $key
+                    RoleDisplayName  = $role.RoleDefinition.DisplayName
+                    AssignmentType   = 'Eligible'
+                    StartDateTime    = $null
+                    EndDateTime      = $null
+                    EndsAt           = $null
+                    RemainingTime    = $null
+                }
             }
-            $RoleArray += $MyRoleObject
-
         }
-        $RoleArray | Format-Table
+        
+        # Overlay assigned/activated roles (includes permanent assigned)
+        foreach ($inst in $assignedInstances) {
+            $key = $inst.RoleDefinitionId
+            $displayName = $inst.RoleDefinition.DisplayName
+            $start = $inst.StartDateTime
+            $end = $inst.EndDateTime
+        
+            $type = if ($inst.AssignmentType -eq 'Activated') { 'Activated' } else { 'Assigned' }
+            $endsAt = $null
+        
+            if ($type -eq 'Activated' -and $end) {
+                $endDt = [datetime]$end
+                $endsAt = $endDt.ToString('yyyy-MM-dd HH:mm:ss')
+            }
+            elseif ($type -eq 'Assigned' -and -not $end) {
+                $endsAt = 'Permanent'
+            }
+            elseif ($end) {
+                $endsAt = ([datetime]$end).ToString('yyyy-MM-dd HH:mm:ss')
+            }
+        
+            $roleMap[$key] = [PSCustomObject]@{
+                RoleDefinitionId = $key
+                RoleDisplayName  = $displayName
+                AssignmentType   = $type
+                StartDateTime    = $start
+                EndsAt           = $endsAt
+            }
+        }
+        
+        $roleMap.Values |
+        Sort-Object RoleDisplayName |
+        Format-Table RoleDisplayName, AssignmentType, StartDateTime, EndsAt -AutoSize
     }
 }
 
