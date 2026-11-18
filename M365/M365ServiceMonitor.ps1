@@ -364,19 +364,10 @@ function Send-MailGraphApi {
     }
     #>
 
-    #Send Actual Mail
-    $result = Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType
-    If ($null -ne $result)
-    {
-        Write-Log -LogMessage "Mail has been sucessufully sent"
-        Write-Host "Mail has been sucessufully sent"
-    } Else {
-        Write-Host "Error occurred: $Error[0].Exception.Message"
-        Write-Log -LogMessage "Error occurred: $Error[0].Exception.Message"
-        Write-Log -LogMessage "Mail sending failed"
-        Write-Host "Mail sending failed"
-
-    }
+    # Graph returns 202 Accepted with no response body when sendMail succeeds.
+    Invoke-RestMethod -Method "POST" -Uri $uri -Body $Body -Headers $Headers -ContentType $ContentType | Out-Null
+    Write-Log -LogMessage "Mail has been successfully sent"
+    Write-Host "Mail has been successfully sent"
 }
 
 ###############################################################################
@@ -659,6 +650,8 @@ else {
 #>
 
 #Compare Open Issues with previous run - by ID only
+[array]$StoredOpenIssueArray = @()
+
 If ((Test-Path -Path "$PSScriptRoot\OpenIssues.xml") -eq $false)
 {
     Write-Log "OpenIssues.xml not found"
@@ -732,9 +725,7 @@ If ($OpenIssueCount -eq 0)
 ###############################################################################
 ### New Issues
 ###############################################################################
-[array]$NewIssuesIds = (($CompareResult | Where-Object { $_.SideIndicator -eq "<=" }).InputObject).id
-[array]$NewIssuesArray = $APIOpenIssuesArray | Where-Object { $NewIssuesIds -contains $_.id }
-#[array]$NewIssuesArray = $OpenIssuesArray | Where-Object { $NewIssuesIds -contains $_.id }
+[array]$NewIssuesArray = $OpenIssuesArray | Where-Object { $NewIssuesIds -contains $_.id }
 
 $NewIssueCount = $NewIssuesArray.Count
 $HTML = $HTML.Replace("%NewIssueCount%", "($NewIssueCount)")
@@ -788,9 +779,7 @@ If ($NewIssueCount -eq 0)
 ###############################################################################
 ### Closed Issues
 ###############################################################################
-[array]$ClosedIssuesIds = (($CompareResult | Where-Object { $_.SideIndicator -eq "=>" }).InputObject).id
-[array]$ClosedIssuesArray = $APIOpenIssuesArray | Where-Object { $ClosedIssuesIds -contains $_.id }
-#[array]$ClosedIssuesArray = $APIOpenIssuesArray | Where-Object { $ClosedIssuesIds -contains $_.id }
+[array]$ClosedIssuesArray = $StoredOpenIssueArray | Where-Object { $ClosedIssuesIds -contains $_.id }
 
 $ClosedIssuesCount = $ClosedIssuesArray.Count
 $HTML = $HTML.Replace("%ClosedIssueCount%", "($ClosedIssuesCount)")
