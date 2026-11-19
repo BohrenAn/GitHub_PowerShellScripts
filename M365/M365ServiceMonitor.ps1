@@ -51,6 +51,14 @@
 # Variables
 ###############################################################################
 <# December 2025
+
+#Healh Overview
+$URI = "https://graph.microsoft.com/v1.0/admin/serviceAnnouncement/healthOverviews/"
+$ContentType = "application/json"
+$Headers = @{"Authorization" = "Bearer "+ $AccessToken}
+$result = Invoke-RestMethod -Method "GET" -Uri $uri -Headers $Headers -ContentType $ContentType
+$result.Value
+
 Exchange Online
 Microsoft Entra
 Microsoft 365 suite
@@ -84,10 +92,12 @@ Microsoft 365 Copilot Chat
 Microsoft Copilot (Power Platform)
 #>
 
+
+
 ### START Configuration Section ###
 
 #Create Array of Services to monitor
-[array]$ArrayServices = "Exchange Online", "Microsoft Entra", "Microsoft Intune", "Microsoft 365 for the web", "Microsoft 365 apps", "SharePoint Online", "Microsoft OneDrive", "Microsoft Teams", "Planner", "Microsoft Purview"
+[array]$ArrayServices = "Exchange Online", "Microsoft Entra", "Microsoft Intune", "Microsoft 365 for the web", "Microsoft 365 apps", "SharePoint Online", "Microsoft OneDrive", "Microsoft Teams", "Planner", "Microsoft Purview", "Microsoft Copilot (Microsoft 365)"
 
 # Entra App  Details
 $TenantId = "46bbad84-29f0-4e03-8d34-f6841a5071ad"
@@ -596,7 +606,6 @@ Foreach ($Line in $ServiceHealth)
     Else {
         $ServiceHealthTable = $ServiceHealthTable + "<tr class='yellow'><td>$Service</td><td>$Status</td></td>"
     }
-    #$ServiceHealthTable = $ServiceHealthTable + "<tr><td>$Service</td><td>$Status</td></td>"
 }
 $ServiceHealthTable = $ServiceHealthTable + "</table>"
 $HTML = $HTML.Replace("%ServiceHealthTable%", "$ServiceHealthTable")
