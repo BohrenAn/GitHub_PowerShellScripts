@@ -97,7 +97,7 @@ Microsoft Copilot (Power Platform)
 ### START Configuration Section ###
 
 #Create Array of Services to monitor
-[array]$ArrayServices = "Exchange Online", "Microsoft Entra", "Microsoft Intune", "Microsoft 365 for the web", "Microsoft 365 apps", "SharePoint Online", "Microsoft OneDrive", "Microsoft Teams", "Planner", "Microsoft Purview", "Microsoft Copilot (Microsoft 365)"
+[array]$ArrayServices = "Exchange Online", "Microsoft Entra", "Microsoft Intune", "Microsoft 365 for the web", "Microsoft 365 apps", "SharePoint Online", "Microsoft OneDrive", "Microsoft Teams", "Planner", "Microsoft Purview", "Microsoft Copilot (Microsoft 365)","Microsoft 365 Copilot Chat"
 
 # Entra App  Details
 $TenantId = "46bbad84-29f0-4e03-8d34-f6841a5071ad"
